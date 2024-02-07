@@ -52,7 +52,7 @@ const TotalIncomeLightCard = ({ isLoading, data }) => {
   }, []);
 
   const handleClick = () => {
-    navigate('/app/leads/filtered?status=Course details sent');
+    navigate('/app/leads/filtered?status=Couse details sent');
   };
 
   return (
@@ -96,7 +96,7 @@ const TotalIncomeLightCard = ({ isLoading, data }) => {
                         mt: 0.5
                       }}
                     >
-                      COURSE DETAILS SENT
+                      COUSE DETAILS SENT
                     </Typography>
                   }
                 />

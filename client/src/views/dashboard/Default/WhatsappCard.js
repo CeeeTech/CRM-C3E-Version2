@@ -64,7 +64,7 @@ const EarningCard = ({ isLoading, data }) => {
   }, []);
 
   const handleClick = () => {
-    navigate('/app/leads/filtered?status=' + encodeURIComponent('Whatsapp & sms'));
+    navigate('/app/leads/filtered?status=Whatsapp & sms');
   };
 
   return (
