@@ -8,6 +8,7 @@ const FollowUp = require("../models/followUp");
 const User_type = require("../models/user_type");
 const CounsellorAssignment = require("../models/counsellorAssignment");
 const { default: mongoose } = require("mongoose");
+const Counter = require("../models/counter");
 // const { emitNotification } = require("../service/notification");
 const User = require("../models/user");
 const Notification = require("../models/notification");
@@ -70,6 +71,13 @@ async function restoreLead(req, res) {
   // Delete the last entry in the FollowUp table
   await FollowUp.findByIdAndDelete(lastFollowUpId);
   const newLastFollowUp = await FollowUp.find({ lead_id: id }).sort({ date: -1 }).limit(1);
+
+  if (newLastFollowUp.length === 0) {
+    // If newLastFollowUp is empty, handle this case accordingly
+    return res.status(400).json({ error: "No followup to reverse." });
+    // You might want to return an error response or take other appropriate action
+  } 
+
   const updatedLead = await Lead.findByIdAndUpdate(
     id, // Assuming 'id' is the lead's ID you want to update
     { $set: { status_id: newLastFollowUp[0].status_id } }, // Update the 'status' field to the desired new value
@@ -155,6 +163,8 @@ async function addLead(req, res) {
       return res.status(400).json({ error: `Source not found: manual` });
     }
 
+    const sequenceValue = await getNextSequenceValue('unique_id_sequence');
+    console.log(sequenceValue)
 
     // Create new lead
     const newLead = await Lead.create({
@@ -166,6 +176,7 @@ async function addLead(req, res) {
       student_id: student_id,
       user_id: user_id,
       source_id: source_document._id,
+      reference_number: sequenceValue,
     });
 
     lead_id = newLead._id;
@@ -302,6 +313,7 @@ async function addLeadWithExistingStudent(req,res) {
       return res.status(400).json({ error: `Source not found: manual` });
     }
 
+    const sequenceValue = await getNextSequenceValue('unique_id_sequence');
 
     // Create new lead
     const newLead = await Lead.create({
@@ -313,6 +325,7 @@ async function addLeadWithExistingStudent(req,res) {
       student_id: student_id,
       user_id: user_id,
       source_id: source_document._id,
+      reference_number: sequenceValue,
     });
 
     lead_id = newLead._id;
@@ -407,6 +420,15 @@ async function addLeadWithExistingStudent(req,res) {
 
 }
 
+async function getNextSequenceValue(sequenceName) {
+  const counter = await Counter.findOneAndUpdate(
+      { _id: sequenceName },
+      { $inc: { sequence_value: 1 } },
+      { returnOriginal: false, upsert: true }
+  );
+  return counter.sequence_value;
+}
+
 //update lead
 async function updateLead(req, res) {
   const { id } = req.params;
@@ -496,7 +518,7 @@ async function getOneLeadSummaryDetails(req, res) {
       address: student.address,
       course: lead.course_id.name,
       branch: lead.branch_id.name,
-      status: latestFollowUp ? latestFollowUp.status_id.name : null,
+      status: latestFollowUp?  latestFollowUp.status_id ? latestFollowUp.status_id.name : null : null,
       comment: latestFollowUp ? latestFollowUp.comment : null,
     };
 

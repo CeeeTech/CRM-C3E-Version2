@@ -126,22 +126,21 @@ export default function ViewLeads() {
         </Tooltip>
       )
     },
-    { field: 'date', headerName: 'Date Added', width: 150 },
+    { field: 'date', headerName: 'Date', width: 100 },
     { field: 'name', headerName: 'Student Name', width: 150 },
-    { field: 'email', headerName: 'Email', width: 200 },
-    { field: 'contact_no', headerName: 'Contact No', width: 100 },
-    { field: 'status', headerName: 'Status', width: 150 },
+    { field: 'contact_no', headerName: 'Contact No', width: 110 },
+    { field: 'status', headerName: 'Status', width: 110 },
     {
-      field: 'course',
+      field: 'course_code',
       headerName: 'Course',
-      width: 250
+      width: 100
     },
     {
       field: 'counsellor',
       headerName: 'Assign To',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 170,
+      width: 160,
       align: 'left',
       renderCell: (params) => {
         if (isAdminOrSupervisor) {
@@ -339,6 +338,8 @@ export default function ViewLeads() {
             const filtered = leads.filter((lead) => lead.status === StatusUrl);
             setData(filtered);
             setLoading(false);
+            console.log(StatusUrl); 
+            console.log(filtered);
           }
           setAllLeads(leads);
           setLoading(false);

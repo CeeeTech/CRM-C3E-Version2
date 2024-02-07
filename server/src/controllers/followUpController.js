@@ -26,15 +26,18 @@ async function addFollowUp(req, res) {
   }
 
   // Check if status exists in the status table; the passed status is the id of the status
-  else if (!mongoose.Types.ObjectId.isValid(status)) {
-    return res.status(400).json({ error: "no such status" });
-  }
+  // else if (!mongoose.Types.ObjectId.isValid(status)) {
+  //   return res.status(400).json({ error: "no such status" });
+  // }
 
   // Check if user exists in the user table
   else if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return res.status(400).json({ error: "no such user" });
   }
-
+  const statusdoc =  await Status.findOne({name: status});
+  if(!statusdoc){
+    console.log("Error fetching status:");
+  }
   
   let date = new Date();
 
@@ -50,13 +53,13 @@ async function addFollowUp(req, res) {
     const newFollowUp = await FollowUp.create({
       lead_id: lead_id,
       user_id: user_id,
-      status_id: status,
+      status_id: statusdoc._id,
       comment,
       date: customDateUTC,
     });
 
     const leadDoc = await Lead.findById({ _id: lead_id })
-    leadDoc.status_id = status;
+    leadDoc.status_id =  statusdoc._id;
     await leadDoc.save();
 
     return res.status(200).json(newFollowUp);
@@ -203,7 +206,7 @@ async function getFollowUpDate(req, res) {
       (item) => item.status_id.name === "Schedule meetings"
     ).length;
     const cousedetailsCount = Object.values(filteredFollowUp).filter(
-      (item) => item.status_id.name === "Couse details sent"
+      (item) => item.status_id.name === "Course details sent"
     ).length;
     const nextintakeCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Next intake"
@@ -295,7 +298,7 @@ async function getFollowUpDateByUser(req, res) {
       (item) => item.status_id.name === "Schedule meetings"
     ).length;
     const cousedetailsCount = Object.values(filteredFollowUp).filter(
-      (item) => item.status_id.name === "Couse details sent"
+      (item) => item.status_id.name === "Course details sent"
     ).length;
     const nextintakeCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Next intake"
@@ -359,7 +362,7 @@ async function getFollowUpDate(req, res) {
       emailCount: resultCount['Sent EmailCount'] || 0,
       whatsappCount: resultCount['Whatsapp & smsCount'] || 0,
       meetingCount: resultCount['Schedule meetingsCount'] || 0,
-      cousedetailsCount: resultCount['Couse details sentCount'] || 0,
+      cousedetailsCount: resultCount['Course details sentCount'] || 0,
       nextintakeCount: resultCount['Next intakeCount'] || 0,
       droppedCount: resultCount['DroppedCount'] || 0,
       fakeCount: resultCount['FakeCount'] || 0,
@@ -404,7 +407,7 @@ async function getCounselorFollowUpStatusCount(req, res) {
       emailCount: resultCount['Sent EmailCount'] || 0,
       whatsappCount: resultCount['Whatsapp & smsCount'] || 0,
       meetingCount: resultCount['Schedule meetingsCount'] || 0,
-      cousedetailsCount: resultCount['Couse details sentCount'] || 0,
+      cousedetailsCount: resultCount['Course details sentCount'] || 0,
       nextintakeCount: resultCount['Next intakeCount'] || 0,
       droppedCount: resultCount['DroppedCount'] || 0,
       fakeCount: resultCount['FakeCount'] || 0,

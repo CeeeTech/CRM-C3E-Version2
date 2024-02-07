@@ -41,12 +41,13 @@ async function markNorificationAsRead(req, res) {
         { _id: id },
         { new: true }
     );
-
+    if (!deletedNotification) {
+        return res.status(404).json({ error: "Notification not found" });
+    }
     const updatedNotifications = await Notification.find({ userId: deletedNotification.userId })
-
-
-    if (!updatedNotifications) {
-        res.status(400).json({ error: "No such updated notifications" })
+    
+    if (!updatedNotifications || updatedNotifications.length === 0) {
+        return res.status(400).json({ error: "No updated notifications found" });
     }
     else {
         res.status(200).json(updatedNotifications)
