@@ -516,7 +516,7 @@ async function getOneLeadSummaryDetails(req, res) {
       address: student.address,
       course: lead.course_id.name,
       branch: lead.branch_id.name,
-      status: latestFollowUp ? latestFollowUp.status_id.name : null,
+      status: latestFollowUp?  latestFollowUp.status_id ? latestFollowUp.status_id.name : null : null,
       comment: latestFollowUp ? latestFollowUp.comment : null,
     };
 

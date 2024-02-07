@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import MainCard from 'ui-component/cards/MainCard';
 import { Button, CardActions, InputAdornment, Typography, useMediaQuery, LinearProgress, Avatar, MenuItem } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import * as Yup from 'yup';
 
 import { useEffect } from 'react';
 import { useState, useCallback } from 'react';
@@ -28,7 +29,7 @@ const nodeTypes = {
 export default function LeadForm() {
   let mappedFollowupDetails = [];
   let mappedInitialEdges = [];
-  const [selectedStatus, setSelectedStatus] = useState('');
+  // const [selectedStatus, setSelectedStatus] = useState('');
   const [nodes, setNodes, onNodesChange] = useNodesState(mappedFollowupDetails);
   const [edges, setEdges, onEdgesChange] = useEdgesState([mappedInitialEdges]);
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
@@ -118,7 +119,7 @@ export default function LeadForm() {
         // Initialize Formik values with lead data
         setValues(json);
 
-        console.log(json.status);
+        console.log(json);
 
         console.log('Lead data:', json);
       } else {
@@ -277,6 +278,7 @@ export default function LeadForm() {
   };
 
   useEffect(() => {
+    console.log(values.status);
     fetchStatuses();
     fetchFollowups();
     if (leadId) {
@@ -286,7 +288,7 @@ export default function LeadForm() {
   }, []);
 
   const handleUpdate = async (values, { setSubmitting, setFieldError }) => {
-    console.log(values);
+    console.log(values.status);
 
     try {
       // Followup add
@@ -294,9 +296,9 @@ export default function LeadForm() {
         // Check if the selected status is "Dropped" and the comment field is empty
 
         // find the _id of the status "Dropped"
-        const droppedStatus = statuses.find((status) => status.name === 'Dropped')._id;
+        // const droppedStatus = statuses.find((status) => status.name === 'Dropped')._id;
 
-        if (values.status === droppedStatus && !values.comment.trim()) {
+        if (values.status === 'Dropped' && !values.comment.trim()) {
           setFieldError('comment', 'Comment is required for Dropped status');
           return;
         }
@@ -304,7 +306,7 @@ export default function LeadForm() {
         const updateFollowupData = {
           user_id: user?._id,
           lead_id: leadId,
-          status: selectedStatus,
+          status: values.status,
           comment: values.comment
         };
 
@@ -365,11 +367,19 @@ export default function LeadForm() {
               branch: values?.branch || '',
               dob: values?.dob || '',
               scheduled_to: values?.scheduled_to || '',
-              status: values?.status || ''
+              status: values?.status || '',
+              comment: values?.comment || '',
             }}
+            validationSchema={Yup.object().shape({
+              // other fields validation...
+              comment: Yup.string().when('status', {
+                is: 'Dropped', // 'Dropped' status ID
+                then: Yup.string().required('Comment is required when status is Dropped'),
+              }),
+            })}
             onSubmit={handleUpdate}
           >
-            {({ handleChange, handleSubmit, isSubmitting, values }) => (
+            {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, values, touched }) => (
               <div>
                 <form autoComplete="off" noValidate onSubmit={handleSubmit}>
                   <Grid container direction="column" justifyContent="center">
@@ -401,10 +411,10 @@ export default function LeadForm() {
                                 <TextField
                                   fullWidth
                                   margin="normal"
-                                  name="userType"
+                                  name="status"
                                   select
-                                  value={selectedStatus}
-                                  onChange={(e) => setSelectedStatus(e.target.value)}
+                                  value={values.status}
+                                  onChange={handleChange}
                                   InputProps={{
                                     startAdornment: (
                                       <InputAdornment position="start">
@@ -415,7 +425,7 @@ export default function LeadForm() {
                                 >
                                   <MenuItem value="">Select a Status</MenuItem>
                                   {statuses.map((status) => (
-                                    <MenuItem key={status._id} value={status._id}>
+                                    <MenuItem key={status._id} value={status.name}>
                                       {status.name}
                                     </MenuItem>
                                   ))}
@@ -432,8 +442,11 @@ export default function LeadForm() {
                                   margin="normal"
                                   name="comment"
                                   type="text"
+                                  onBlur={handleBlur}
                                   value={values.comment}
                                   onChange={handleChange}
+                                  error={Boolean(touched.comment && errors.comment)}
+                                  helperText={touched.comment && errors.comment}
                                 />
                               </Grid>
 

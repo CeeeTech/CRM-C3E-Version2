@@ -92,6 +92,7 @@ export default function ViewLeads() {
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [status, setStatus] = useState([]);
 
   const [counselors, setCounselors] = useState([]);
 
@@ -230,10 +231,10 @@ export default function ViewLeads() {
                         })
                       });
                       if (!updateLead.ok) {
-                        if (res.status === 401) {
+                        if (updateLead.status === 401) {
                           console.error('Unauthorized access. Logging out.');
                           logout();
-                        } else if (res.status === 500) {
+                        } else if (updateLead.status === 500) {
                           console.error('Internal Server Error.');
                           logout();
                           return;
@@ -314,19 +315,19 @@ export default function ViewLeads() {
             params.row.status == 'Fake' ||
             params.row.status == 'Duplicate' ||
             params.row.status == 'Dropped') && (
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() => {
-                restorePrevious(params.row.id);
-                //navigate('/app/leads/addfollowup?id=' + params.row.id);
-              }}
-              style={{ marginLeft: '5px' }}
-              sx={{ borderRadius: '100px', padding: '10px', backgroundColor: '#d1bd0a' }}
-            >
-              <SettingsBackupRestoreIcon sx={{ color: 'white' }} />
-            </Button>
-          )}
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => {
+                  restorePrevious(params.row.id);
+                  //navigate('/app/leads/addfollowup?id=' + params.row.id);
+                }}
+                style={{ marginLeft: '5px' }}
+                sx={{ borderRadius: '100px', padding: '10px', backgroundColor: '#d1bd0a' }}
+              >
+                <SettingsBackupRestoreIcon sx={{ color: 'white' }} />
+              </Button>
+            )}
         </>
       )
     }
@@ -337,10 +338,10 @@ export default function ViewLeads() {
     if (courseName.toLowerCase() === 'other') {
       return 'Other'; // Return 'Other' as is
     }
-  
+
     // Split the course name by spaces to get individual words
     const words = courseName.split(' ');
-  
+
     // Map over each word and extract the first letter while excluding parentheses
     const shortenedName = words
       .map((word) => {
@@ -350,9 +351,9 @@ export default function ViewLeads() {
         return wordWithoutParentheses.charAt(0).toUpperCase();
       })
       .join(''); // Join the first letters together
-  
+
     return shortenedName; // Return the shortened course name
-  };  
+  };
 
   function updateLead(leadId) {
     console.log('clicked lead id', leadId);
@@ -518,6 +519,37 @@ export default function ViewLeads() {
       }
     }
     getCounselors();
+  }, []);
+
+  async function fetchStatus() {
+    try {
+      const res = await fetch(config.apiUrl + 'api/status', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setStatus(json);
+      } else {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        } else if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+          return;
+        } else {
+          console.error('Error fetching status:', res.statusText);
+        }
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching status:', error.message);
+    }
+  }
+
+  useEffect(() => {
+    fetchStatus();
   }, []);
 
   const sortDateFrom = (datefrom) => {
@@ -720,7 +752,18 @@ export default function ViewLeads() {
                     <option value="" disabled>
                       Select Status
                     </option>
-                    <option value="New">New</option>
+                    {status && status.length > 0 ? (
+                      status.map((option) => (
+                        <option key={option._id} value={option.name}>
+                          {option.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>
+                        No Status available
+                      </option>
+                    )}
+                    {/* <option value="New">New</option>
                     <option value="Registered">Registered</option>
                     <option value="Dropped">Dropped</option>
                     <option value="Next Intake">Next Intake</option>
@@ -730,7 +773,7 @@ export default function ViewLeads() {
                     <option value="Fake">Fake</option>
                     <option value="Duplicate">Duplicate</option>
                     <option value="Course Details sent">Course Details sent</option>
-                    <option value="WhatsApp & SMS">WhatsApp & SMS</option>
+                    <option value="WhatsApp & SMS">WhatsApp & SMS</option> */}
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={3}>

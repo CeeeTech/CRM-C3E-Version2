@@ -26,15 +26,18 @@ async function addFollowUp(req, res) {
   }
 
   // Check if status exists in the status table; the passed status is the id of the status
-  else if (!mongoose.Types.ObjectId.isValid(status)) {
-    return res.status(400).json({ error: "no such status" });
-  }
+  // else if (!mongoose.Types.ObjectId.isValid(status)) {
+  //   return res.status(400).json({ error: "no such status" });
+  // }
 
   // Check if user exists in the user table
   else if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return res.status(400).json({ error: "no such user" });
   }
-
+  const statusdoc =  await Status.findOne({name: status});
+  if(!statusdoc){
+    console.log("Error fetching status:");
+  }
   
   let date = new Date();
 
@@ -50,13 +53,13 @@ async function addFollowUp(req, res) {
     const newFollowUp = await FollowUp.create({
       lead_id: lead_id,
       user_id: user_id,
-      status_id: status,
+      status_id: statusdoc._id,
       comment,
       date: customDateUTC,
     });
 
     const leadDoc = await Lead.findById({ _id: lead_id })
-    leadDoc.status_id = status;
+    leadDoc.status_id =  statusdoc._id;
     await leadDoc.save();
 
     return res.status(200).json(newFollowUp);
