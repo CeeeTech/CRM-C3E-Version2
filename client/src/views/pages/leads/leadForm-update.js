@@ -13,10 +13,10 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import BroadcastOnPersonalIcon from '@mui/icons-material/BroadcastOnPersonal';
 import { useEffect } from 'react';
 import { useState } from 'react';
-// import { Box } from '@mui/system';
-// import AddIcon from '@mui/icons-material/Add';
-// import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
-// import HourglassTopIcon from '@mui/icons-material/HourglassTop';
+import { Box } from '@mui/system';
+import AddIcon from '@mui/icons-material/Add';
+import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
+import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import config from '../../../config';
 import { useAuthContext } from '../../../context/useAuthContext';
 import PersonIcon from '@mui/icons-material/Person';
@@ -43,11 +43,11 @@ export default function LeadForm() {
 
   const [branches, setBranches] = useState([]);
   const [courses, setCourses] = useState([]);
-  // const [statuses, setStatuses] = useState([]);
+  const [statuses, setStatuses] = useState([]);
 
   const [loading, setLoading] = useState(true); // Loading state
 
-  // const [statusForm, setStatusForm] = useState(false);
+  const [statusForm, setStatusForm] = useState(false);
 
   const urlParams = new URLSearchParams(window.location.search);
   const leadId = urlParams.get('id');
@@ -81,21 +81,21 @@ export default function LeadForm() {
     });
   };
 
-  // // show successFollowupSwal
-  // const showSuccessFollowupSwal = () => {
-  //   Toast.fire({
-  //     icon: 'success',
-  //     title: 'Followup Added Successfully.'
-  //   });
-  // };
+  // show successFollowupSwal
+  const showSuccessFollowupSwal = () => {
+    Toast.fire({
+      icon: 'success',
+      title: 'Followup Added Successfully.'
+    });
+  };
 
-  // // error showErrorSwal for followup
-  // const showErrorFollowupSwal = () => {
-  //   Toast.fire({
-  //     icon: 'error',
-  //     title: 'Error Adding Followup.'
-  //   });
-  // };
+  // error showErrorSwal for followup
+  const showErrorFollowupSwal = () => {
+    Toast.fire({
+      icon: 'error',
+      title: 'Error Adding Followup.'
+    });
+  };
 
   const [values, setValues] = useState({
     name: '',
@@ -204,43 +204,43 @@ export default function LeadForm() {
     }
   };
 
-  // const fetchStatuses = async () => {
-  //   try {
-  //     const response = await fetch(config.apiUrl + 'api/status', {
-  //       method: 'GET',
-  //       headers: { Authorization: `Bearer ${user.token}` }
-  //     });
-  //     if (response.ok) {
-  //       const json = await response.json();
+  const fetchStatuses = async () => {
+    try {
+      const response = await fetch(config.apiUrl + 'api/status', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      if (response.ok) {
+        const json = await response.json();
 
-  //       // remove the "new" status from the list of statuses (status.name)
-  //       const json1 = json.filter((status) => status.name !== 'New');
-  //       console.log(json1);
+        // remove the "new" status from the list of statuses (status.name)
+        const json1 = json.filter((status) => status.name !== 'New');
+        console.log(json1);
 
-  //       console.log(json1);
-  //       setStatuses(json1);
-  //     } else {
-  //       if (res.status === 401) {
-  //         console.error('Unauthorized access. Logging out.');
-  //         logout();
-  //       } else if (res.status === 500) {
-  //         console.error('Internal Server Error.');
-  //         logout();
-  //         return;
-  //       } else {
-  //         console.error('Error fetching  status:', response.statusText);
-  //       }
-  //       return;
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching status:', error.message);
-  //   }
-  // };
+        console.log(json1);
+        setStatuses(json1);
+      } else {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        } else if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+          return;
+        } else {
+          console.error('Error fetching  status:', response.statusText);
+        }
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching status:', error.message);
+    }
+  };
 
   useEffect(() => {
     fetchCourses();
     fetchBranches();
-    // fetchStatuses();
+    fetchStatuses();
     if (leadId) {
       setLoading(true);
       fetchLeadData();
@@ -293,7 +293,7 @@ export default function LeadForm() {
         student_id: sid,
         course_id: course_id,
         branch_id: branch_id,
-        scheduled_to: values.scheduled_to == 'NaN-NaN-NaN' ? '' : values.scheduled_to
+        scheduled_to: values.scheduled_to == 'NaN-NaN-NaN'? '' : values.scheduled_to
       };
 
       const updateLead = await fetch(config.apiUrl + `api/leads/${leadId}`, {
@@ -319,38 +319,38 @@ export default function LeadForm() {
       if (values.status == undefined && !values.status) {
         showSuccessSwal();
       }
-      // //followup add
-      // if (statusForm == true && values.status != undefined && values.status) {
-      //   const updateFollowupData = {
-      //     user_id: user?._id,
-      //     lead_id: leadId,
-      //     status: values.status,
-      //     comment: values.comment
-      //   };
+      //followup add
+      if (statusForm == true && values.status != undefined && values.status) {
+        const updateFollowupData = {
+          user_id: user?._id,
+          lead_id: leadId,
+          status: values.status,
+          comment: values.comment
+        };
 
-      //   const addFollowup = await fetch(config.apiUrl + `api/followUps`, {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-      //     body: JSON.stringify(updateFollowupData)
-      //   });
+        const addFollowup = await fetch(config.apiUrl + `api/followUps`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+          body: JSON.stringify(updateFollowupData)
+        });
 
-      //   if (!addFollowup.ok) {
-      //     if (addFollowup.status === 401) {
-      //       console.error('Unauthorized access. Logging out.');
-      //       logout();
-      //     } else if (addFollowup.status === 500) {
-      //       console.error('Internal Server Error.');
-      //       logout();
-      //       return;
-      //     } else {
-      //       console.error('Error adding followup:', addFollowup.statusText);
-      //       showErrorFollowupSwal();
-      //     }
-      //     return;
-      //   }
-      //   console.log('update followup');
-      //   showSuccessFollowupSwal();
-      // }
+        if (!addFollowup.ok) {
+          if (addFollowup.status === 401) {
+            console.error('Unauthorized access. Logging out.');
+            logout();
+          } else if (addFollowup.status === 500) {
+            console.error('Internal Server Error.');
+            logout();
+            return;
+          } else {
+            console.error('Error adding followup:', addFollowup.statusText);
+            showErrorFollowupSwal();
+          }
+          return;
+        }
+        console.log('update followup');
+        showSuccessFollowupSwal();
+      }
 
       console.log('Data updated successfully!');
       setValues({
@@ -701,7 +701,7 @@ export default function LeadForm() {
                         </TextField>
                       </Grid>
 
-                      {/* {leadId ? (
+                      {leadId ? (
                         <Grid item xs={12} sm={12}>
                           <Box sx={{ textAlign: 'center', mt: 2, mb: 2 }}>
                             <Button
@@ -786,15 +786,12 @@ export default function LeadForm() {
                         </>
                       ) : (
                         <></>
-                      )} */}
+                      )}
                     </Grid>
                     <CardActions sx={{ justifyContent: 'flex-end' }}>
-                      <Button
-                        variant="contained"
-                        type="submit"
-                        disabled={isSubmitting}
-                        endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
-                      >
+                      <Button variant="contained" type="submit" 
+                      disabled={isSubmitting}
+                      endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}>
                         Update Lead
                       </Button>
                     </CardActions>

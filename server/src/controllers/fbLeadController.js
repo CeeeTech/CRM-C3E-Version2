@@ -14,7 +14,6 @@ const FACEBOOK_PAGE_ACCESS_TOKEN = "EAAMA0sfsBzABOzkRn8DWHhFMb44hIiovUWUK6gSC7hF
 const notificationController = require('../controllers/notificationController')
 const CounsellorAssignment = require("../models/counsellorAssignment");
 const leadsController = require('../controllers/leadController')
-const moment = require("moment-timezone");
 
 
 async function getFBLeadsHealth(req, res) {
@@ -113,33 +112,7 @@ async function processNewLead(leadId, formId) {
   }
   console.log('A new lead was received!\n', leadForm);
   const { full_name, email, phone_number, date_of_birth, course_you_are_looking_for } = leadForm;
-  let course_var
-  if(course_you_are_looking_for){
-    course_var = course_you_are_looking_for
-  }
-  else{
-    const {degree_you_are_looking_for} = leadForm
-    if(degree_you_are_looking_for){
-      course_var = degree_you_are_looking_for
-    }
-    else{
-    const {programme_you_are_looking_for} = leadForm
-    if(programme_you_are_looking_for){
-      course_var = programme_you_are_looking_for
-    }
-    else{
-      course_var = null
-    }
-    }
-  }
   var student_id;
-  let date_of_birth_to_add
-  if(date_of_birth=='NaN-NaN-NaN'){
-    date_of_birth_to_add = null
-  }
-  else{
-    date_of_birth_to_add = date_of_birth
-  }
   try {
 
     const existingStudent = await Student.findOne({ email: email });
@@ -147,7 +120,7 @@ async function processNewLead(leadId, formId) {
       student_id = existingStudent._id
     }
     else{
-      const newStudent = await Student.create({ name: full_name, dob: date_of_birth_to_add, contact_no: phone_number, email: email })
+      const newStudent = await Student.create({ name: full_name, dob: date_of_birth, contact_no: phone_number, email: email })
       console.log(newStudent._id);
       console.log(newStudent.name);
       student_id = newStudent._id
@@ -164,12 +137,7 @@ async function processNewLead(leadId, formId) {
 
 async function addLead(student_id, course_name, formId) {
   try {
-
-    let currentDate = new Date();
-    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-    const date = new Date(
-      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-    );
+    const date = new Date();
 
 
 
@@ -274,13 +242,7 @@ async function addFollowUp(lead_id, user_id, status) {
   }
 
   // Current datetime
-
-    let currentDateNow = new Date();
-    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-    const currentDateTime = new Date(
-      moment.tz(currentDateNow , targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-    );
-
+  const currentDateTime = new Date();
 
   try {
     const newFollowUp = await FollowUp.create({
