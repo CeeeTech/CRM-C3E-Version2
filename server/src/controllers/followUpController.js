@@ -203,7 +203,7 @@ async function getFollowUpDate(req, res) {
       (item) => item.status_id.name === "Schedule meetings"
     ).length;
     const cousedetailsCount = Object.values(filteredFollowUp).filter(
-      (item) => item.status_id.name === "Couse details sent"
+      (item) => item.status_id.name === "Course details sent"
     ).length;
     const nextintakeCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Next intake"
@@ -295,7 +295,7 @@ async function getFollowUpDateByUser(req, res) {
       (item) => item.status_id.name === "Schedule meetings"
     ).length;
     const cousedetailsCount = Object.values(filteredFollowUp).filter(
-      (item) => item.status_id.name === "Couse details sent"
+      (item) => item.status_id.name === "Course details sent"
     ).length;
     const nextintakeCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Next intake"
@@ -359,7 +359,7 @@ async function getFollowUpDate(req, res) {
       emailCount: resultCount['Sent EmailCount'] || 0,
       whatsappCount: resultCount['Whatsapp & smsCount'] || 0,
       meetingCount: resultCount['Schedule meetingsCount'] || 0,
-      cousedetailsCount: resultCount['Couse details sentCount'] || 0,
+      cousedetailsCount: resultCount['Course details sentCount'] || 0,
       nextintakeCount: resultCount['Next intakeCount'] || 0,
       droppedCount: resultCount['DroppedCount'] || 0,
       fakeCount: resultCount['FakeCount'] || 0,
@@ -404,7 +404,7 @@ async function getCounselorFollowUpStatusCount(req, res) {
       emailCount: resultCount['Sent EmailCount'] || 0,
       whatsappCount: resultCount['Whatsapp & smsCount'] || 0,
       meetingCount: resultCount['Schedule meetingsCount'] || 0,
-      cousedetailsCount: resultCount['Couse details sentCount'] || 0,
+      cousedetailsCount: resultCount['Course details sentCount'] || 0,
       nextintakeCount: resultCount['Next intakeCount'] || 0,
       droppedCount: resultCount['DroppedCount'] || 0,
       fakeCount: resultCount['FakeCount'] || 0,

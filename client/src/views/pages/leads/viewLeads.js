@@ -47,31 +47,23 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
     '&:hover, &.Mui-hovered': {
       backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
       '@media (hover: none)': {
-        backgroundColor: 'transparent',
-      },
+        backgroundColor: 'transparent'
+      }
     },
     '&.Mui-selected': {
-      backgroundColor: alpha(
-        theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity,
-      ),
+      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY + theme.palette.action.selectedOpacity),
       '&:hover, &.Mui-hovered': {
         backgroundColor: alpha(
           theme.palette.primary.main,
-          ODD_OPACITY +
-            theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity,
+          ODD_OPACITY + theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity
         ),
         // Reset on touch devices, it doesn't add specificity
         '@media (hover: none)': {
-          backgroundColor: alpha(
-            theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity,
-          ),
-        },
-      },
-    },
-  },
+          backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY + theme.palette.action.selectedOpacity)
+        }
+      }
+    }
+  }
 }));
 
 export default function ViewLeads() {
@@ -99,6 +91,7 @@ export default function ViewLeads() {
   const [sname, setSname] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState('');
 
   const [counselors, setCounselors] = useState([]);
 
@@ -106,18 +99,18 @@ export default function ViewLeads() {
 
   const restorePrevious = async (leadID) => {
     try {
-      console.log("my lead id",leadID);
+      console.log('my lead id', leadID);
       const res = await fetch(config.apiUrl + 'api/lead-restore/', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${user.token}`,'Content-Type': 'application/json' },
+        headers: { Authorization: `Bearer ${user.token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: leadID })
       });
       if (res.ok) {
         const json = await res.json();
-        console.log(json)
-        setLoading(true)
-        showStatusRevesedSwal()
-        fetchLeads()
+        console.log(json);
+        setLoading(true);
+        showStatusRevesedSwal();
+        fetchLeads();
       } else {
         if (res.status === 401) {
           console.error('Unauthorized access. Logging out.');
@@ -127,18 +120,16 @@ export default function ViewLeads() {
           logout();
           return;
         } else {
-          showErrorSwal2()
+          showErrorSwal2();
           console.error('Error fetching sources:', res.statusText);
         }
         return;
       }
     } catch (error) {
-      showErrorSwal2()
+      showErrorSwal2();
       console.error('Error fetching sources:', error.message);
     }
   };
-
-
 
   const Toast = withReactContent(
     Swal.mixin({
@@ -192,22 +183,21 @@ export default function ViewLeads() {
         </Tooltip>
       )
     },
-    { field: 'date', headerName: 'Date Added', width: 150 },
+    { field: 'date', headerName: 'Date', width: 100 },
     { field: 'name', headerName: 'Student Name', width: 150 },
-    { field: 'email', headerName: 'Email', width: 200 },
-    { field: 'contact_no', headerName: 'Contact No', width: 100 },
-    { field: 'status', headerName: 'Status', width: 150 },
+    { field: 'contact_no', headerName: 'Contact No', width: 110 },
+    { field: 'status', headerName: 'Status', width: 110 },
     {
-      field: 'course',
+      field: 'course_code',
       headerName: 'Course',
-      width: 250
+      width: 100
     },
     {
       field: 'counsellor',
       headerName: 'Assign To',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 170,
+      width: 160,
       align: 'left',
       renderCell: (params) => {
         if (isAdminOrSupervisor) {
@@ -288,9 +278,9 @@ export default function ViewLeads() {
             onClick={() => {
               updateLead(params.row.id);
             }}
-            sx={{borderRadius:'100px',padding:'10px'}}
+            sx={{ borderRadius: '100px', padding: '10px' }}
           >
-            <ModeIcon  />
+            <ModeIcon />
           </Button>
           <Button
             variant="contained"
@@ -299,48 +289,75 @@ export default function ViewLeads() {
               // Handle delete logic here
             }}
             style={{ marginLeft: '5px' }}
-            sx={{borderRadius:'100px',padding:'10px'}}
+            sx={{ borderRadius: '100px', padding: '10px' }}
           >
             <DeleteIcon />
           </Button>
-          {((params.row.status != 'Registered' )&&(params.row.status != 'Fake' )&&(params.row.status != 'Duplicate' )&&(params.row.status != 'Dropped' ))&&  <Button
-            variant="contained"
-            color="success"
-            onClick={() => {
-              navigate('/app/leads/addfollowup?id=' + params.row.id);
-            }}
-            style={{ marginLeft: '5px' }}
-            sx={{borderRadius:'100px',padding:'10px',backgroundColor: "#039116",
-          }}
+          {params.row.status != 'Registered' &&
+            params.row.status != 'Fake' &&
+            params.row.status != 'Duplicate' &&
+            params.row.status != 'Dropped' && (
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => {
+                  navigate('/app/leads/addfollowup?id=' + params.row.id);
+                }}
+                style={{ marginLeft: '5px' }}
+                sx={{ borderRadius: '100px', padding: '10px', backgroundColor: '#039116' }}
+              >
+                <AddCircleOutlineIcon sx={{ color: 'white' }} />
+              </Button>
+            )}
 
-          >
-            <AddCircleOutlineIcon sx={{color:'white'}} />
-          </Button>}
-
-          {((params.row.status == 'Registered' )||(params.row.status == 'Fake' )||(params.row.status == 'Duplicate' )||(params.row.status == 'Dropped' ))&&  <Button
-            variant="contained"
-            color="success"
-            onClick={() => {
-              restorePrevious(params.row.id);
-              //navigate('/app/leads/addfollowup?id=' + params.row.id);
-            }}
-            style={{ marginLeft: '5px' }}
-            sx={{borderRadius:'100px',padding:'10px',backgroundColor: "#d1bd0a",
-          }}
-
-          >
-            <SettingsBackupRestoreIcon sx={{color:'white'}} />
-          </Button>}
+          {(params.row.status == 'Registered' ||
+            params.row.status == 'Fake' ||
+            params.row.status == 'Duplicate' ||
+            params.row.status == 'Dropped') && (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => {
+                restorePrevious(params.row.id);
+                //navigate('/app/leads/addfollowup?id=' + params.row.id);
+              }}
+              style={{ marginLeft: '5px' }}
+              sx={{ borderRadius: '100px', padding: '10px', backgroundColor: '#d1bd0a' }}
+            >
+              <SettingsBackupRestoreIcon sx={{ color: 'white' }} />
+            </Button>
+          )}
         </>
       )
     }
   ];
 
+  const shortenCourseName = (courseName) => {
+    // Check if the course name is "Other"
+    if (courseName.toLowerCase() === 'other') {
+      return 'Other'; // Return 'Other' as is
+    }
+  
+    // Split the course name by spaces to get individual words
+    const words = courseName.split(' ');
+  
+    // Map over each word and extract the first letter while excluding parentheses
+    const shortenedName = words
+      .map((word) => {
+        // Remove parentheses from the word
+        const wordWithoutParentheses = word.replace(/[()]/g, '');
+        // Take the first letter of the word
+        return wordWithoutParentheses.charAt(0).toUpperCase();
+      })
+      .join(''); // Join the first letters together
+  
+    return shortenedName; // Return the shortened course name
+  };  
+
   function updateLead(leadId) {
     console.log('clicked lead id', leadId);
     navigate('/app/leads/update?id=' + leadId);
   }
-
 
   async function fetchLeads() {
     try {
@@ -380,6 +397,7 @@ export default function ViewLeads() {
         email: lead.student_id.email,
         nic: lead.student_id.nic,
         course: lead.course_id.name,
+        course_code: shortenCourseName(lead.course_id.name),
         branch: lead.branch_id.name,
         source: lead.source_id ? lead.source_id.name : null,
         counsellor: lead.assignment_id ? lead.assignment_id.counsellor_id.name : null,
@@ -419,8 +437,6 @@ export default function ViewLeads() {
   }
 
   useEffect(() => {
-    
-
     fetchLeads();
     const fetchCourses = async () => {
       try {
@@ -534,6 +550,12 @@ export default function ViewLeads() {
     console.log(sortedLeads);
   };
 
+  const sortStatus = (status) => {
+    const sortedLeads = allLeads.filter((lead) => lead.status === status);
+    setData(sortedLeads);
+    console.log(sortedLeads);
+  };
+
   const [data, setData] = useState([]);
 
   const handleRowClick = (params) => {
@@ -549,12 +571,14 @@ export default function ViewLeads() {
     <>
       <MainCard
         title="View Leads"
-        buttonLabel={permissions?.lead?.includes('create') ? (
-          <>
-            Add New Lead
-            <AddIcon style={{ marginLeft: '5px' }} /> {/* Adjust styling as needed */}
-          </>
-        ) : undefined}
+        buttonLabel={
+          permissions?.lead?.includes('create') ? (
+            <>
+              Add New Lead
+              <AddIcon style={{ marginLeft: '5px' }} /> {/* Adjust styling as needed */}
+            </>
+          ) : undefined
+        }
         onButtonClick={handleButtonClick}
       >
         {loading && <LinearProgress />}
@@ -669,6 +693,46 @@ export default function ViewLeads() {
                     )}
                   </TextField>
                 </Grid>
+                <Grid item xs={8} sm={3}>
+                  <Typography variant="h5" component="h5">
+                    Status
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    // label="First Name"
+                    margin="normal"
+                    name="status"
+                    select
+                    SelectProps={{ native: true }}
+                    value={selectedStatus}
+                    onChange={(event) => {
+                      setSelectedStatus(event.target.value);
+                      sortStatus(event.target.value);
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <TimelineIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                  >
+                    <option value="" disabled>
+                      Select Status
+                    </option>
+                    <option value="New">New</option>
+                    <option value="Registered">Registered</option>
+                    <option value="Dropped">Dropped</option>
+                    <option value="Next Intake">Next Intake</option>
+                    <option value="Send Mail">Send Mail</option>
+                    <option value="Ring No Answer">Ring No Answer</option>
+                    <option value="Shedule Meeting">Shedule Meeting</option>
+                    <option value="Fake">Fake</option>
+                    <option value="Duplicate">Duplicate</option>
+                    <option value="Course Details sent">Course Details sent</option>
+                    <option value="WhatsApp & SMS">WhatsApp & SMS</option>
+                  </TextField>
+                </Grid>
                 <Grid item xs={12} sm={3}>
                   <Typography variant="h5" component="h5">
                     Date From
@@ -725,23 +789,17 @@ export default function ViewLeads() {
                 <StripedDataGrid
                   rows={data}
                   columns={columns}
-                  getRowClassName={(params) =>
-                    params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
-                  }
+                  getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
                   // handle row click should trigger for the row but except for the edit and delete buttons and assign to dropdown
                   onRowClick={(params, event) => {
-                  
-                    
                     const field = event.target.closest('.MuiDataGrid-cell').getAttribute('data-field');
 
+                    console.log(params);
+                    console.log(field);
 
-                    console.log(params)
-                    console.log(field)
-
-                    if (!(field=='counsellor'||field=='edit')) {
+                    if (!(field == 'counsellor' || field == 'edit')) {
                       handleRowClick(params);
                     }
-                    
                   }}
                   initialState={{
                     pagination: {
@@ -755,7 +813,7 @@ export default function ViewLeads() {
                   getRowStyle={(params) => ({
                     backgroundColor: params.index % 2 === 0 ? '#fff' : '#f0f8ff'
                   })}
-                  pageSizeOptions={[10, 25,100]}
+                  pageSizeOptions={[10, 25, 100]}
                   checkboxSelection
                 />
               </div>

@@ -8,6 +8,7 @@ const FollowUp = require("../models/followUp");
 const User_type = require("../models/user_type");
 const CounsellorAssignment = require("../models/counsellorAssignment");
 const { default: mongoose } = require("mongoose");
+const Counter = require("../models/counter");
 // const { emitNotification } = require("../service/notification");
 const User = require("../models/user");
 const Notification = require("../models/notification");
@@ -162,6 +163,8 @@ async function addLead(req, res) {
       return res.status(400).json({ error: `Source not found: manual` });
     }
 
+    const sequenceValue = await getNextSequenceValue('unique_id_sequence');
+    console.log(sequenceValue)
 
     // Create new lead
     const newLead = await Lead.create({
@@ -173,6 +176,7 @@ async function addLead(req, res) {
       student_id: student_id,
       user_id: user_id,
       source_id: source_document._id,
+      reference_number: sequenceValue,
     });
 
     lead_id = newLead._id;
@@ -265,6 +269,15 @@ async function addLead(req, res) {
     console.log(e)
   }
 
+}
+
+async function getNextSequenceValue(sequenceName) {
+  const counter = await Counter.findOneAndUpdate(
+      { _id: sequenceName },
+      { $inc: { sequence_value: 1 } },
+      { returnOriginal: false, upsert: true }
+  );
+  return counter.sequence_value;
 }
 
 //add lead and followup
