@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const studentSchema = new mongoose.Schema({
+const studentArchivedSchema = new mongoose.Schema({
   name: String,
   nic: { type: String, required: false },
   dob: { type: Date, required: false },
@@ -17,6 +17,6 @@ studentSchema.pre('save', function(next) {
   next();
 });
 
-const Student = mongoose.model("Student", studentSchema);
+const Student = mongoose.model("Student_Archived", studentArchivedSchema);
 
 module.exports = Student;
