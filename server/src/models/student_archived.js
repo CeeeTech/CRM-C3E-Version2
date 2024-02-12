@@ -17,6 +17,6 @@ studentSchema.pre('save', function(next) {
   next();
 });
 
-const Student = mongoose.model("Student_Archived", studentArchivedSchema);
+const Student_Archived = mongoose.model("Student_Archived", studentArchivedSchema);
 
-module.exports = Student;
+module.exports = Student_Archived;

@@ -8,6 +8,6 @@ const followUpArchivedSchema = new mongoose.Schema({
     date: Date
 })
 
-const follow_up = mongoose.model('Follow_Up_Archived', followUpArchivedSchema)
+const Follow_Up_Archived = mongoose.model('Follow_Up_Archived', followUpArchivedSchema)
 
-module.exports = follow_up
+module.exports = Follow_Up_Archived

@@ -22,6 +22,6 @@ const leadArchivedSchema = new mongoose.Schema({
   },
 });
 
-const Lead = mongoose.model("Lead_Archived", leadArchivedSchema);
+const Lead_Archived = mongoose.model("Lead_Archived", leadArchivedSchema);
 
-module.exports = Lead;
+module.exports = Lead_Archived;
