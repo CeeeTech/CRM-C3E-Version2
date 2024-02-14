@@ -8,6 +8,7 @@ const Student = require("../models/student");
 const FbLeadForm = require("../models/fbLeadForm");
 const Source = require("../models/source");
 const FollowUp = require("../models/followUp");
+const Counter = require("../models/counter");
 const { default: mongoose } = require("mongoose");
 const User = require("../models/user");
 const FACEBOOK_PAGE_ACCESS_TOKEN = "EAAMA0sfsBzABOzkRn8DWHhFMb44hIiovUWUK6gSC7hFwZCMcGskm7f3BZCZCk8Aa7mVU0aaqSGvFhVzJJjDgJN3fMo2wZBrJWMZAPVellre5tpm0TKdRLnXeMhBv2xNqzknZC3f9Y57XoLxcvBfZBCATuEkUmBHWRsywAlS9WWiZCM6BC5EeElv9ukSBV5fmHZAYZBBymZCxV1X0uACDQBf";
@@ -193,6 +194,10 @@ async function addLead(student_id, course_name, formId) {
       return console.log("No such a Source called Facebook")
     }
 
+    
+    const sequenceValue = await getNextSequenceValue('unique_id_sequence');
+    console.log(sequenceValue)
+
     // Create new lead
     const newLead = await Lead.create({
       date: date,
@@ -203,6 +208,7 @@ async function addLead(student_id, course_name, formId) {
       student_id: student_id,
       user_id: null,
       source_id: source_document._id,
+      reference_number: sequenceValue,
     });
 
     // Add FB Lead Instant Form ID to a seperate folder for loging
@@ -299,6 +305,14 @@ async function addFollowUp(lead_id, user_id, status) {
   }
 }
 
+async function getNextSequenceValue(sequenceName) {
+  const counter = await Counter.findOneAndUpdate(
+      { _id: sequenceName },
+      { $inc: { sequence_value: 1 } },
+      { returnOriginal: false, upsert: true }
+  );
+  return counter.sequence_value;
+}
 
 
 module.exports = {
