@@ -15,6 +15,7 @@ const User = require("../models/user");
 const Notification = require("../models/notification");
 const notificationController = require('../controllers/notificationController')
 const moment = require("moment-timezone");
+const fs = require('fs');
 const startTime = 8
 const endTime = 17
 const threshold = 4
@@ -450,7 +451,13 @@ async function addLead(req, res) {
     }
 
     // Current datetime
-    const currentDateTime = new Date();
+
+    let currentDate = new Date();
+    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+    const currentDateTime = new Date(
+      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+    );
+
 
     try {
       const newFollowUp = await FollowUp.create({
@@ -500,7 +507,11 @@ async function addLeadWithExistingStudent(req,res) {
     }
 
     // Current datetime
-    const currentDateTime = new Date();
+    let currentDate = new Date();
+    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+    const currentDateTime = new Date(
+      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+    );
 
     // Check if student exists in the student table
     if (!mongoose.Types.ObjectId.isValid(student_id)) {
@@ -599,7 +610,11 @@ async function addLeadWithExistingStudent(req,res) {
     }
 
     // Current datetime
-    const currentDateTime = new Date();
+    let currentDate = new Date();
+    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+    const currentDateTime = new Date(
+      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+    );
 
     try {
       const newFollowUp = await FollowUp.create({
@@ -804,10 +819,10 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
       // Return the least and next least allocated counselors
       const leastAllocatedCounselor = counselorLeadCounts[0]?.counselor || null;
       const nextLeastAllocatedCounselor = counselorLeadCounts[1]?.counselor || null;
-      console.log("check", { leastAllocatedCounselor, nextLeastAllocatedCounselor });
+      //console.log("check", { leastAllocatedCounselor, nextLeastAllocatedCounselor });
       return { leastAllocatedCounselor, nextLeastAllocatedCounselor };
     } else {
-      console.log("No counsellor");
+      //console.log("No counsellor");
       return null;
     }
 
@@ -825,33 +840,48 @@ async function assignLeadsToCounselors() {
       assignment_id: { $exists: true }, status_id: '65ada2f8da40b8a3e87bda82'
     });
 
+    console.log("Leads with new status",leadsWithAssignedStatus.length)
     const leadsToReassign = await Promise.all(leadsWithAssignedStatus.map(async (lead) => {
 
       //find latest counsellor asssgnment for the lead
       const leadLastAssigned = await CounsellorAssignment.findOne({ lead_id: lead._id })
         .sort({ assigned_at: -1 })
         .exec();
-
-      const currentTime = new Date().getHours;
-      const statusChangedTime = leadLastAssigned.assigned_at;
+      let currentDate = new Date();
+      const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+      const currentDateTime = new Date(
+        moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+      );
+      const currentTime = currentDateTime.getUTCHours();
 
       // if (statusChangedTime.getHours() + threshold < endTime) {
       //   return null
       // }
 
-      const addedTime = leadLastAssigned.assigned_at.getHours
+      const addedTime = leadLastAssigned.assigned_at.getUTCHours()
 
       //Check leads came after 17h to 8h
       if (!(addedTime >= startTime && addedTime <= endTime)) {
         if (Math.abs(currentTime - startTime) >= threshold) {
+          //console.log(leadLastAssigned.assigned_at,addedTime,currentTime,currentDateTime)
+
           return lead
         }
         else {
           return null
         }
       }
+
+      const CurrentDateCounterPart =  moment.utc(currentDateTime).startOf('day');
+
+      // Get date from the timestamp
+      const AddedDateCounterPart =  moment.utc(leadLastAssigned.assigned_at).startOf('day');
+
+      //console.log(leadLastAssigned.assigned_at,addedTime,AddedDateCounterPart,currentTime,currentDateTime,CurrentDateCounterPart,CurrentDateCounterPart.isSame(AddedDateCounterPart))
+
       //Check leads came before 17h but not filled with 4h threshold
-      if (Math.abs(addedTime - endTime) <= 4) {
+      if(!CurrentDateCounterPart.isSame(AddedDateCounterPart)){
+      if (Math.abs(addedTime - endTime) <= threshold) {
         if ((Math.abs(addedTime - endTime)) + (Math.abs(currentTime - startTime)) >= threshold) {
           return lead
         }
@@ -859,6 +889,8 @@ async function assignLeadsToCounselors() {
           return null
         }
       }
+      }
+
 
       //Other normal flow
       if (Math.abs(currentTime - addedTime) >= threshold) {
@@ -869,9 +901,37 @@ async function assignLeadsToCounselors() {
       }
 
     }));
-
     // Remove null values from the leadsToReassign array
     const filteredLeadsToReassign = leadsToReassign.filter((lead) => lead !== null);
+    console.log('leads to re assign', filteredLeadsToReassign.length)
+
+
+
+
+    // File path
+    const filePath = 'filtered_leads2.txt';
+    
+    // Write data to the file
+    fs.writeFile(filePath, JSON.stringify(filteredLeadsToReassign), (err) => {
+      if (err) {
+        console.error("Error writing to file:", err);
+        return;
+      }
+      console.log("Data has been written to", filePath);
+    });
+
+
+    const filePath2 = 'original_new_leads2.txt';
+    
+    // Write data to the file
+    fs.writeFile(filePath2, JSON.stringify(leadsWithAssignedStatus), (err) => {
+      if (err) {
+        console.error("Error writing to file:", err);
+        return;
+      }
+      console.log("Data has been written to", filePath);
+    });
+
 
     // Assign leads to counselors
     for (const lead of filteredLeadsToReassign) {
@@ -895,7 +955,11 @@ async function assignLeadsToCounselors() {
       if (latestAssignment.counsellor_id && latestAssignment.counsellor_id.equals(leastAllocatedCounselor)) {
 
         try {
-          const currentDateTime = new Date();
+          const currentDate = new Date();
+          const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+          const currentDateTime = new Date(
+            moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+          );
 
           //create new counsellor assignment
           const counsellorAssignment = await CounsellorAssignment.create({
@@ -924,8 +988,11 @@ async function assignLeadsToCounselors() {
       } else {
         //if the counsello is different
         try {
-          const currentDateTime = new Date();
-
+          const currentDate = new Date();
+          const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+          const currentDateTime = new Date(
+            moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+          );
           //create new counsellor assignment
           const counsellorAssignment = await CounsellorAssignment.create({
             lead_id: lead._id,
@@ -1008,14 +1075,21 @@ async function assignLeadsToCounselorsTest(req, res) {
 
 
 function scheduleNextExecution() {
-  const currentHour = new Date().getHours();
+  let currentDate = new Date();
+      const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+      const currentDateTime = new Date(
+        moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+      );
+  const currentHour = currentDateTime.getUTCHours();
+  console.log(currentDateTime, currentDateTime.getUTCHours())
+  assignLeadsToCounselors();
 
   // Check if the current time is between 8 am and 5 pm
   if (currentHour >= startTime && currentHour <= endTime) {
     // Call the function every minute
     setInterval(() => {
       assignLeadsToCounselors();
-    }, 60000);
+    }, 3000000);
   } else {
     console.log('Scheduled time is over. Task will resume tomorrow at 8 am.');
   }

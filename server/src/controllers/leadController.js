@@ -819,10 +819,10 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
       // Return the least and next least allocated counselors
       const leastAllocatedCounselor = counselorLeadCounts[0]?.counselor || null;
       const nextLeastAllocatedCounselor = counselorLeadCounts[1]?.counselor || null;
-      console.log("check", { leastAllocatedCounselor, nextLeastAllocatedCounselor });
+      //console.log("check", { leastAllocatedCounselor, nextLeastAllocatedCounselor });
       return { leastAllocatedCounselor, nextLeastAllocatedCounselor };
     } else {
-      console.log("No counsellor");
+      //console.log("No counsellor");
       return null;
     }
 
@@ -852,39 +852,57 @@ async function assignLeadsToCounselors() {
       const currentDateTime = new Date(
         moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
       );
-      const currentTime = currentDateTime.getHours();
-      const statusChangedTime = leadLastAssigned.assigned_at;
+      const currentTime = currentDateTime.getUTCHours();
 
       // if (statusChangedTime.getHours() + threshold < endTime) {
       //   return null
       // }
 
-      const addedTime = leadLastAssigned.assigned_at.getHours()
+      const addedTime = leadLastAssigned.assigned_at.getUTCHours()
+      //console.log(addedTime,currentTime)
 
       //Check leads came after 17h to 8h
       if (!(addedTime >= startTime && addedTime <= endTime)) {
         if (Math.abs(currentTime - startTime) >= threshold) {
+          //console.log(leadLastAssigned.assigned_at,addedTime,currentTime,currentDateTime)
+          console.log("1 Value")
           return lead
         }
         else {
+          console.log("Null Value")
           return null
         }
       }
 
+      const CurrentDateCounterPart =  moment.utc(currentDateTime).startOf('day');
+
+      // Get date from the timestamp
+      const AddedDateCounterPart =  moment.utc(leadLastAssigned.assigned_at).startOf('day');
+
+      //console.log(leadLastAssigned.assigned_at,addedTime,AddedDateCounterPart,currentTime,currentDateTime,CurrentDateCounterPart,CurrentDateCounterPart.isSame(AddedDateCounterPart))
+
       //Check leads came before 17h but not filled with 4h threshold
+      if(!CurrentDateCounterPart.isSame(AddedDateCounterPart)){
       if (Math.abs(addedTime - endTime) <= threshold) {
         if ((Math.abs(addedTime - endTime)) + (Math.abs(currentTime - startTime)) >= threshold) {
+          console.log("2 Value")
           return lead
         }
         else {
+          console.log("Null Value")
           return null
         }
       }
+      }
+
+
       //Other normal flow
       if (Math.abs(currentTime - addedTime) >= threshold) {
+        console.log("3 Value")
         return lead
       }
       else {
+        console.log("Null Value")
         return null
       }
 
@@ -892,12 +910,13 @@ async function assignLeadsToCounselors() {
     // Remove null values from the leadsToReassign array
     const filteredLeadsToReassign = leadsToReassign.filter((lead) => lead !== null);
     console.log('leads to re assign', filteredLeadsToReassign.length)
+    //console.log('leads to re assign', filteredLeadsToReassign)
 
 
 
 
     // File path
-    const filePath = 'filtered_leads.txt';
+    const filePath = 'filtered_leads4.txt';
     
     // Write data to the file
     fs.writeFile(filePath, JSON.stringify(filteredLeadsToReassign), (err) => {
@@ -909,7 +928,7 @@ async function assignLeadsToCounselors() {
     });
 
 
-    const filePath2 = 'original_new_leads.txt';
+    const filePath2 = 'original_new_leads4.txt';
     
     // Write data to the file
     fs.writeFile(filePath2, JSON.stringify(leadsWithAssignedStatus), (err) => {
@@ -941,20 +960,21 @@ async function assignLeadsToCounselors() {
 
       //check if the lead allocated to same counselor
       if (latestAssignment.counsellor_id && latestAssignment.counsellor_id.equals(leastAllocatedCounselor)) {
-
+        console.log("allocated to same counsellor assignment");
         try {
-          let currentDate = new Date();
+          const currentDate = new Date();
           const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
           const currentDateTime = new Date(
             moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
           );
+
           //create new counsellor assignment
           const counsellorAssignment = await CounsellorAssignment.create({
             lead_id: lead._id,
             counsellor_id: nextLeastAllocatedCounselor._id,
             assigned_at: currentDateTime
           });
-
+          console.log("counsellor assignment made - ", counsellorAssignment);
           // Update lead with assignment_id
           lead.assignment_id = counsellorAssignment._id;
           lead.counsellor_id = nextLeastAllocatedCounselor._id;
@@ -975,7 +995,7 @@ async function assignLeadsToCounselors() {
       } else {
         //if the counsello is different
         try {
-          let currentDate = new Date();
+          const currentDate = new Date();
           const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
           const currentDateTime = new Date(
             moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
@@ -986,6 +1006,7 @@ async function assignLeadsToCounselors() {
             counsellor_id: leastAllocatedCounselor._id,
             assigned_at: currentDateTime
           });
+          console.log("counsellor assignment made - ", counsellorAssignment);
 
           // Update lead with assignment_id
           lead.assignment_id = counsellorAssignment._id;
@@ -1067,14 +1088,16 @@ function scheduleNextExecution() {
       const currentDateTime = new Date(
         moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
       );
-  const currentHour = currentDateTime.getHours();
+  const currentHour = currentDateTime.getUTCHours();
+  console.log(currentDateTime, currentDateTime.getUTCHours())
+  assignLeadsToCounselors();
 
   // Check if the current time is between 8 am and 5 pm
   if (currentHour >= startTime && currentHour <= endTime) {
     // Call the function every minute
     setInterval(() => {
       assignLeadsToCounselors();
-    }, 60000);
+    }, 3000000);
   } else {
     console.log('Scheduled time is over. Task will resume tomorrow at 8 am.');
   }
