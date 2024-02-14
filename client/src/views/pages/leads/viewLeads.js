@@ -255,10 +255,10 @@ export default function ViewLeads() {
                         })
                       });
                       if (!updateLead.ok) {
-                        if (res.status === 401) {
+                        if (updateLead.status === 401) {
                           console.error('Unauthorized access. Logging out.');
                           logout();
-                        } else if (res.status === 500) {
+                        } else if (updateLead.status === 500) {
                           console.error('Internal Server Error.');
                           logout();
                           return;
@@ -312,9 +312,7 @@ export default function ViewLeads() {
             color="error"
             // when onclick is called, it should open a dialog to confirm the deletion of the lead. so here should pass the lead id to the handle delete
             onClick={() => {
-              console.log('clicked', params.row.id);
-              const arr = [params.row.id];
-              handleSingleDelete(arr);
+              // delete logic here
             }}
             style={{ marginLeft: '5px' }}
             sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px' }}
@@ -649,21 +647,6 @@ export default function ViewLeads() {
     navigate('/app/leads/add');
   }
 
-  const handleSingleDelete = (id) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You will not be able to recover this imaginary file!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'No, keep it'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        addToArchivedLeads(id);
-      }
-    });
-  };
-
   const handleDelete = () => {
     if (arrIds.length > 0) {
       Swal.fire({
@@ -683,12 +666,12 @@ export default function ViewLeads() {
     }
   };
 
-  async function addToArchivedLeads(id) {
+  async function addToArchivedLeads() {
     try {
       const res = await fetch(config.apiUrl + 'api/leads-archive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-        body: id ? JSON.stringify({ ids: id }) : JSON.stringify({ ids: arrIds })
+        body: JSON.stringify({ ids: arrIds })
       });
 
       if (res.ok) {
@@ -945,7 +928,7 @@ export default function ViewLeads() {
               </Grid>
             </Grid>
 
-            {arrIds.length > 1 && (
+            {arrIds.length > 0 && (
               <Grid container justifyContent="flex-end">
                 <Grid item>
                   <Button

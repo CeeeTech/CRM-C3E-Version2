@@ -12,12 +12,9 @@ const Counter = require("../models/counter");
 const csvtojson = require('csvtojson');
 // const { emitNotification } = require("../service/notification");
 const User = require("../models/user");
-const LeadArchived = require("../models/lead_archived");
-const FollowUpArchived = require("../models/followUp_archived");
 const Notification = require("../models/notification");
 const notificationController = require('../controllers/notificationController')
 const moment = require("moment-timezone");
-const fs = require('fs');
 const startTime = 8
 const endTime = 17
 const threshold = 4
@@ -59,7 +56,7 @@ async function bulkImport(req, res) {
 
     // Check if all required columns are present
     const missingColumns = requiredColumns.filter(column => !csvHeaders.includes(column));
-    
+
     if (missingColumns.length > 0) {
         console.error('Missing columns:', missingColumns);
         res.status(400).json({ success: false, message: `Missing columns:${missingColumns}` });
@@ -113,7 +110,7 @@ async function bulkImport(req, res) {
     console.error('Error processing CSV file:', error);
     res.status(500).json({ success: false, message: 'Error processing CSV file' });
   }
-  
+
 }
 
 async function addLeadDefault(student_id, course_code) {
@@ -158,7 +155,7 @@ async function addLeadDefault(student_id, course_code) {
       source_id: source_document._id,
     });
 
-    
+
 
     const { leastAllocatedCounselor } = await getLeastAndNextLeastAllocatedCounselors(course_document._id.toString());
 
@@ -172,7 +169,7 @@ async function addLeadDefault(student_id, course_code) {
         assigned_at: date,
       });
       const status = await Status.findOne({ name: 'New' })
-      
+
       const newFollowUp = await addFollowUpDefualt(newLead._id, cid, status._id,date)
 
       const studentDoc = await Student.findById({ _id: student_id })
@@ -198,7 +195,7 @@ async function addLeadDefault(student_id, course_code) {
       console.log("No counselor available");
 
       const status = await Status.findOne({ name: 'New' })
-      
+
       const newFollowUp = await addFollowUpDefualt(newLead._id, null, status._id,date)
 
 
@@ -252,80 +249,6 @@ async function addFollowUpDefualt(lead_id, user_id, status,date) {
   }
 }
 
-// move the lead, student and followup to the lead_archive, student_archive and followup_archive tables
-// and delete the lead, student and followup from the lead, student and followup tables
-async function archiveLeads(req, res) {
-  let ids = req.body.ids; // Retrieve the IDs from the request body
-
-  // If ids is not an array, convert it to an array with a single element
-  if (!Array.isArray(ids)) {
-    ids = [ids];
-  }
-
-  for (const id of ids) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(404).json({ error: "Invalid lead ID" });
-    }
-
-    const lead = await Lead.findById(id);
-
-    if (!lead) {
-      return res.status(404).json({ error: "No such lead" });
-    }
-
-    const student = await Student.findById(lead.student_id);
-
-    if (!student) {
-      return res.status(404).json({ error: "No such student" });
-    }
-
-    const followUps = await FollowUp.find({ lead_id: id });
-
-    if (followUps.length === 0) {
-      return res.status(404).json({ error: "No follow-up entries for the lead" });
-    }
-
-    // Create a new lead_archive entry
-    const newLeadArchived = await LeadArchived.create({
-      date: lead.date,
-      scheduled_at: lead.scheduled_at,
-      scheduled_to: lead.scheduled_to,
-      course_id: lead.course_id,
-      branch_id: lead.branch_id,
-      student_id: lead.student_id,
-      user_id: lead.user_id,
-      source_id: lead.source_id,
-      reference_number: lead.reference_number,
-    });
-
-    // Create a new student_archive entry
-    // const newStudentArchived = await StudentArchived.create({
-    //   name: student.name,
-    //   nic: student.nic,
-    //   dob: student.dob,
-    //   contact_no: student.contact_no,
-    //   email: student.email,
-    //   address: student.address,
-    // });
-
-    // Create new followup_archive entries
-    for (const followUp of followUps) {
-      await FollowUpArchived.create({
-        lead_id: followUp.lead_id,
-        user_id: followUp.user_id,
-        status_id: followUp.status_id,
-        date: followUp.date,
-      });
-    }
-
-    // Delete the lead, student, and follow-up from the original tables
-    await Lead.findByIdAndDelete(id);
-    // await Student.findByIdAndDelete(lead.student_id);
-    await FollowUp.deleteMany({ lead_id: id });
-  }
-
-  res.status(200).json({ message: "Leads archived successfully" });
-}
 
 async function restoreLead(req, res) {
   const { id } = req.body;
@@ -385,7 +308,7 @@ async function addLead(req, res) {
 
   // add student
   try {
-    
+
     // Create a new student
     const newStudent = await Student.create({
       name,
@@ -527,13 +450,7 @@ async function addLead(req, res) {
     }
 
     // Current datetime
-
-    let currentDate = new Date();
-    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-    const currentDateTime = new Date(
-      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-    );
-
+    const currentDateTime = new Date();
 
     try {
       const newFollowUp = await FollowUp.create({
@@ -583,11 +500,7 @@ async function addLeadWithExistingStudent(req,res) {
     }
 
     // Current datetime
-    let currentDate = new Date();
-    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-    const currentDateTime = new Date(
-      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-    );
+    const currentDateTime = new Date();
 
     // Check if student exists in the student table
     if (!mongoose.Types.ObjectId.isValid(student_id)) {
@@ -686,11 +599,7 @@ async function addLeadWithExistingStudent(req,res) {
     }
 
     // Current datetime
-    let currentDate = new Date();
-    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-    const currentDateTime = new Date(
-      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-    );
+    const currentDateTime = new Date();
 
     try {
       const newFollowUp = await FollowUp.create({
@@ -916,26 +825,21 @@ async function assignLeadsToCounselors() {
       assignment_id: { $exists: true }, status_id: '65ada2f8da40b8a3e87bda82'
     });
 
-    console.log("Leads with new status",leadsWithAssignedStatus.length)
     const leadsToReassign = await Promise.all(leadsWithAssignedStatus.map(async (lead) => {
 
       //find latest counsellor asssgnment for the lead
       const leadLastAssigned = await CounsellorAssignment.findOne({ lead_id: lead._id })
         .sort({ assigned_at: -1 })
         .exec();
-      let currentDate = new Date();
-      const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-      const currentDateTime = new Date(
-        moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-      );
-      const currentTime = currentDateTime.getHours();
+
+      const currentTime = new Date().getHours;
       const statusChangedTime = leadLastAssigned.assigned_at;
 
       // if (statusChangedTime.getHours() + threshold < endTime) {
       //   return null
       // }
 
-      const addedTime = leadLastAssigned.assigned_at.getHours()
+      const addedTime = leadLastAssigned.assigned_at.getHours
 
       //Check leads came after 17h to 8h
       if (!(addedTime >= startTime && addedTime <= endTime)) {
@@ -946,9 +850,8 @@ async function assignLeadsToCounselors() {
           return null
         }
       }
-
       //Check leads came before 17h but not filled with 4h threshold
-      if (Math.abs(addedTime - endTime) <= threshold) {
+      if (Math.abs(addedTime - endTime) <= 4) {
         if ((Math.abs(addedTime - endTime)) + (Math.abs(currentTime - startTime)) >= threshold) {
           return lead
         }
@@ -956,6 +859,7 @@ async function assignLeadsToCounselors() {
           return null
         }
       }
+
       //Other normal flow
       if (Math.abs(currentTime - addedTime) >= threshold) {
         return lead
@@ -965,37 +869,9 @@ async function assignLeadsToCounselors() {
       }
 
     }));
+
     // Remove null values from the leadsToReassign array
     const filteredLeadsToReassign = leadsToReassign.filter((lead) => lead !== null);
-    console.log('leads to re assign', filteredLeadsToReassign.length)
-
-
-
-
-    // File path
-    const filePath = 'filtered_leads.txt';
-    
-    // Write data to the file
-    fs.writeFile(filePath, JSON.stringify(filteredLeadsToReassign), (err) => {
-      if (err) {
-        console.error("Error writing to file:", err);
-        return;
-      }
-      console.log("Data has been written to", filePath);
-    });
-
-
-    const filePath2 = 'original_new_leads.txt';
-    
-    // Write data to the file
-    fs.writeFile(filePath2, JSON.stringify(leadsWithAssignedStatus), (err) => {
-      if (err) {
-        console.error("Error writing to file:", err);
-        return;
-      }
-      console.log("Data has been written to", filePath);
-    });
-
 
     // Assign leads to counselors
     for (const lead of filteredLeadsToReassign) {
@@ -1019,11 +895,8 @@ async function assignLeadsToCounselors() {
       if (latestAssignment.counsellor_id && latestAssignment.counsellor_id.equals(leastAllocatedCounselor)) {
 
         try {
-          let currentDate = new Date();
-          const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-          const currentDateTime = new Date(
-            moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-          );
+          const currentDateTime = new Date();
+
           //create new counsellor assignment
           const counsellorAssignment = await CounsellorAssignment.create({
             lead_id: lead._id,
@@ -1051,11 +924,8 @@ async function assignLeadsToCounselors() {
       } else {
         //if the counsello is different
         try {
-          let currentDate = new Date();
-          const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-          const currentDateTime = new Date(
-            moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-          );
+          const currentDateTime = new Date();
+
           //create new counsellor assignment
           const counsellorAssignment = await CounsellorAssignment.create({
             lead_id: lead._id,
@@ -1138,12 +1008,7 @@ async function assignLeadsToCounselorsTest(req, res) {
 
 
 function scheduleNextExecution() {
-  let currentDate = new Date();
-      const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-      const currentDateTime = new Date(
-        moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-      );
-  const currentHour = currentDateTime.getHours();
+  const currentHour = new Date().getHours();
 
   // Check if the current time is between 8 am and 5 pm
   if (currentHour >= startTime && currentHour <= endTime) {
@@ -1175,6 +1040,5 @@ module.exports = {
   assignLeadsToCounselorsTest,
   restoreLead,
   addLeadWithExistingStudent,
-  bulkImport,
-  archiveLeads,
+  bulkImport
 };

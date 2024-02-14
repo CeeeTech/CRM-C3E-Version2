@@ -295,7 +295,8 @@ export default function UpdateForm() {
 
     // Set the initial value for showProductType
     const counselorUserType = userTypes.find((userType) => userType.name === 'counselor');
-    const shouldShowProductType = selectedUserType === counselorUserType?._id;
+    const admin_counselorUserType = userTypes.find((userType) => userType.name === 'admin_counselor');
+    const shouldShowProductType = selectedUserType === counselorUserType?._id || selectedUserType === admin_counselorUserType?._id;
     setShowProductType(shouldShowProductType);
 
     // Check if product type exists in userData, and set the selectedProductTypes state
