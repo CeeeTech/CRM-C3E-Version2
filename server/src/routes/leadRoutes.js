@@ -1,12 +1,16 @@
 const express = require('express')
+const multer = require('multer');
 const leadController = require('../controllers/leadController')
 const fbLeadController = require('../controllers/fbLeadController')
 
 const router = express.Router()
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 router.get('/leads', leadController.getLeads)
 router.post('/leads', leadController.addLead)
 router.post('/leadswithstudent', leadController.addLeadWithExistingStudent)
+router.post('/leads/bulk-import', upload.single('file'),leadController.bulkImport)
 router.get('/leads/:id', leadController.getOneLeadSummaryDetails)
 router.patch('/leads/:id', leadController.updateLead)
 router.post('/lead-restore/', leadController.restoreLead)

@@ -15,7 +15,6 @@ const User = require("../models/user");
 const Notification = require("../models/notification");
 const notificationController = require('../controllers/notificationController')
 const moment = require("moment-timezone");
-const fs = require('fs');
 const startTime = 8
 const endTime = 17
 const threshold = 4
@@ -451,13 +450,7 @@ async function addLead(req, res) {
     }
 
     // Current datetime
-
-    let currentDate = new Date();
-    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-    const currentDateTime = new Date(
-      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-    );
-
+    const currentDateTime = new Date();
 
     try {
       const newFollowUp = await FollowUp.create({
@@ -507,11 +500,7 @@ async function addLeadWithExistingStudent(req,res) {
     }
 
     // Current datetime
-    let currentDate = new Date();
-    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-    const currentDateTime = new Date(
-      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-    );
+    const currentDateTime = new Date();
 
     // Check if student exists in the student table
     if (!mongoose.Types.ObjectId.isValid(student_id)) {
@@ -610,11 +599,7 @@ async function addLeadWithExistingStudent(req,res) {
     }
 
     // Current datetime
-    let currentDate = new Date();
-    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-    const currentDateTime = new Date(
-      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-    );
+    const currentDateTime = new Date();
 
     try {
       const newFollowUp = await FollowUp.create({
@@ -840,26 +825,21 @@ async function assignLeadsToCounselors() {
       assignment_id: { $exists: true }, status_id: '65ada2f8da40b8a3e87bda82'
     });
 
-    console.log("Leads with new status",leadsWithAssignedStatus.length)
     const leadsToReassign = await Promise.all(leadsWithAssignedStatus.map(async (lead) => {
 
       //find latest counsellor asssgnment for the lead
       const leadLastAssigned = await CounsellorAssignment.findOne({ lead_id: lead._id })
         .sort({ assigned_at: -1 })
         .exec();
-      let currentDate = new Date();
-      const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-      const currentDateTime = new Date(
-        moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-      );
-      const currentTime = currentDateTime.getHours();
+
+      const currentTime = new Date().getHours;
       const statusChangedTime = leadLastAssigned.assigned_at;
 
       // if (statusChangedTime.getHours() + threshold < endTime) {
       //   return null
       // }
 
-      const addedTime = leadLastAssigned.assigned_at.getHours()
+      const addedTime = leadLastAssigned.assigned_at.getHours
 
       //Check leads came after 17h to 8h
       if (!(addedTime >= startTime && addedTime <= endTime)) {
@@ -870,9 +850,8 @@ async function assignLeadsToCounselors() {
           return null
         }
       }
-
       //Check leads came before 17h but not filled with 4h threshold
-      if (Math.abs(addedTime - endTime) <= threshold) {
+      if (Math.abs(addedTime - endTime) <= 4) {
         if ((Math.abs(addedTime - endTime)) + (Math.abs(currentTime - startTime)) >= threshold) {
           return lead
         }
@@ -880,6 +859,7 @@ async function assignLeadsToCounselors() {
           return null
         }
       }
+
       //Other normal flow
       if (Math.abs(currentTime - addedTime) >= threshold) {
         return lead
@@ -889,37 +869,9 @@ async function assignLeadsToCounselors() {
       }
 
     }));
+
     // Remove null values from the leadsToReassign array
     const filteredLeadsToReassign = leadsToReassign.filter((lead) => lead !== null);
-    console.log('leads to re assign', filteredLeadsToReassign.length)
-
-
-
-
-    // File path
-    const filePath = 'filtered_leads.txt';
-    
-    // Write data to the file
-    fs.writeFile(filePath, JSON.stringify(filteredLeadsToReassign), (err) => {
-      if (err) {
-        console.error("Error writing to file:", err);
-        return;
-      }
-      console.log("Data has been written to", filePath);
-    });
-
-
-    const filePath2 = 'original_new_leads.txt';
-    
-    // Write data to the file
-    fs.writeFile(filePath2, JSON.stringify(leadsWithAssignedStatus), (err) => {
-      if (err) {
-        console.error("Error writing to file:", err);
-        return;
-      }
-      console.log("Data has been written to", filePath);
-    });
-
 
     // Assign leads to counselors
     for (const lead of filteredLeadsToReassign) {
@@ -943,11 +895,8 @@ async function assignLeadsToCounselors() {
       if (latestAssignment.counsellor_id && latestAssignment.counsellor_id.equals(leastAllocatedCounselor)) {
 
         try {
-          let currentDate = new Date();
-          const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-          const currentDateTime = new Date(
-            moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-          );
+          const currentDateTime = new Date();
+
           //create new counsellor assignment
           const counsellorAssignment = await CounsellorAssignment.create({
             lead_id: lead._id,
@@ -975,11 +924,8 @@ async function assignLeadsToCounselors() {
       } else {
         //if the counsello is different
         try {
-          let currentDate = new Date();
-          const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-          const currentDateTime = new Date(
-            moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-          );
+          const currentDateTime = new Date();
+
           //create new counsellor assignment
           const counsellorAssignment = await CounsellorAssignment.create({
             lead_id: lead._id,
@@ -1062,12 +1008,7 @@ async function assignLeadsToCounselorsTest(req, res) {
 
 
 function scheduleNextExecution() {
-  let currentDate = new Date();
-      const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-      const currentDateTime = new Date(
-        moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-      );
-  const currentHour = currentDateTime.getHours();
+  const currentHour = new Date().getHours();
 
   // Check if the current time is between 8 am and 5 pm
   if (currentHour >= startTime && currentHour <= endTime) {

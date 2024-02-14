@@ -22,6 +22,8 @@ const AccessDeniedPage = Loadable(lazy(() => import('views/pages/access-denied-p
 const UserForm = Loadable(lazy(() => import('views/pages/account/profile')));
 const FBHealth = Loadable(lazy(() => import('views/pages/settings/fbLeadsHealth')));
 const PageNotFound = Loadable(lazy(() => import('views/pages/page-not-found/page-not-found')));
+const BulkImport = Loadable(lazy(() => import('views/pages/leads/bulkImport')));
+
 
 export default function ThemeRoutes() {
   const { user } = useAuthContext();
@@ -43,6 +45,7 @@ export default function ThemeRoutes() {
           <Route index element={permissions?.lead?.includes('read') ? <ViewLead /> : <Navigate to="/app/access-denied" replace />} />
           <Route path="filtered" element={permissions?.lead?.includes('read') ? <ViewFilteredLead /> : <Navigate to="/app/access-denied" replace />} />
           <Route path="add" element={permissions?.lead?.includes('create') ? <AddLead /> : <Navigate to="/app/access-denied" replace />} />
+          <Route path="bulk-import" element={(permissions?.lead?.includes('create')&&permissions?.lead?.includes('read-all')) ? <BulkImport /> : <Navigate to="/app/access-denied" replace />} />
           <Route path="addfollowup" element={permissions?.lead?.includes('update') ? <AddFollowup /> : <Navigate to="/app/access-denied" replace />} />
           <Route
             path="update"
