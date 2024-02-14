@@ -773,7 +773,8 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
   try {
     // Fetch all counselors (user_type with name 'Counselor')
     const counselorType = await User_type.findOne({ name: 'counselor' });
-    const counselors = await User.find({ user_type: counselorType._id });
+    const admin_counselorType = await User_type.findOne({ name: 'admin_counselor' });
+    const counselors = await User.find({ $or: [{ user_type_id: counselorType._id }, { user_type_id: admin_counselorType._id }] });
     // console.log(counselors);
 
     // Fetch leads with counselors allocated
