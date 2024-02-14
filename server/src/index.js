@@ -74,8 +74,8 @@ app.use("/api", counsellorAssignmentRoutes);
 app.use("/api", notificationRoutes);
 
 const httpsOptions = {
-  key: fs.readFileSync('/etc/letsencrypt/live/apicrm.sltc.ac.lk/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/apicrm.sltc.ac.lk/fullchain.pem')
+  key: fs.readFileSync(' /etc/letsencrypt/live/devapicrm.sltc.ac.lk/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/devapicrm.sltc.ac.lk/fullchain.pem')
 };
 
 // Create an HTTP server and listen on the specified port
