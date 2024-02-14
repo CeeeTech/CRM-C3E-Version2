@@ -218,7 +218,7 @@ async function updateUserByIdUsernameEmailUserTypeProductType(req, res) {
     const updateData = {
       name,
       email,
-      userType,
+      user_type: userType,
       product_type,
     };
 
