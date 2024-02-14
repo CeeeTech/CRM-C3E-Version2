@@ -1090,14 +1090,12 @@ function scheduleNextExecution() {
       );
   const currentHour = currentDateTime.getUTCHours();
   console.log(currentDateTime, currentDateTime.getUTCHours())
-  assignLeadsToCounselors();
-
   // Check if the current time is between 8 am and 5 pm
   if (currentHour >= startTime && currentHour <= endTime) {
     // Call the function every minute
     setInterval(() => {
       assignLeadsToCounselors();
-    }, 3000000);
+    }, 1200000);
   } else {
     console.log('Scheduled time is over. Task will resume tomorrow at 8 am.');
   }
