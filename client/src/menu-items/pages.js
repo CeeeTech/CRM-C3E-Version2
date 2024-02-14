@@ -38,6 +38,13 @@ const pages = {
           url: '/app/leads/add',
           breadcrumbs: false
         },
+        {
+          id: 'bulkImport',
+          title: 'Bulk Import',
+          type: 'item',
+          url: '/app/leads/bulk-import',
+          breadcrumbs: false
+        },
       ]
     },
     {
