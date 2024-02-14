@@ -310,6 +310,12 @@ export default function ViewLeads() {
           <Button
             variant="contained"
             color="error"
+            // when onclick is called, it should open a dialog to confirm the deletion of the lead. so here should pass the lead id to the handle delete
+            onClick={() => {
+              console.log('clicked', params.row.id);
+              const arr = [params.row.id];
+              handleSingleDelete(arr);
+            }}
             style={{ marginLeft: '5px' }}
             sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px' }}
           >
@@ -643,6 +649,21 @@ export default function ViewLeads() {
     navigate('/app/leads/add');
   }
 
+  const handleSingleDelete = (id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this imaginary file!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        addToArchivedLeads(id);
+      }
+    });
+  };
+
   const handleDelete = () => {
     if (arrIds.length > 0) {
       Swal.fire({
@@ -662,12 +683,12 @@ export default function ViewLeads() {
     }
   };
 
-  async function addToArchivedLeads() {
+  async function addToArchivedLeads(id) {
     try {
       const res = await fetch(config.apiUrl + 'api/leads-archive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-        body: JSON.stringify({ ids: arrIds })
+        body: id ? JSON.stringify({ ids: id }) : JSON.stringify({ ids: arrIds })
       });
 
       if (res.ok) {
@@ -924,7 +945,7 @@ export default function ViewLeads() {
               </Grid>
             </Grid>
 
-            {arrIds.length > 0 && (
+            {arrIds.length > 1 && (
               <Grid container justifyContent="flex-end">
                 <Grid item>
                   <Button
