@@ -14,6 +14,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddIcon from '@mui/icons-material/Add';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
@@ -759,6 +760,31 @@ export default function ViewLeads() {
     });
   };
 
+  const handleExport = () => {
+    // need to export column data to excel
+    // console.log(data);
+    const csvRows = [];
+    const headers = Object.keys(data[0]);
+    csvRows.push(headers.join(','));
+    for (const row of data) {
+      const values = headers.map((header) => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+    const csvData = csvRows.join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'leads.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <>
       <MainCard
@@ -986,10 +1012,33 @@ export default function ViewLeads() {
                 </Grid>
               </Grid>
             </Grid>
+            <Grid item xs={12} sm={12} container justifyContent="space-between">
+              <Grid item justifyContent="flex-start">
+                {permissions?.lead?.includes('read-all') && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      handleExport();
+                    }}
+                    style={{
+                      borderRadius: '20px',
+                      padding: '8px 16px',
+                      minWidth: '120px',
+                      height: '40px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <GetAppIcon sx={{ fontSize: '20px' }} />
+                    <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Export Leads</span>
+                  </Button>
+                )}
+              </Grid>
 
-            {arrIds.length > 1 && permissions?.lead?.includes('delete-all') && (
-              <Grid container justifyContent="flex-end">
-                <Grid item>
+              <Grid item justifyContent="flex-end">
+                {arrIds.length > 1 && permissions?.lead?.includes('delete-all') && (
                   <Button
                     variant="contained"
                     color="error"
@@ -1012,9 +1061,9 @@ export default function ViewLeads() {
                       <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Delete Leads</span>
                     )}
                   </Button>
-                </Grid>
+                )}
               </Grid>
-            )}
+            </Grid>
 
             <Grid item xs={12} sm={12}>
               <div style={{ height: 710, width: '100%' }}>
