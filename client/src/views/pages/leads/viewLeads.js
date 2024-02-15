@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import MainCard from 'ui-component/cards/MainCard';
-import { InputAdornment, TextField, useMediaQuery, Typography } from '@mui/material';
+import { InputAdornment, TextField, useMediaQuery, Typography, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid-premium';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -94,6 +94,8 @@ export default function ViewLeads() {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [status, setStatus] = useState([]);
   const [arrIds, setArrIds] = useState([]);
+
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [counselors, setCounselors] = useState([]);
   const [adminCounselors, setAdminCounselors] = useState([]);
@@ -307,18 +309,20 @@ export default function ViewLeads() {
           >
             <ModeIcon sx={{ fontSize: '24px' }} />
           </Button>
-          <Button
-            variant="contained"
-            color="error"
-            // when onclick is called, it should open a dialog to confirm the deletion of the lead. so here should pass the lead id to the handle delete
-            onClick={() => {
-              // delete logic here
-            }}
-            style={{ marginLeft: '5px' }}
-            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px' }}
-          >
-            <DeleteIcon sx={{ fontSize: '24px' }} />
-          </Button>
+          {permissions?.lead?.includes('delete') && (
+            <Button
+              variant="contained"
+              color="error"
+              // when onclick is called, it should open a dialog to confirm the deletion of the lead. so here should pass the lead id to the handle delete
+              onClick={() => {
+                handleSingleDelete(params.row.id);
+              }}
+              style={{ marginLeft: '5px' }}
+              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px' }}
+            >
+              <DeleteIcon sx={{ fontSize: '24px' }} />
+            </Button>
+          )}
           {params.row.status != 'Registered' &&
             params.row.status != 'Fake' &&
             params.row.status != 'Duplicate' &&
@@ -648,10 +652,10 @@ export default function ViewLeads() {
   }
 
   const handleDelete = () => {
-    if (arrIds.length > 0) {
+    if (arrIds.length > 1) {
       Swal.fire({
         title: 'Are you sure?',
-        text: 'You will not be able to recover this imaginary file!',
+        text: 'You will not be able to recover this file!',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, delete it!',
@@ -667,6 +671,7 @@ export default function ViewLeads() {
   };
 
   async function addToArchivedLeads() {
+    setIsDeleting(true);
     try {
       const res = await fetch(config.apiUrl + 'api/leads-archive', {
         method: 'POST',
@@ -697,8 +702,62 @@ export default function ViewLeads() {
     } catch (error) {
       console.error('Error fetching sources:', error.message);
       showErrorSwalBulk();
+    } finally {
+      setIsDeleting(false);
     }
   }
+
+  async function addToSingleArchivedLead(ids) {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(config.apiUrl + 'api/leads-archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+        body: JSON.stringify({ ids })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        console.log(json);
+        setLoading(true);
+        fetchLeads();
+        showSuccessSwalBulk();
+      } else {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        } else if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+          return;
+        } else {
+          console.error('Error fetching sources:', res.statusText);
+          showErrorSwalBulk();
+        }
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching sources:', error.message);
+      showErrorSwalBulk();
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  const handleSingleDelete = (leadId) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this file!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        addToSingleArchivedLead([leadId]);
+      }
+    });
+  };
 
   return (
     <>
@@ -928,13 +987,14 @@ export default function ViewLeads() {
               </Grid>
             </Grid>
 
-            {arrIds.length > 0 && (
+            {arrIds.length > 1 && permissions?.lead?.includes('delete-all') && (
               <Grid container justifyContent="flex-end">
                 <Grid item>
                   <Button
                     variant="contained"
                     color="error"
                     onClick={handleDelete}
+                    disabled={arrIds.length <= 1 || isDeleting}
                     style={{
                       borderRadius: '20px',
                       padding: '8px 16px',
@@ -946,7 +1006,11 @@ export default function ViewLeads() {
                     }}
                   >
                     <DeleteIcon sx={{ fontSize: '20px' }} />
-                    <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Delete Leads</span>
+                    {isDeleting ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Delete Leads</span>
+                    )}
                   </Button>
                 </Grid>
               </Grid>

@@ -16,59 +16,69 @@ async function assignLeadToCounsellor(req, res) {
     const currentDateTime = new Date(
       moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
     );
-    if (!mongoose.Types.ObjectId.isValid(counsellor_id)) {
-      res.status(404).json({ error: "No such counsellor" });
+
+    // If counsellor_id is not valid or is null, find the counselor with the least assigned leads
+    let selectedCounsellorId = counsellor_id;
+    if (!mongoose.Types.ObjectId.isValid(counsellor_id) || !counsellor_id) {
+      // Your logic to select the counselor with the least assigned leads goes here
+      // For example:
+      const leastAllocatedCounselor = await findCounselorWithLeastAssignedLeads();
+      selectedCounsellorId = leastAllocatedCounselor._id;
     }
+
     if (!mongoose.Types.ObjectId.isValid(lead_id)) {
-      res.status(404).json({ error: "No such lead" });
-    } else {
-      const LatestCounsellorAssignment = await CounsellorAssignment.findOne({
-        lead_id: lead_id,
-      })
-        .sort({ assigned_at: -1 })
-        .exec();
-      const latAssignedCounsellor = LatestCounsellorAssignment.counsellor_id;
+      return res.status(404).json({ error: "No such lead" });
+    }
 
-      const leadDoc = await Lead.findOne({ _id: lead_id }).populate(
-        "student_id",
-        "email"
-      );
+    const LatestCounsellorAssignment = await CounsellorAssignment.findOne({
+      lead_id: lead_id,
+    })
+      .sort({ assigned_at: -1 })
+      .exec();
+    const lastAssignedCounsellorId = LatestCounsellorAssignment?.counsellor_id;
 
-      console.log("notification was called");
+    const leadDoc = await Lead.findOne({ _id: lead_id }).populate(
+      "student_id",
+      "email"
+    );
+
+    if (lastAssignedCounsellorId) {
+      console.log("Notification was called");
       await notificationController.sendNotificationToCounselor(
-        latAssignedCounsellor,
+        lastAssignedCounsellorId,
         `The lead belongs to ${leadDoc.student_id.email} has been revoked from you.`,
         "error"
       );
-      console.log("notification was called after");
-
-      const counsellorAssignment = await CounsellorAssignment.create({
-        lead_id: lead_id,
-        counsellor_id: counsellor_id,
-        assigned_at: currentDateTime,
-      });
-
-      console.log("notification was called");
-      await notificationController.sendNotificationToCounselor(
-        counsellor_id,
-        `You have assigned a new lead belongs to ${leadDoc.student_id.email}.`,
-        "success"
-      );
-      console.log("notification was called after");
-
-      res.status(200).json(counsellorAssignment);
-
-      const lead = await Lead.findById(lead_id);
-
-      // Update lead with assignment_id
-      lead.assignment_id = counsellorAssignment._id;
-      lead.counsellor_id = counsellor_id;
-      await lead.save();
-
-      console.log("lead", lead);
-      console.log("assignment", counsellorAssignment);
+      console.log("Notification was called after");
     }
+
+    const counsellorAssignment = await CounsellorAssignment.create({
+      lead_id: lead_id,
+      counsellor_id: selectedCounsellorId,
+      assigned_at: currentDateTime,
+    });
+
+    console.log("Notification was called");
+    await notificationController.sendNotificationToCounselor(
+      selectedCounsellorId,
+      `You have assigned a new lead belongs to ${leadDoc.student_id.email}.`,
+      "success"
+    );
+    console.log("Notification was called after");
+
+    const lead = await Lead.findById(lead_id);
+
+    // Update lead with assignment_id
+    lead.assignment_id = counsellorAssignment._id;
+    lead.counsellor_id = selectedCounsellorId;
+    await lead.save();
+
+    console.log("Lead:", lead);
+    console.log("Assignment:", counsellorAssignment);
+
+    res.status(200).json(counsellorAssignment);
   } catch (error) {
+    console.error("Error assigning lead to counselor:", error);
     res.status(400).json({ error: error.message });
   }
 }

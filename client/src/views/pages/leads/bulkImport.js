@@ -49,20 +49,22 @@ const BulkImport = () => {
         let message = '';
 
         if (uploadDetails.successfully_added_leads > 0) {
-          message += `Lead Added Successfully: ${uploadDetails.successfully_added_leads}\n`;
+          message += `<li>Lead Added Successfully: ${uploadDetails.successfully_added_leads}</li>`;
         }
 
         if (uploadDetails.added_without_counselor > 0) {
-          message += `Leads Added Without Counselor: ${uploadDetails.added_without_counselor}\n`;
+          message += `<li>Leads Added Without Counselor: ${uploadDetails.added_without_counselor}</li>`;
         }
 
         if (uploadDetails.existing_student_added_leads > 0) {
-          message += `Invalid Leads: ${uploadDetails.existing_student_added_leads}\n`;
+          message += `<li>Invalid Leads: ${uploadDetails.existing_student_added_leads}</li>`;
         }
 
         if (uploadDetails.error_added_leads > 0) {
-          message += `Error Adding Lead: ${uploadDetails.error_added_leads}\n`;
+          message += `<li>Error Adding Lead: ${uploadDetails.error_added_leads}</li>`;
         }
+
+        message += '</ul>';
 
         if (message) {
           Toast.fire({
