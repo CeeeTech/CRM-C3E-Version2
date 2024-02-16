@@ -159,7 +159,7 @@ async function processNewLead(leadId, formId) {
     console.log(error);
 
   }
-  await addLead(student_id, course_you_are_looking_for, formId,leadId);
+  await addLead(student_id, course_var, formId,leadId);
 
 }
 

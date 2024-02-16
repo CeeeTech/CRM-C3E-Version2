@@ -682,6 +682,7 @@ export default function ViewLeads() {
         const json = await res.json();
         console.log(json);
         setLoading(true);
+        setArrIds([]);
         fetchLeads();
         showSuccessSwalBulk();
       } else {
