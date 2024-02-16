@@ -95,12 +95,12 @@ async function processNewLead(leadId, formId) {
   }
   catch (err) {
     // Log errors
-    return console.warn(`An invalid response was received from the Facebook API:`, err.response.data ? JSON.stringify(err.response.data) : err.response);
+    return console.warn(`An invalid response was received from the Facebook API:`);
   }
 
   // Ensure valid API response returned
   if (!response.data || (response.data && (response.data.error || !response.data.field_data))) {
-    return console.warn(`An invalid response was received from the Facebook API: ${response}`);
+    return console.warn(`An invalid response was received from the Facebook API`);
   }
 
   // Lead fields
@@ -159,11 +159,11 @@ async function processNewLead(leadId, formId) {
     console.log(error);
 
   }
-  await addLead(student_id, course_you_are_looking_for, formId);
+  await addLead(student_id, course_you_are_looking_for, formId,leadId);
 
 }
 
-async function addLead(student_id, course_name, formId) {
+async function addLead(student_id, course_name, formId,leadId) {
   try {
 
     let currentDate = new Date();
@@ -215,7 +215,8 @@ async function addLead(student_id, course_name, formId) {
     const newFbLeadFormEntry = await FbLeadForm.create({
       created_at: date,
       lead_id: newLead._id,
-      form_id: formId
+      form_id: formId,
+      fb_lead_id: leadId
     });
 
     const { leastAllocatedCounselor } = await leadsController.getLeastAndNextLeastAllocatedCounselors(course_document._id.toString());
@@ -252,6 +253,17 @@ async function addLead(student_id, course_name, formId) {
       console.log("assignment", newCounsellorAssignment)
     } else {
       console.log("No counselor available");
+
+      const status = await Status.findOne({ name: "New" });
+
+      const newFollowUp = await addFollowUp(
+        newLead._id,
+        null,
+        status._id,
+        date
+      );
+
+      return "added_without_counselor";
     }
 
 

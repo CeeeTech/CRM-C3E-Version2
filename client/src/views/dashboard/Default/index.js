@@ -31,13 +31,7 @@ const Dashboard = () => {
   const { permissions } = user || {};
   const { userType } = user || {};
 
-  useEffect(() => {
-    setLoading(false);
-
-    socket.on('notification', (message) => {
-      console.log('Received notification:', message);
-    });
-  }, []);
+  
 
   const [cardData, setCardData] = useState();
 
@@ -77,7 +71,9 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       console.log("user type", userType.name);
-
+      socket.on('notification', (message) => {
+        console.log('Received notification:', message);
+      });
       if (permissions?.lead?.includes('read-all')) {
         fetchStatusDetails().then(() => setLoading(false));
       } else if (permissions?.lead?.includes('read') && userType?.name === 'counselor') {

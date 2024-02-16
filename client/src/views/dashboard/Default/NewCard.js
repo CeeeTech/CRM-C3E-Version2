@@ -67,6 +67,7 @@ const EarningCard = ({ isLoading, data }) => {
   const handleClick = () => {
     navigate('/app/leads/filtered?status=New');
   };
+  console.log(isLoading,"sanu check")
 
   return (
     <>

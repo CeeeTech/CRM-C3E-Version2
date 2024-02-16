@@ -60,7 +60,12 @@ app.use((req, res, next) => {
   if (req.path === "/api/test-leads") {
     return next();
   }
-  requireAuth(req, res, next);
+  if (req.path === "/api/fbtestaddlead") {
+    return next();
+  }
+  return next();
+
+  //requireAuth(req, res, next);
 });
 
 // Use the student routes

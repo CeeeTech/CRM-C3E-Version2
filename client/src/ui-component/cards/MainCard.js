@@ -29,7 +29,16 @@ const MainCard = forwardRef(
       sx = {},
       title,
       buttonLabel,
+      buttonLabelImport,
+      buttonLabelExport,
+      buttonLabelDeleteAll,
       onButtonClick,
+      onButtonClickImport,
+      onButtonClickExport,
+      onButtonClickDeleteAll,
+      isDeleting,
+      arrIds,
+
       ...others
     },
     ref
@@ -58,11 +67,41 @@ const MainCard = forwardRef(
                 {darkTitle ? <Typography variant="h3">{title}</Typography> : title}
               </div>
             }
-            action={buttonLabel && onButtonClick && (
+            action={<div > 
+              {buttonLabelDeleteAll && onButtonClickDeleteAll && (
+              <Button 
+              variant="contained"
+              color="error"
+              disabled={arrIds.length <= 1 || isDeleting}
+              style={{ marginRight: '5px' }}
+
+              onClick={onButtonClickDeleteAll}>
+                {buttonLabelDeleteAll}
+              </Button>
+            )}
+            {buttonLabelExport && onButtonClickExport && (
+             
+             <Button variant="contained" color="primary" onClick={onButtonClickExport}
+             style={{ marginRight: '5px' }}
+             sx={{  padding: '8px', minWidth: 'unset', width: '38px', height: '36px', backgroundColor: '#2c1a96' }}
+             
+             >
+               {buttonLabelExport}
+             </Button>
+           )}
+            {buttonLabel && onButtonClick && (
               <Button variant="contained" color="primary" onClick={onButtonClick}>
                 {buttonLabel}
               </Button>
             )}
+            {buttonLabelImport && onButtonClickImport && (
+              <Button variant="contained" color="primary" onClick={onButtonClickImport}>
+                {buttonLabelImport}
+              </Button>
+            )}
+          
+            
+            </div>}
           />
         )}
 

@@ -901,11 +901,11 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
     });
     const counselors = await User.find({
       $or: [
-        { user_type_id: counselorType._id },
-        { user_type_id: admin_counselorType._id },
+        { user_type: counselorType._id },
+        { user_type: admin_counselorType._id },
       ],
     });
-    // console.log(counselors);
+    //console.log("these are the counselors",counselors,admin_counselorType._id,counselorType._id);
 
     // Fetch leads with counselors allocated
     const leadsWithCounselors = await CounsellorAssignment.find();
@@ -919,7 +919,7 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
       );
     });
 
-    // console.log(filteredCounselors)
+   // console.log(filteredCounselors)
 
     // Count the number of leads each counselor has
     const counselorLeadCounts = filteredCounselors.map((counselor) => {
@@ -1016,7 +1016,7 @@ async function assignLeadsToCounselors() {
           if (Math.abs(addedTime - endTime) <= threshold) {
             if (
               Math.abs(addedTime - endTime) +
-                Math.abs(currentTime - startTime) >=
+              Math.abs(currentTime - startTime) >=
               threshold
             ) {
               console.log("2 Value");
@@ -1094,6 +1094,8 @@ async function assignLeadsToCounselors() {
         await getLeastAndNextLeastAllocatedCounselors(
           lead.course_id.toString()
         );
+
+      console.log('allocated counsellors',leastAllocatedCounselor, nextLeastAllocatedCounselor)
 
       //check if the lead allocated to same counselor
       if (
@@ -1229,7 +1231,7 @@ async function assignLeadsToCounselorsTest(req, res) {
   }
 }
 
-function scheduleNextExecution() {
+async function scheduleNextExecution() {
   let currentDate = new Date();
   const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
   const currentDateTime = new Date(
@@ -1243,6 +1245,7 @@ function scheduleNextExecution() {
     setInterval(() => {
       assignLeadsToCounselors();
     }, 1200000);
+    //1200000
   } else {
     console.log("Scheduled time is over. Task will resume tomorrow at 8 am.");
   }
@@ -1251,7 +1254,7 @@ function scheduleNextExecution() {
   setTimeout(scheduleNextExecution, 3600000); // 1 hour in milliseconds
 }
 
-// Start the initial execution
+
 scheduleNextExecution();
 
 module.exports = {
@@ -1268,4 +1271,5 @@ module.exports = {
   addLeadWithExistingStudent,
   bulkImport,
   archiveLeads,
+  assignLeadsToCounselors
 };

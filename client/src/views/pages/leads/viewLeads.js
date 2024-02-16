@@ -3,15 +3,14 @@ import Grid from '@mui/material/Grid';
 import MainCard from 'ui-component/cards/MainCard';
 import { InputAdornment, TextField, useMediaQuery, Typography, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid-premium';
 import FacebookIcon from '@mui/icons-material/Facebook';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import MonitorIcon from '@mui/icons-material/Monitor';
 import ModeIcon from '@mui/icons-material/Mode';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Autocomplete from '@mui/material/Autocomplete';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import DateRangeIcon from '@mui/icons-material/DateRange';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
@@ -32,13 +31,7 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer>
-      <GridToolbarExport />
-    </GridToolbarContainer>
-  );
-}
+
 
 const ODD_OPACITY = 0.2;
 
@@ -79,7 +72,10 @@ export default function ViewLeads() {
   const iconComponentMap = {
     facebook: <FacebookIcon color="primary" style={{ color: 'blue' }} />,
     manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
-    internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />
+    internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
+    bulk: <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
+
+    
   };
   const [courses, setCourses] = useState([]);
   const [source, setSources] = useState([]);
@@ -200,32 +196,34 @@ export default function ViewLeads() {
   };
 
   const columns = [
-    { field: 'reference_number', headerName: 'ID', width: 70 },
     {
       field: 'source',
-      headerName: 'Source',
-      width: 70,
+      headerName: '',
+      width: 10,
+      align: 'center',
       renderCell: (params) => (
         <Tooltip title={params.row.source} arrow>
           {iconComponentMap[params.row.source]}
         </Tooltip>
       )
     },
+    { field: 'reference_number', headerName: '#',align: 'center', width: 55,headerAlign: 'center' },
+    
     { field: 'date', headerName: 'Date', width: 100 },
-    { field: 'name', headerName: 'Student Name', width: 150 },
-    { field: 'contact_no', headerName: 'Contact No', width: 110 },
-    { field: 'status', headerName: 'Status', width: 110 },
+    { field: 'name', headerName: 'Student Name', width: 110 },
+    { field: 'contact_no', headerName: 'Contact No', width: 125 },
+    { field: 'status', headerName: 'Status', width: 70 },
     {
       field: 'course_code',
       headerName: 'Course',
-      width: 100
+      width: 75
     },
     {
       field: 'counsellor',
       headerName: 'Assign To',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 170,
+      width: 130,
       align: 'left',
       renderCell: (params) => {
         if (isAdminOrSupervisor) {
@@ -296,7 +294,7 @@ export default function ViewLeads() {
       headerName: '',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 160,
+      width: 135,
       align: 'right',
       renderCell: (params) => (
         <>
@@ -306,9 +304,9 @@ export default function ViewLeads() {
             onClick={() => {
               updateLead(params.row.id);
             }}
-            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px' }}
+            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
           >
-            <ModeIcon sx={{ fontSize: '24px' }} />
+            <ModeIcon sx={{ fontSize: '18px' }} />
           </Button>
           {permissions?.lead?.includes('delete') && (
             <Button
@@ -319,9 +317,9 @@ export default function ViewLeads() {
                 handleSingleDelete(params.row.id);
               }}
               style={{ marginLeft: '5px' }}
-              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px' }}
+              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
             >
-              <DeleteIcon sx={{ fontSize: '24px' }} />
+              <DeleteIcon sx={{ fontSize: '18px' }} />
             </Button>
           )}
           {params.row.status != 'Registered' &&
@@ -335,9 +333,9 @@ export default function ViewLeads() {
                   navigate('/app/leads/addfollowup?id=' + params.row.id);
                 }}
                 style={{ marginLeft: '5px' }}
-                sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px', backgroundColor: '#039116' }}
+                sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px', backgroundColor: '#039116' }}
               >
-                <AddCircleOutlineIcon sx={{ fontSize: '24px', color: 'white' }} />
+                <AddCircleOutlineIcon sx={{ fontSize: '18px', color: 'white' }} />
               </Button>
             )}
 
@@ -352,9 +350,9 @@ export default function ViewLeads() {
                 restorePrevious(params.row.id);
               }}
               style={{ marginLeft: '5px' }}
-              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px', backgroundColor: '#d1bd0a' }}
+              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px', backgroundColor: '#d1bd0a' }}
             >
-              <SettingsBackupRestoreIcon sx={{ fontSize: '24px', color: 'white' }} />
+              <SettingsBackupRestoreIcon sx={{ fontSize: '18px', color: 'white' }} />
             </Button>
           )}
         </>
@@ -789,8 +787,11 @@ export default function ViewLeads() {
     <>
       <MainCard
         title="View Leads"
+        isDeleting={isDeleting}
+        arrIds={arrIds}
         buttonLabel={
           permissions?.lead?.includes('create') ? (
+            
             <>
               Add New Lead
               <AddIcon style={{ marginLeft: '5px' }} /> {/* Adjust styling as needed */}
@@ -798,14 +799,36 @@ export default function ViewLeads() {
           ) : undefined
         }
         onButtonClick={handleButtonClick}
+        buttonLabelExport={
+          permissions?.lead?.includes('create') ? (
+            
+            <>
+              <GetAppIcon style={{ fontSize: '25px' }} /> {/* Adjust styling as needed */}
+            </>
+          ) : undefined
+        }
+        buttonLabelDeleteAll={arrIds.length > 1 && permissions?.lead?.includes('delete-all') && (
+         
+            <>
+            <DeleteIcon sx={{ fontSize: '20px' }} />
+            {isDeleting ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Delete Leads</span>
+            )}
+            </>
+            
+        )}
+        onButtonClickDeleteAll={handleDelete}
+        onButtonClickExport={handleExport}
       >
-        {loading && <LinearProgress />}
-        <Grid container direction="column" justifyContent="center">
-          <Grid container sx={{ p: 3 }} spacing={matchDownSM ? 0 : 2}>
+        {loading && <LinearProgress style={{marginBottom:'30px'}} />}
+        <Grid style={{marginTop:'-30px'}} container direction="column" justifyContent="left">
+          <Grid container sx={{ p: 3 , marginTop:'4px'}} spacing={matchDownSM ? 0 : 2}>
             <Grid container direction="column">
-              <Grid container sx={{ p: 3 }} spacing={matchDownSM ? 0 : 2}>
-                <Grid item xs={8} sm={5}>
-                  <Typography variant="h5" component="h5">
+              <Grid container  spacing={matchDownSM ? 0 : 2}>
+                <Grid item xs={12} sm={3.5}>
+                  <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
                     Search
                   </Typography>
                   <TextField
@@ -814,6 +837,7 @@ export default function ViewLeads() {
                     margin="normal"
                     name="course"
                     type="text"
+                    size="small"
                     SelectProps={{ native: true }}
                     value={sname}
                     onChange={(event) => {
@@ -829,9 +853,8 @@ export default function ViewLeads() {
                     }}
                   />
                 </Grid>
-                <Grid item xs={8} sm={5}></Grid>
-                <Grid item xs={8} sm={3}>
-                  <Typography variant="h5" component="h5">
+                <Grid item xs={12} sm={1.5}>
+                  <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
                     Course
                   </Typography>
                   <TextField
@@ -839,6 +862,7 @@ export default function ViewLeads() {
                     // label="First Name"
                     margin="normal"
                     name="course"
+                    size="small"
                     select
                     SelectProps={{ native: true }}
                     value={selectedCourse}
@@ -856,7 +880,6 @@ export default function ViewLeads() {
                     }}
                   >
                     <option value="" disabled>
-                      Select Course
                     </option>
                     {courses && courses.length > 0 ? (
                       courses.map((option) => (
@@ -871,8 +894,8 @@ export default function ViewLeads() {
                     )}
                   </TextField>
                 </Grid>
-                <Grid item xs={8} sm={3}>
-                  <Typography variant="h5" component="h5">
+                <Grid item xs={12} sm={1.5}>
+                  <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
                     Source
                   </Typography>
                   <TextField
@@ -880,6 +903,7 @@ export default function ViewLeads() {
                     // label="First Name"
                     margin="normal"
                     name="media"
+                    size="small"
                     select
                     SelectProps={{ native: true }}
                     value={selectedSource}
@@ -896,7 +920,6 @@ export default function ViewLeads() {
                     }}
                   >
                     <option value="" disabled>
-                      Select Source
                     </option>
                     {source && source.length > 0 ? (
                       source.map((option) => (
@@ -911,8 +934,8 @@ export default function ViewLeads() {
                     )}
                   </TextField>
                 </Grid>
-                <Grid item xs={8} sm={3}>
-                  <Typography variant="h5" component="h5">
+                <Grid item xs={12} sm={1.5}>
+                  <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
                     Status
                   </Typography>
                   <TextField
@@ -920,6 +943,7 @@ export default function ViewLeads() {
                     // label="First Name"
                     margin="normal"
                     name="status"
+                    size="small"
                     select
                     SelectProps={{ native: true }}
                     value={selectedStatus}
@@ -936,7 +960,6 @@ export default function ViewLeads() {
                     }}
                   >
                     <option value="" disabled>
-                      Select Status
                     </option>
                     {status && status.length > 0 ? (
                       status.map((option) => (
@@ -962,8 +985,8 @@ export default function ViewLeads() {
                     <option value="WhatsApp & SMS">WhatsApp & SMS</option> */}
                   </TextField>
                 </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Typography variant="h5" component="h5">
+                <Grid item xs={12} sm={2}>
+                <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
                     Date From
                   </Typography>
                   <TextField
@@ -972,22 +995,18 @@ export default function ViewLeads() {
                     margin="normal"
                     name="date"
                     type="date"
+                    size="small"
                     value={dataeFrom}
                     onChange={(event) => {
                       setDateFrom(event.target.value);
                       sortDateFrom(event.target.value);
                     }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <DateRangeIcon />
-                        </InputAdornment>
-                      )
-                    }}
+                    InputLabelProps={{ shrink: true }}
+                    
                   />
                 </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Typography variant="h5" component="h5">
+                <Grid item xs={12} sm={2}>
+                <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
                     Date To
                   </Typography>
                   <TextField
@@ -996,112 +1015,65 @@ export default function ViewLeads() {
                     margin="normal"
                     name="date"
                     type="date"
+                    size="small"
                     value={dateTo}
                     onChange={(event) => {
                       setDateTo(event.target.value);
                       sortDateTo(event.target.value);
                     }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <DateRangeIcon />
-                        </InputAdornment>
-                      )
-                    }}
+                   
                   />
                 </Grid>
+                
               </Grid>
             </Grid>
-            <Grid item xs={12} sm={12} container justifyContent="space-between">
-              <Grid item justifyContent="flex-start">
-                {permissions?.lead?.includes('read-all') && (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => {
-                      handleExport();
-                    }}
-                    style={{
-                      borderRadius: '20px',
-                      padding: '8px 16px',
-                      minWidth: '120px',
-                      height: '40px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between'
-                    }}
-                  >
-                    <GetAppIcon sx={{ fontSize: '20px' }} />
-                    <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Export Leads</span>
-                  </Button>
-                )}
-              </Grid>
+          
 
-              <Grid item justifyContent="flex-end">
-                {arrIds.length > 1 && permissions?.lead?.includes('delete-all') && (
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={handleDelete}
-                    disabled={arrIds.length <= 1 || isDeleting}
-                    style={{
-                      borderRadius: '20px',
-                      padding: '8px 16px',
-                      minWidth: '120px',
-                      height: '40px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between'
-                    }}
-                  >
-                    <DeleteIcon sx={{ fontSize: '20px' }} />
-                    {isDeleting ? (
-                      <CircularProgress size={24} color="inherit" />
-                    ) : (
-                      <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Delete Leads</span>
-                    )}
-                  </Button>
-                )}
-              </Grid>
+            
+          
+                    <Grid container  sx={{marginTop:'2px'}}alignItems="flex-start" spacing={matchDownSM ? 0 : 2}>
+
+      <Grid alignItems="flex-start" item xs={12} sm={12}>
+      {!loading && (
+       <StripedDataGrid
+       rows={data}
+       rowHeight={40}
+       columns={columns}
+       getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
+       // handle row click should trigger for the row but except for the edit and delete buttons and assign to dropdown
+       onRowClick={(params, event) => {
+         const field = event.target.closest('.MuiDataGrid-cell').getAttribute('data-field');
+
+         console.log(params);
+         console.log(field);
+
+         if (!(field == 'counsellor' || field == 'edit')) {
+           handleRowClick(params);
+         }
+       }}
+       initialState={{
+         pagination: {
+           paginationModel: { page: 0, pageSize: 25 }
+         }
+       }}
+     
+       getRowId={(row) => row.id}
+       getRowStyle={(params) => ({
+         backgroundColor: params.index % 2 === 0 ? '#fff' : '#f0f8ff'
+       })}
+       pageSizeOptions={[10, 25, 100]}
+       checkboxSelection
+       onRowSelectionModelChange={(ids) => {
+         setArrIds(ids);
+       }}
+     />
+      )}
+                
             </Grid>
+    </Grid>
 
-            <Grid item xs={12} sm={12}>
-              <div style={{ height: 710, width: '100%' }}>
-                <StripedDataGrid
-                  rows={data}
-                  columns={columns}
-                  getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
-                  // handle row click should trigger for the row but except for the edit and delete buttons and assign to dropdown
-                  onRowClick={(params, event) => {
-                    const field = event.target.closest('.MuiDataGrid-cell').getAttribute('data-field');
 
-                    console.log(params);
-                    console.log(field);
 
-                    if (!(field == 'counsellor' || field == 'edit')) {
-                      handleRowClick(params);
-                    }
-                  }}
-                  initialState={{
-                    pagination: {
-                      paginationModel: { page: 0, pageSize: 10 }
-                    }
-                  }}
-                  slots={{
-                    toolbar: CustomToolbar
-                  }}
-                  getRowId={(row) => row.id}
-                  getRowStyle={(params) => ({
-                    backgroundColor: params.index % 2 === 0 ? '#fff' : '#f0f8ff'
-                  })}
-                  pageSizeOptions={[10, 25, 100]}
-                  checkboxSelection
-                  onRowSelectionModelChange={(ids) => {
-                    setArrIds(ids);
-                  }}
-                />
-              </div>
-            </Grid>
           </Grid>
           <LeadDetailsPopup isOpen={!!selectedLead} onClose={() => setSelectedLead(null)} leadDetails={selectedLead} />
         </Grid>
