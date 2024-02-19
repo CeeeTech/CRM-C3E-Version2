@@ -77,9 +77,9 @@ const Dashboard = () => {
       if (permissions?.lead?.includes('read-all')) {
         fetchStatusDetails().then(() => setLoading(false));
       } else if (permissions?.lead?.includes('read') && userType?.name === 'counselor') {
-        fetchCardDetails(userType.name);
+        fetchCardDetails(userType.name).then(() => setLoading(false));
       } else if (permissions?.lead?.includes('read') && userType?.name === 'user') {
-        fetchCardDetails(userType.name);
+        fetchCardDetails(userType.name).then(() => setLoading(false));
       }
     }
   }, [user]);
