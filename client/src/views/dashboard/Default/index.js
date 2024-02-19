@@ -21,10 +21,6 @@ import config from '../../../config';
 import { useAuthContext } from '../../../context/useAuthContext';
 import io from 'socket.io-client';
 import Bumps from './Bumps';
-import { CircularProgress } from '@mui/material';
-import EarningIcon from 'assets/images/icons/undraw_statistic_chart_re_w0pk.svg';
-
-
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
@@ -92,69 +88,54 @@ const Dashboard = () => {
     <Grid container spacing={gridSpacing}>
       <Grid item xs={12}>
         <Grid container spacing={gridSpacing}>
-                    <Grid item lg={4} md={6} sm={6} xs={12}>
-             
-                <EarningCard  data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.NewCount} />
-              
-            </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-          <Grid container spacing={gridSpacing}>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-                <TotalIncomeDarkCard data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.meetingCount} />
-              </Grid>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-              <TotalOrderLineChartCard data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.registeredCount} />
-
-              </Grid>
-            </Grid>
+            <EarningCard isLoading={isLoading} data={cardData?.NewCount} />
+          </Grid>
+          <Grid item lg={4} md={6} sm={6} xs={12}>
+            <TotalOrderLineChartCard isLoading={isLoading} data={cardData?.ringNoAnswerCount} />
           </Grid>
           <Grid item lg={4} md={12} sm={12} xs={12}>
-          <TotalIncomeLightCard data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.fakeCount} />
-
+            <Grid container spacing={gridSpacing}>
+              <Grid item sm={6} xs={12} md={6} lg={12}>
+                <TotalIncomeDarkCard isLoading={isLoading} data={cardData?.meetingCount} />
+              </Grid>
+              <Grid item sm={6} xs={12} md={6} lg={12}>
+                <TotalIncomeLightCard isLoading={isLoading} data={cardData?.fakeCount} />
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
       <Grid item xs={12}>
         <Grid container spacing={gridSpacing}>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-            <EarningCard1 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.registeredCount} />
+            <EarningCard1 isLoading={isLoading} data={cardData?.registeredCount} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-          <Grid container spacing={gridSpacing}>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-              <TotalOrderLineChartCard1 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.emailCount} />
-
-              </Grid>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-                <TotalIncomeLightCard1 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.cousedetailsCount} />
-              </Grid>
-            </Grid>
+            <TotalOrderLineChartCard1 isLoading={isLoading} data={cardData?.emailCount} />
           </Grid>
           <Grid item lg={4} md={12} sm={12} xs={12}>
-          <TotalIncomeDarkCard1 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.duplicateCount} />
-
+            <Grid container spacing={gridSpacing}>
+              <Grid item sm={6} xs={12} md={6} lg={12}>
+                <TotalIncomeDarkCard1 isLoading={isLoading} data={cardData?.duplicateCount} />
+              </Grid>
+              <Grid item sm={6} xs={12} md={6} lg={12}>
+                <TotalIncomeLightCard1 isLoading={isLoading} data={cardData?.cousedetailsCount} />
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
       <Grid item xs={12}>
         <Grid container spacing={gridSpacing}>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-          <img src={EarningIcon} alt="Notification" />
+            <EarningCard2 isLoading={isLoading} data={cardData?.droppedCount} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-          <Grid container spacing={gridSpacing}>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-              <TotalOrderLineChartCard2 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.nextintakeCount} />
-
-              </Grid>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-              <EarningCard3 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.whatsappCount} />
-              </Grid>
-            </Grid>
+            <TotalOrderLineChartCard2 isLoading={isLoading} data={cardData?.nextintakeCount} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-          <EarningCard2 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.droppedCount} />
-
+            <EarningCard3 isLoading={isLoading} data={cardData?.whatsappCount} />
           </Grid>
         </Grid>
       </Grid>
