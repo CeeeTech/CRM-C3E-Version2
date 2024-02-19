@@ -32,7 +32,6 @@ import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
 
-
 const ODD_OPACITY = 0.2;
 
 const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
@@ -74,8 +73,6 @@ export default function ViewLeads() {
     manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
     internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
     bulk: <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
-
-    
   };
   const [courses, setCourses] = useState([]);
   const [source, setSources] = useState([]);
@@ -207,8 +204,8 @@ export default function ViewLeads() {
         </Tooltip>
       )
     },
-    { field: 'reference_number', headerName: '#',align: 'center', width: 55,headerAlign: 'center' },
-    
+    { field: 'reference_number', headerName: '#', align: 'center', width: 55, headerAlign: 'center' },
+
     { field: 'date', headerName: 'Date', width: 100 },
     { field: 'name', headerName: 'Student Name', width: 110 },
     { field: 'contact_no', headerName: 'Contact No', width: 125 },
@@ -792,7 +789,6 @@ export default function ViewLeads() {
         arrIds={arrIds}
         buttonLabel={
           permissions?.lead?.includes('create') ? (
-            
             <>
               Add New Lead
               <AddIcon style={{ marginLeft: '5px' }} /> {/* Adjust styling as needed */}
@@ -802,34 +798,34 @@ export default function ViewLeads() {
         onButtonClick={handleButtonClick}
         buttonLabelExport={
           permissions?.lead?.includes('create') ? (
-            
             <>
               <GetAppIcon style={{ fontSize: '25px' }} /> {/* Adjust styling as needed */}
             </>
           ) : undefined
         }
-        buttonLabelDeleteAll={arrIds.length > 1 && permissions?.lead?.includes('delete-all') && (
-         
+        buttonLabelDeleteAll={
+          arrIds.length > 1 &&
+          permissions?.lead?.includes('delete-all') && (
             <>
-            <DeleteIcon sx={{ fontSize: '20px' }} />
-            {isDeleting ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Delete Leads</span>
-            )}
+              <DeleteIcon sx={{ fontSize: '20px' }} />
+              {isDeleting ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Delete Leads</span>
+              )}
             </>
-            
-        )}
+          )
+        }
         onButtonClickDeleteAll={handleDelete}
         onButtonClickExport={handleExport}
       >
-        {loading && <LinearProgress style={{marginBottom:'30px'}} />}
-        <Grid style={{marginTop:'-30px'}} container direction="column" justifyContent="left">
-          <Grid container sx={{ p: 3 , marginTop:'4px'}} spacing={matchDownSM ? 0 : 2}>
+        {loading && <LinearProgress style={{ marginBottom: '30px' }} />}
+        <Grid style={{ marginTop: '-30px' }} container direction="column" justifyContent="left">
+          <Grid container sx={{ p: 3, marginTop: '4px' }} spacing={matchDownSM ? 0 : 2}>
             <Grid container direction="column">
-              <Grid container  spacing={matchDownSM ? 0 : 2}>
+              <Grid container spacing={matchDownSM ? 0 : 2}>
                 <Grid item xs={12} sm={3.5}>
-                  <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Search
                   </Typography>
                   <TextField
@@ -855,7 +851,7 @@ export default function ViewLeads() {
                   />
                 </Grid>
                 <Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Course
                   </Typography>
                   <TextField
@@ -880,8 +876,7 @@ export default function ViewLeads() {
                       )
                     }}
                   >
-                    <option value="" disabled>
-                    </option>
+                    <option value="" disabled></option>
                     {courses && courses.length > 0 ? (
                       courses.map((option) => (
                         <option key={option._id} value={option.name}>
@@ -896,7 +891,7 @@ export default function ViewLeads() {
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Source
                   </Typography>
                   <TextField
@@ -920,8 +915,7 @@ export default function ViewLeads() {
                       )
                     }}
                   >
-                    <option value="" disabled>
-                    </option>
+                    <option value="" disabled></option>
                     {source && source.length > 0 ? (
                       source.map((option) => (
                         <option key={option._id} value={option.name}>
@@ -936,7 +930,7 @@ export default function ViewLeads() {
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Status
                   </Typography>
                   <TextField
@@ -960,8 +954,7 @@ export default function ViewLeads() {
                       )
                     }}
                   >
-                    <option value="" disabled>
-                    </option>
+                    <option value="" disabled></option>
                     {status && status.length > 0 ? (
                       status.map((option) => (
                         <option key={option._id} value={option.name}>
@@ -987,7 +980,7 @@ export default function ViewLeads() {
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={2}>
-                <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Date From
                   </Typography>
                   <TextField
@@ -1003,11 +996,10 @@ export default function ViewLeads() {
                       sortDateFrom(event.target.value);
                     }}
                     InputLabelProps={{ shrink: true }}
-                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={2}>
-                <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Date To
                   </Typography>
                   <TextField
@@ -1022,59 +1014,48 @@ export default function ViewLeads() {
                       setDateTo(event.target.value);
                       sortDateTo(event.target.value);
                     }}
-                   
                   />
                 </Grid>
-                
               </Grid>
             </Grid>
-          
 
-            
-          
-                    <Grid container  sx={{marginTop:'2px'}}alignItems="flex-start" spacing={matchDownSM ? 0 : 2}>
+            <Grid container sx={{ marginTop: '2px' }} alignItems="flex-start" spacing={matchDownSM ? 0 : 2}>
+              <Grid alignItems="flex-start" item xs={12} sm={12}>
+                {!loading && (
+                  <StripedDataGrid
+                    rows={data}
+                    rowHeight={40}
+                    columns={columns}
+                    getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
+                    // handle row click should trigger for the row but except for the edit and delete buttons and assign to dropdown
+                    onRowClick={(params, event) => {
+                      const field = event.target.closest('.MuiDataGrid-cell').getAttribute('data-field');
 
-      <Grid alignItems="flex-start" item xs={12} sm={12}>
-      {!loading && (
-       <StripedDataGrid
-       rows={data}
-       rowHeight={40}
-       columns={columns}
-       getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
-       // handle row click should trigger for the row but except for the edit and delete buttons and assign to dropdown
-       onRowClick={(params, event) => {
-         const field = event.target.closest('.MuiDataGrid-cell').getAttribute('data-field');
+                      console.log(params);
+                      console.log(field);
 
-         console.log(params);
-         console.log(field);
-
-         if (!(field == 'counsellor' || field == 'edit')) {
-           handleRowClick(params);
-         }
-       }}
-       initialState={{
-         pagination: {
-           paginationModel: { page: 0, pageSize: 25 }
-         }
-       }}
-     
-       getRowId={(row) => row.id}
-       getRowStyle={(params) => ({
-         backgroundColor: params.index % 2 === 0 ? '#fff' : '#f0f8ff'
-       })}
-       pageSizeOptions={[10, 25, 100]}
-       checkboxSelection
-       onRowSelectionModelChange={(ids) => {
-         setArrIds(ids);
-       }}
-     />
-      )}
-                
+                      if (!(field == 'counsellor' || field == 'edit')) {
+                        handleRowClick(params);
+                      }
+                    }}
+                    initialState={{
+                      pagination: {
+                        paginationModel: { page: 0, pageSize: 25 }
+                      }
+                    }}
+                    getRowId={(row) => row.id}
+                    getRowStyle={(params) => ({
+                      backgroundColor: params.index % 2 === 0 ? '#fff' : '#f0f8ff'
+                    })}
+                    pageSizeOptions={[10, 25, 100]}
+                    checkboxSelection
+                    onRowSelectionModelChange={(ids) => {
+                      setArrIds(ids);
+                    }}
+                  />
+                )}
+              </Grid>
             </Grid>
-    </Grid>
-
-
-
           </Grid>
           <LeadDetailsPopup isOpen={!!selectedLead} onClose={() => setSelectedLead(null)} leadDetails={selectedLead} />
         </Grid>
