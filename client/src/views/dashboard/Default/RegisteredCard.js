@@ -14,8 +14,8 @@ import EarningIcon from 'assets/images/icons/register.svg';
 
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: '#994D1C',
-  color: '#fff',
+  backgroundColor: '#508D69',
+  color: theme.palette.primary.light,
   overflow: 'hidden',
   position: 'relative',
   '&:after': {
@@ -23,7 +23,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#E48F45',
+    background: '#80b567',
     borderRadius: '50%',
     top: -85,
     right: -95,
@@ -37,7 +37,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#E48F45',
+    background: '#80b567',
     borderRadius: '50%',
     top: -125,
     right: -15,
@@ -82,7 +82,7 @@ const EarningCard = ({ isLoading, data }) => {
                       sx={{
                         ...theme.typography.commonAvatar,
                         ...theme.typography.largeAvatar,
-                        backgroundColor: '#804118',
+                        backgroundColor: '#345e45',
                         mt: 1
                       }}
                     >

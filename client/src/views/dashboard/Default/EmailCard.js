@@ -1,20 +1,20 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 // material-ui
-import { styled, useTheme } from '@mui/material/styles';
-import { Avatar, Box, Grid, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useTheme, styled } from '@mui/material/styles';
+import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
+
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
-import SkeletonEarningCard from 'ui-component/cards/Skeleton/EarningCard';
-
+import TotalIncomeCard from 'ui-component/cards/Skeleton/TotalIncomeCard';
+import { useNavigate } from 'react-router-dom';
 // assets
 import EarningIcon from 'assets/images/icons/send-email.svg';
 
+// styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: '#d1b217',
-  color: '#fff',
+  backgroundColor: ' #d1b217',
   overflow: 'hidden',
   position: 'relative',
   '&:after': {
@@ -22,94 +22,91 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#FFC436',
+    background: `linear-gradient(210.04deg, #f5d536 -50.94%, rgba(144, 202, 249, 0) 83.49%)`,
     borderRadius: '50%',
-    top: -85,
-    right: -95,
+    top: -30,
+    right: -180,
     [theme.breakpoints.down('sm')]: {
       top: -105,
       right: -140
     }
+
   },
   '&:before': {
     content: '""',
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#FFC436',
+    background: 'linear-gradient(140.9deg, #f5d536 -14.02%, rgba(144, 202, 249, 0) 77.58%)',
     borderRadius: '50%',
-    top: -125,
-    right: -15,
-    opacity: 0.5,
-    [theme.breakpoints.down('sm')]: {
-      top: -155,
-      right: -70
-    }
+    top: -160,
+    right: -130
   }
 }));
 
-// ===========================|| DASHBOARD DEFAULT - EARNING CARD ||=========================== //
+// ==============================|| DASHBOARD - TOTAL INCOME LIGHT CARD ||============================== //
 
-const EarningCard = ({ isLoading, data }) => {
+const TotalIncomeLightCard = ({ isLoading, data }) => {
   const theme = useTheme();
-  const navigate = useNavigate();
 
   //fetch status details
-
-  const handleClick = () => {
-    navigate('/app/leads/filtered?status=Sent Email');
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
     
   }, []);
 
+  const handleClick = () => {
+    navigate('/app/leads/filtered?status=Sent Email');
+  };
 
   return (
     <>
       {isLoading ? (
-        <SkeletonEarningCard />
+        <TotalIncomeCard />
       ) : (
-        <CardWrapper onClick={handleClick} border={false} content={false}>
-          <Box sx={{ p: 2.25 }}>
-            <Grid container direction="column">
-              <Grid item>
-                <Grid container justifyContent="space-between">
-                  <Grid onClick={handleClick} item>
-                    <Avatar
-                      variant="rounded"
+        <CardWrapper border={false} content={false}>
+          <Box sx={{ p: 2 }}>
+            <List sx={{ py: 0 }}>
+              <ListItem alignItems="center" disableGutters sx={{ py: 0 }}>
+                <ListItemAvatar onClick={handleClick}>
+                  <Avatar
+                    variant="rounded"
+                    sx={{
+                      ...theme.typography.commonAvatar,
+                      ...theme.typography.largeAvatar,
+                      backgroundColor: '#e6c832',
+                      color: theme.palette.warning.dark
+                    }}
+                  >
+                    <img src={EarningIcon} alt="Notification" />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  sx={{
+                    py: 0,
+                    mt: 0.45,
+                    mb: 0.45
+                  }}
+                  primary={
+                    <Typography variant="h4" style={{ color: 'white' }}>
+                      {data}
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography
+                      variant="subtitle2"
                       sx={{
-                        ...theme.typography.commonAvatar,
-                        ...theme.typography.largeAvatar,
-                        backgroundColor: '#c99924',
-                        mt: 1
+                        color: '#fff',
+                        mt: 0.5
                       }}
                     >
-                      <img src={EarningIcon} alt="Notification" />
-                    </Avatar>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item>
-                <Grid container alignItems="center">
-                  <Grid item>
-                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{data}</Typography>
-                  </Grid>
-                  <Grid item></Grid>
-                </Grid>
-              </Grid>
-              <Grid item sx={{ mb: 1.25 }}>
-                <Typography
-                  sx={{
-                    fontSize: '1rem',
-                    fontWeight: 500,
-                    color: '#fff'
-                  }}
-                >
-                  SEND EMAIL
-                </Typography>
-              </Grid>
-            </Grid>
+                      SEND EMAIL
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            </List>
           </Box>
         </CardWrapper>
       )}
@@ -117,9 +114,9 @@ const EarningCard = ({ isLoading, data }) => {
   );
 };
 
-EarningCard.propTypes = {
+TotalIncomeLightCard.propTypes = {
   isLoading: PropTypes.bool,
   data: PropTypes.number,
 };
 
-export default EarningCard;
+export default TotalIncomeLightCard;
