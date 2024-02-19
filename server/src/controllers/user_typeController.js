@@ -5,7 +5,6 @@ async function getUser_types(req, res) {
     const user_types = await User_type.find();
     res.status(200).json(user_types);
   } catch (error) {
-    console.error("Error fetching user_types:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }

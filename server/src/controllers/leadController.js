@@ -22,12 +22,12 @@ const startTime = 8;
 const endTime = 17;
 const threshold = 4;
 //get all leads
+
 async function getLeads(req, res) {
   try {
     const leads = await Lead.find();
     res.status(200).json(leads);
   } catch (error) {
-    console.error("Error fetching leads:", error);
     res.status(500).json({ error: "Internal Sserver Error" });
   }
 }
@@ -63,15 +63,12 @@ async function bulkImport(req, res) {
     );
 
     if (missingColumns.length > 0) {
-      console.error("Missing columns:", missingColumns);
       res
         .status(400)
         .json({ success: false, message: `Missing columns:${missingColumns}` });
 
       // Handle the case where one or more columns are missing
     } else {
-      console.log("All required columns are present!");
-
       let bulk_upload_details = {
         successfuly_added_leads: 0,
         existing_student_added_leads: 0,
@@ -91,16 +88,19 @@ async function bulkImport(req, res) {
             contact_no: lead.contact_no,
             email: lead.email,
           });
-          console.log(newStudent._id);
-          console.log(newStudent.name);
           student_id = newStudent._id;
         }
 
         // Generate reference number for the lead
-        const reference_number = await getNextSequenceValue("unique_id_sequence");
+        const reference_number = await getNextSequenceValue(
+          "unique_id_sequence"
+        );
 
-        added_response = await addLeadDefault(student_id, lead.course_code, reference_number);
-        console.log("added response data", added_response);
+        added_response = await addLeadDefault(
+          student_id,
+          lead.course_code,
+          reference_number
+        );
         switch (added_response) {
           case "error":
             bulk_upload_details.error_added_leads =
@@ -124,22 +124,18 @@ async function bulkImport(req, res) {
         }
       }
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Number of Leads added successfully",
-          bulk_upload_details,
-        });
+      res.status(200).json({
+        success: true,
+        message: "Number of Leads added successfully",
+        bulk_upload_details,
+      });
     }
   } catch (error) {
-    console.error("Error processing CSV file:", error);
     res
       .status(500)
       .json({ success: false, message: "Error processing CSV file" });
   }
 }
-
 
 async function addLeadDefault(student_id, course_code, reference_number) {
   try {
@@ -149,7 +145,6 @@ async function addLeadDefault(student_id, course_code, reference_number) {
     date = new Date(
       moment.tz(date, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
     ); // Replace with your desired date and time in UTC
-    console.log("Converted Date:", date);
 
     // Check if course_name exists in the course table
     let course_document = await Course.findOne({ course_code: course_code });
@@ -162,14 +157,12 @@ async function addLeadDefault(student_id, course_code, reference_number) {
 
     // Check if student exists in the student table
     if (!mongoose.Types.ObjectId.isValid(student_id)) {
-      console.log("No such a Student");
       return "error";
     }
 
     // Check if source name exists in the source table
     const source_document = await Source.findOne({ name: "bulk" });
     if (!source_document) {
-      console.log("No such a Source called bulk");
       return "error";
     }
 
@@ -212,25 +205,18 @@ async function addLeadDefault(student_id, course_code, reference_number) {
       const studentDoc = await Student.findById({ _id: student_id });
 
       // Update lead with assignment_id
-      console.log("counselur assignment called");
       newLead.assignment_id = newCounsellorAssignment._id;
       newLead.counsellor_id = cid;
       await newLead.save();
 
-      console.log("notification was called");
       await notificationController.sendNotificationToCounselor(
         cid,
         `You have assigned a new lead belongs to ${studentDoc.email}.`,
         "success"
       );
-      console.log("notification was called after");
 
-      console.log("lead", newLead);
-      console.log("assignment", newCounsellorAssignment);
       return "success";
     } else {
-      console.log("No counselor available");
-
       const status = await Status.findOne({ name: "New" });
 
       const newFollowUp = await addFollowUpDefualt(
@@ -243,8 +229,6 @@ async function addLeadDefault(student_id, course_code, reference_number) {
       return "added_without_counselor";
     }
   } catch (error) {
-    // Log error
-    console.log("Error adding leads:", error);
     return "error";
   }
 }
@@ -252,17 +236,14 @@ async function addLeadDefault(student_id, course_code, reference_number) {
 async function addFollowUpDefualt(lead_id, user_id, status, date) {
   // Check if lead exists in the lead table
   if (!mongoose.Types.ObjectId.isValid(lead_id)) {
-    console.log("No such a lead to add followup");
   }
 
   // Check if status exists in the status table; the passed status is the id of the status
   else if (!mongoose.Types.ObjectId.isValid(status)) {
-    console.log("No such a status to add followup");
   }
 
   // Check if user exists in the user table
   else if (!mongoose.Types.ObjectId.isValid(user_id)) {
-    console.log("No such a user to add followup");
   }
 
   // Current datetime
@@ -279,11 +260,7 @@ async function addFollowUpDefualt(lead_id, user_id, status, date) {
     const leadDoc = await Lead.findById({ _id: lead_id });
     leadDoc.status_id = status;
     await leadDoc.save();
-
-    console.log("Added the follow-up");
-  } catch (error) {
-    console.log("Error adding follow-up", error);
-  }
+  } catch (error) {}
 }
 
 // move the lead, student and followup to the lead_archive, student_archive and followup_archive tables
@@ -368,7 +345,6 @@ async function restoreLead(req, res) {
   const followUps = await FollowUp.find({ lead_id: id })
     .sort({ date: -1 })
     .limit(1);
-  console.log(followUps);
   if (followUps.length === 0) {
     return res.status(404).json({ error: "No follow-up entries for the lead" });
   }
@@ -461,7 +437,6 @@ async function addLead(req, res) {
     const customDateUTC = new Date(
       moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
     ); // Replace with your desired date and time in UTC
-    console.log("Converted Date:", customDateUTC);
 
     // Check if student exists in the student table
     if (!mongoose.Types.ObjectId.isValid(student_id)) {
@@ -480,7 +455,6 @@ async function addLead(req, res) {
     }
 
     const sequenceValue = await getNextSequenceValue("unique_id_sequence");
-    console.log(sequenceValue);
 
     // Create new lead
     const newLead = await Lead.create({
@@ -523,23 +497,14 @@ async function addLead(req, res) {
       newLead.counsellor_id = cid;
       await newLead.save();
 
-      console.log("notification was called");
       await notificationController.sendNotificationToCounselor(
         cid,
         `You have assigned a new lead belongs to ${studentDoc.email}.`,
         "success"
       );
-      console.log("notification was called after");
-
-      console.log("lead", newLead);
-      console.log("assignment", newCounsellorAssignment);
     } else {
-      console.log("No counselor available");
     }
   } catch (error) {
-    // Log error
-    console.log("Error adding leads:", error);
-
     // Send internal server error response
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -582,12 +547,9 @@ async function addLead(req, res) {
 
       return res.status(200).json(newFollowUp);
     } catch (error) {
-      console.log("Error adding follow-up", error);
       // return res.status(500).json({ error: "Internal Server Error" });
     }
-  } catch (e) {
-    console.log(e);
-  }
+  } catch (e) {}
 }
 
 //add lead and followup
@@ -679,23 +641,14 @@ async function addLeadWithExistingStudent(req, res) {
       newLead.counsellor_id = cid;
       await newLead.save();
 
-      console.log("notification was called");
       await notificationController.sendNotificationToCounselor(
         cid,
         `You have assigned a new lead belongs to ${studentDoc.email}.`,
         "success"
       );
-      console.log("notification was called after");
-
-      console.log("lead", newLead);
-      console.log("assignment", newCounsellorAssignment);
     } else {
-      console.log("No counselor available");
     }
   } catch (error) {
-    // Log error
-    console.log("Error adding leads:", error);
-
     // Send internal server error response
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -737,12 +690,9 @@ async function addLeadWithExistingStudent(req, res) {
 
       return res.status(200).json(newFollowUp);
     } catch (error) {
-      console.log("Error adding follow-up", error);
       // return res.status(500).json({ error: "Internal Server Error" });
     }
-  } catch (e) {
-    console.log(e);
-  }
+  } catch (e) {}
 }
 
 async function getNextSequenceValue(sequenceName) {
@@ -798,7 +748,6 @@ async function getLeadsSummaryDetails(req, res) {
       .exec();
     res.status(200).json(leads);
   } catch (error) {
-    console.error("Error fetching leads:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -851,10 +800,8 @@ async function getOneLeadSummaryDetails(req, res) {
       comment: latestFollowUp ? latestFollowUp.comment : null,
     };
 
-    console.log(leadDetail);
     res.status(200).json(leadDetail);
   } catch (error) {
-    console.error("Error fetching leads:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -887,7 +834,6 @@ async function checkForDuplicate(req, res) {
     return res.status(200).json({ isDuplicate: !!duplicateLead }); // Returns true if a duplicate lead is found, false otherwise
   } catch (error) {
     // Handle any errors that occur during the process
-    console.error("Error checking for duplicate:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 }
@@ -905,11 +851,11 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
         { user_type: admin_counselorType._id },
       ],
     });
-    //console.log("these are the counselors",counselors,admin_counselorType._id,counselorType._id);
+    //"these are the counselors",counselors,admin_counselorType._id,counselorType._id);
 
     // Fetch leads with counselors allocated
     const leadsWithCounselors = await CounsellorAssignment.find();
-    // console.log(leadsWithCounselors);
+    // leadsWithCounselors);
 
     // Filter counselors based on the specified productType
     const filteredCounselors = counselors.filter((counselor) => {
@@ -919,7 +865,7 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
       );
     });
 
-   // console.log(filteredCounselors)
+    // filteredCounselors)
 
     // Count the number of leads each counselor has
     const counselorLeadCounts = filteredCounselors.map((counselor) => {
@@ -935,27 +881,25 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
     // Sort counselors by lead count in ascending order
     counselorLeadCounts.sort((a, b) => a.count - b.count);
 
-    // console.log(counselorLeadCounts);
+    // counselorLeadCounts);
 
     if (counselorLeadCounts) {
       // Return the least and next least allocated counselors
       const leastAllocatedCounselor = counselorLeadCounts[0]?.counselor || null;
       const nextLeastAllocatedCounselor =
         counselorLeadCounts[1]?.counselor || null;
-      //console.log("check", { leastAllocatedCounselor, nextLeastAllocatedCounselor });
+      //"check", { leastAllocatedCounselor, nextLeastAllocatedCounselor });
       return { leastAllocatedCounselor, nextLeastAllocatedCounselor };
     } else {
-      //console.log("No counsellor");
+      //"No counsellor");
       return null;
     }
   } catch (error) {
-    console.error("Error fetching least allocated counselors:", error);
     throw error;
   }
 }
 
 async function assignLeadsToCounselors() {
-  console.log("ok");
   try {
     // Get leads with an assigned lead status
     const leadsWithAssignedStatus = await Lead.find({
@@ -963,7 +907,6 @@ async function assignLeadsToCounselors() {
       status_id: "65ada2f8da40b8a3e87bda82",
     });
 
-    console.log("Leads with new status", leadsWithAssignedStatus.length);
     const leadsToReassign = await Promise.all(
       leadsWithAssignedStatus.map(async (lead) => {
         //find latest counsellor asssgnment for the lead
@@ -986,16 +929,14 @@ async function assignLeadsToCounselors() {
         // }
 
         const addedTime = leadLastAssigned.assigned_at.getUTCHours();
-        //console.log(addedTime,currentTime)
+        //addedTime,currentTime)
 
         //Check leads came after 17h to 8h
         if (!(addedTime >= startTime && addedTime <= endTime)) {
           if (Math.abs(currentTime - startTime) >= threshold) {
-            //console.log(leadLastAssigned.assigned_at,addedTime,currentTime,currentDateTime)
-            console.log("1 Value");
+            //leadLastAssigned.assigned_at,addedTime,currentTime,currentDateTime)
             return lead;
           } else {
-            console.log("Null Value");
             return null;
           }
         }
@@ -1009,20 +950,18 @@ async function assignLeadsToCounselors() {
           .utc(leadLastAssigned.assigned_at)
           .startOf("day");
 
-        //console.log(leadLastAssigned.assigned_at,addedTime,AddedDateCounterPart,currentTime,currentDateTime,CurrentDateCounterPart,CurrentDateCounterPart.isSame(AddedDateCounterPart))
+        //leadLastAssigned.assigned_at,addedTime,AddedDateCounterPart,currentTime,currentDateTime,CurrentDateCounterPart,CurrentDateCounterPart.isSame(AddedDateCounterPart))
 
         //Check leads came before 17h but not filled with 4h threshold
         if (!CurrentDateCounterPart.isSame(AddedDateCounterPart)) {
           if (Math.abs(addedTime - endTime) <= threshold) {
             if (
               Math.abs(addedTime - endTime) +
-              Math.abs(currentTime - startTime) >=
+                Math.abs(currentTime - startTime) >=
               threshold
             ) {
-              console.log("2 Value");
               return lead;
             } else {
-              console.log("Null Value");
               return null;
             }
           }
@@ -1030,10 +969,8 @@ async function assignLeadsToCounselors() {
 
         //Other normal flow
         if (Math.abs(currentTime - addedTime) >= threshold) {
-          console.log("3 Value");
           return lead;
         } else {
-          console.log("Null Value");
           return null;
         }
       })
@@ -1042,8 +979,6 @@ async function assignLeadsToCounselors() {
     const filteredLeadsToReassign = leadsToReassign.filter(
       (lead) => lead !== null
     );
-    console.log("leads to re assign", filteredLeadsToReassign.length);
-    //console.log('leads to re assign', filteredLeadsToReassign)
 
     // File path
     const filePath = "filtered_leads4.txt";
@@ -1051,10 +986,8 @@ async function assignLeadsToCounselors() {
     // Write data to the file
     fs.writeFile(filePath, JSON.stringify(filteredLeadsToReassign), (err) => {
       if (err) {
-        console.error("Error writing to file:", err);
         return;
       }
-      console.log("Data has been written to", filePath);
     });
 
     const filePath2 = "original_new_leads4.txt";
@@ -1062,10 +995,8 @@ async function assignLeadsToCounselors() {
     // Write data to the file
     fs.writeFile(filePath2, JSON.stringify(leadsWithAssignedStatus), (err) => {
       if (err) {
-        console.error("Error writing to file:", err);
         return;
       }
-      console.log("Data has been written to", filePath);
     });
 
     // Assign leads to counselors
@@ -1081,13 +1012,11 @@ async function assignLeadsToCounselors() {
         "email"
       );
 
-      console.log("notification was called");
       await notificationController.sendNotificationToCounselor(
         latestAssignment.counsellor_id,
         `The lead belongs to ${leadDoc.student_id.email} has been revoked from you.`,
         "error"
       );
-      console.log("notification was called after");
 
       // Get the least and next least allocated counselors
       const { leastAllocatedCounselor, nextLeastAllocatedCounselor } =
@@ -1095,14 +1024,11 @@ async function assignLeadsToCounselors() {
           lead.course_id.toString()
         );
 
-      console.log('allocated counsellors',leastAllocatedCounselor, nextLeastAllocatedCounselor)
-
       //check if the lead allocated to same counselor
       if (
         latestAssignment.counsellor_id &&
         latestAssignment.counsellor_id.equals(leastAllocatedCounselor)
       ) {
-        console.log("allocated to same counsellor assignment");
         try {
           const currentDate = new Date();
           const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
@@ -1118,23 +1044,17 @@ async function assignLeadsToCounselors() {
             counsellor_id: nextLeastAllocatedCounselor._id,
             assigned_at: currentDateTime,
           });
-          console.log("counsellor assignment made - ", counsellorAssignment);
           // Update lead with assignment_id
           lead.assignment_id = counsellorAssignment._id;
           lead.counsellor_id = nextLeastAllocatedCounselor._id;
           await lead.save();
 
-          console.log("lead", lead);
-          console.log("notification was called");
           await notificationController.sendNotificationToCounselor(
             nextLeastAllocatedCounselor._id,
             `You have assigned a new lead belongs to ${leadDoc.student_id.email}.`,
             "success"
           );
-          console.log("notification was called after");
-        } catch (error) {
-          console.log(error);
-        }
+        } catch (error) {}
       } else {
         //if the counsello is different
         try {
@@ -1152,14 +1072,11 @@ async function assignLeadsToCounselors() {
             counsellor_id: leastAllocatedCounselor._id,
             assigned_at: currentDateTime,
           });
-          console.log("Counsellor assignment made - ", counsellorAssignment);
 
           // Update lead with assignment_id
           lead.assignment_id = counsellorAssignment._id;
           lead.counsellor_id = leastAllocatedCounselor._id;
           await lead.save();
-
-          console.log("Notification was called");
 
           // Check if leadDoc.student_id is defined before accessing its properties
           if (leadDoc.student_id && leadDoc.student_id.email) {
@@ -1169,21 +1086,11 @@ async function assignLeadsToCounselors() {
               "success"
             );
           } else {
-            console.error("Error: student_id or email is null or undefined.");
           }
-
-          console.log("Notification was called after");
-
-          console.log("Lead:", lead);
-          console.log("Assignment:", counsellorAssignment);
-        } catch (error) {
-          console.log("Error:", error);
-        }
+        } catch (error) {}
       }
     }
-    console.log("Allocation completed");
   } catch (error) {
-    console.error("Error assigning leads to counselors:", error);
     throw error;
   }
 }
@@ -1195,7 +1102,6 @@ async function assignLeadsToCounselorsTest(req, res) {
   const { added_time, current_time } = req.body;
   const addedTime = added_time;
   const currentTime = current_time;
-  console.log(addedTime, currentTime, req.body);
 
   //Check leads came after 17h to 8h
   if (!(addedTime >= startTime && addedTime <= endTime)) {
@@ -1238,7 +1144,6 @@ async function scheduleNextExecution() {
     moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
   );
   const currentHour = currentDateTime.getUTCHours();
-  console.log(currentDateTime, currentDateTime.getUTCHours());
   // Check if the current time is between 8 am and 5 pm
   if (currentHour >= startTime && currentHour <= endTime) {
     // Call the function every minute
@@ -1247,13 +1152,11 @@ async function scheduleNextExecution() {
     }, 1200000);
     //1200000
   } else {
-    console.log("Scheduled time is over. Task will resume tomorrow at 8 am.");
   }
 
   // Schedule the next check after 1 hour
   setTimeout(scheduleNextExecution, 3600000); // 1 hour in milliseconds
 }
-
 
 scheduleNextExecution();
 
@@ -1271,5 +1174,5 @@ module.exports = {
   addLeadWithExistingStudent,
   bulkImport,
   archiveLeads,
-  assignLeadsToCounselors
+  assignLeadsToCounselors,
 };

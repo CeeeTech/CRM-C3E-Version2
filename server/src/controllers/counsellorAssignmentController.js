@@ -43,13 +43,11 @@ async function assignLeadToCounsellor(req, res) {
     );
 
     if (lastAssignedCounsellorId) {
-      console.log("Notification was called");
       await notificationController.sendNotificationToCounselor(
         lastAssignedCounsellorId,
         `The lead belongs to ${leadDoc.student_id.email} has been revoked from you.`,
         "error"
       );
-      console.log("Notification was called after");
     }
 
     const counsellorAssignment = await CounsellorAssignment.create({
@@ -58,13 +56,11 @@ async function assignLeadToCounsellor(req, res) {
       assigned_at: currentDateTime,
     });
 
-    console.log("Notification was called");
     await notificationController.sendNotificationToCounselor(
       selectedCounsellorId,
       `You have assigned a new lead belongs to ${leadDoc.student_id.email}.`,
       "success"
     );
-    console.log("Notification was called after");
 
     const lead = await Lead.findById(lead_id);
 
@@ -72,9 +68,6 @@ async function assignLeadToCounsellor(req, res) {
     lead.assignment_id = counsellorAssignment._id;
     lead.counsellor_id = selectedCounsellorId;
     await lead.save();
-
-    console.log("Lead:", lead);
-    console.log("Assignment:", counsellorAssignment);
 
     res.status(200).json(counsellorAssignment);
   } catch (error) {
@@ -98,7 +91,6 @@ async function getBumpedLeads(req, res) {
         },
       },
     ]);
-    console.log(firstBumpedLeads);
     const firstBumpedLeadCount = firstBumpedLeads.length;
 
     const secondBumpedLeads = await CounsellorAssignment.aggregate([
@@ -114,7 +106,6 @@ async function getBumpedLeads(req, res) {
         },
       },
     ]);
-    console.log(secondBumpedLeads);
     const secondBumpedLeadCount = secondBumpedLeads.length;
 
     const ciricalLeads = await CounsellorAssignment.aggregate([
@@ -152,7 +143,6 @@ async function getBumpedLeads(req, res) {
         },
       },
     ]);
-    console.log(ciricalLeads);
     const criticalLeadCount = ciricalLeads.length;
 
     const bumps = {

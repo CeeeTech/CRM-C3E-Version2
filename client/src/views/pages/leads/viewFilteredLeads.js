@@ -1,9 +1,8 @@
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import MainCard from 'ui-component/cards/MainCard';
-import { TextField, useMediaQuery } from '@mui/material';
+import { TextField, useMediaQuery, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid-premium';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import MonitorIcon from '@mui/icons-material/Monitor';
@@ -11,6 +10,7 @@ import ModeIcon from '@mui/icons-material/Mode';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useState } from 'react';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import Button from '@mui/material/Button';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -26,14 +26,6 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer>
-      <GridToolbarExport />
-    </GridToolbarContainer>
-  );
-}
 
 const ODD_OPACITY = 0.2;
 
@@ -77,9 +69,14 @@ export default function ViewLeads() {
     internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />
   };
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [arrIds, setArrIds] = useState([]);
+
   const [selectedLead, setSelectedLead] = useState(null);
 
   const [counselors, setCounselors] = useState([]);
+  const [adminCounselors, setAdminCounselors] = useState([]);
 
   const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor'].includes(userType?.name);
 
@@ -112,36 +109,52 @@ export default function ViewLeads() {
     });
   };
 
+  const showSuccessSwalBulk = () => {
+    Toast.fire({
+      icon: 'success',
+      title: 'Leads Deleted Successfully.'
+    });
+  };
+
+  const showErrorSwalBulk = () => {
+    Toast.fire({
+      icon: 'error',
+      title: 'Error Occured While Deleting Leads.'
+    });
+  };
+
   const urlParams = new URLSearchParams(window.location.search);
   const StatusUrl = urlParams.get('status');
 
   const columns = [
-    { field: 'reference_number', headerName: 'ID', width: 70 },
     {
       field: 'source',
-      headerName: 'Source',
-      width: 70,
+      headerName: '',
+      width: 10,
+      align: 'center',
       renderCell: (params) => (
         <Tooltip title={params.row.source} arrow>
           {iconComponentMap[params.row.source]}
         </Tooltip>
       )
     },
+    { field: 'reference_number', headerName: '#', align: 'center', width: 55, headerAlign: 'center' },
+
     { field: 'date', headerName: 'Date', width: 100 },
-    { field: 'name', headerName: 'Student Name', width: 150 },
-    { field: 'contact_no', headerName: 'Contact No', width: 110 },
-    { field: 'status', headerName: 'Status', width: 110 },
+    { field: 'name', headerName: 'Student Name', width: 110 },
+    { field: 'contact_no', headerName: 'Contact No', width: 125 },
+    { field: 'status', headerName: 'Status', width: 70 },
     {
       field: 'course_code',
       headerName: 'Course',
-      width: 100
+      width: 75
     },
     {
       field: 'counsellor',
       headerName: 'Assign To',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 170,
+      width: 130,
       align: 'left',
       renderCell: (params) => {
         if (isAdminOrSupervisor) {
@@ -150,7 +163,7 @@ export default function ViewLeads() {
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                options={counselors}
+                options={counselors.concat(adminCounselors)}
                 sx={{ width: 200, my: 2 }}
                 renderInput={(params) => <TextField {...params} variant="standard" />}
                 value={params.row.counsellor}
@@ -174,10 +187,10 @@ export default function ViewLeads() {
                         })
                       });
                       if (!updateLead.ok) {
-                        if (res.status === 401) {
+                        if (updateLead.status === 401) {
                           console.error('Unauthorized access. Logging out.');
                           logout();
-                        } else if (res.status === 500) {
+                        } else if (updateLead.status === 500) {
                           console.error('Internal Server Error.');
                           logout();
                           return;
@@ -212,7 +225,7 @@ export default function ViewLeads() {
       headerName: '',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 160,
+      width: 135,
       align: 'right',
       renderCell: (params) => (
         <>
@@ -222,21 +235,24 @@ export default function ViewLeads() {
             onClick={() => {
               updateLead(params.row.id);
             }}
-            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px' }}
+            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
           >
-            <ModeIcon sx={{ fontSize: '24px' }} />
+            <ModeIcon sx={{ fontSize: '18px' }} />
           </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              // Handle delete logic here
-            }}
-            style={{ marginLeft: '5px' }}
-            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px' }}
-          >
-            <DeleteIcon sx={{ fontSize: '24px' }} />
-          </Button>
+          {permissions?.lead?.includes('delete') && (
+            <Button
+              variant="contained"
+              color="error"
+              // when onclick is called, it should open a dialog to confirm the deletion of the lead. so here should pass the lead id to the handle delete
+              onClick={() => {
+                handleSingleDelete(params.row.id);
+              }}
+              style={{ marginLeft: '5px' }}
+              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
+            >
+              <DeleteIcon sx={{ fontSize: '18px' }} />
+            </Button>
+          )}
           {params.row.status != 'Registered' &&
             params.row.status != 'Fake' &&
             params.row.status != 'Duplicate' &&
@@ -248,134 +264,132 @@ export default function ViewLeads() {
                   navigate('/app/leads/addfollowup?id=' + params.row.id);
                 }}
                 style={{ marginLeft: '5px' }}
-                sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px', backgroundColor: '#039116' }}
+                sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px', backgroundColor: '#039116' }}
               >
-                <AddCircleOutlineIcon sx={{ fontSize: '24px', color: 'white' }} />
+                <AddCircleOutlineIcon sx={{ fontSize: '18px', color: 'white' }} />
               </Button>
             )}
-    
+
           {(params.row.status == 'Registered' ||
             params.row.status == 'Fake' ||
             params.row.status == 'Duplicate' ||
             params.row.status == 'Dropped') && (
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() => {
-                  restorePrevious(params.row.id);
-                }}
-                style={{ marginLeft: '5px' }}
-                sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '40px', height: '40px', backgroundColor: '#d1bd0a' }}
-              >
-                <SettingsBackupRestoreIcon sx={{ fontSize: '24px', color: 'white' }} />
-              </Button>
-            )}
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => {
+                restorePrevious(params.row.id);
+              }}
+              style={{ marginLeft: '5px' }}
+              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px', backgroundColor: '#d1bd0a' }}
+            >
+              <SettingsBackupRestoreIcon sx={{ fontSize: '18px', color: 'white' }} />
+            </Button>
+          )}
         </>
       )
     }
-    
   ];
 
   function updateLead(leadId) {
     console.log('clicked lead id', leadId);
     navigate('/app/leads/update?id=' + leadId);
   }
+  async function fetchLeads() {
+    try {
+      const apiUrl = config.apiUrl + 'api/leads-details';
+      const res = await fetch(apiUrl, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        } else if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+          return;
+        } else {
+          console.error('Error fetching leads data', res.statusText);
+        }
+        return;
+      }
+
+      let leads = await res.json();
+
+      console.log(leads);
+
+      leads = leads.map((lead) => ({
+        reference_number: lead.reference_number,
+        id: lead._id,
+        date: lead.date,
+        scheduled_at: lead.scheduled_at ? lead.scheduled_at : null,
+        scheduled_to: lead.scheduled_to ? lead.scheduled_to : null,
+        name: lead.student_id.name,
+        contact_no: lead.student_id.contact_no,
+        address: lead.student_id.address,
+        dob: lead.student_id.dob,
+        email: lead.student_id.email,
+        nic: lead.student_id.nic,
+        course: lead.course_id.name,
+        course_code: shortenCourseName(lead.course_id.name),
+        branch: lead.branch_id.name,
+        source: lead.source_id ? lead.source_id.name : null,
+        counsellor: lead.assignment_id ? lead.assignment_id.counsellor_id.name : null,
+        counsellor_id: lead.assignment_id ? lead.assignment_id.counsellor_id._id : null,
+        assigned_at: lead.counsellorAssignment ? lead.counsellorAssignment.assigned_at : null,
+        user_id: lead.user_id ? lead.user_id : null,
+        status: lead.status_id ? lead.status_id.name : null
+      }));
+
+      console.log(leads);
+
+      // Assuming that the backend res is an array of leads
+      // Filter leads based on the counselor ID from the backend res
+      if (permissions?.lead?.includes('read-all')) {
+        if (StatusUrl) {
+          const filtered = leads.filter((lead) => lead.status === StatusUrl);
+          setData(filtered);
+          setLoading(false);
+          console.log(StatusUrl);
+          console.log(filtered);
+        }
+        setAllLeads(leads);
+        setLoading(false);
+        return;
+      } else if (permissions?.lead?.includes('read') && userType?.name === 'counselor') {
+        const filteredLeads = leads.filter((lead) => lead.counsellor_id === user._id);
+        if (StatusUrl) {
+          const filtered = filteredLeads.filter((lead) => lead.status === StatusUrl);
+          setData(filtered);
+          setLoading(false);
+        }
+        setAllLeads(filteredLeads);
+        setLoading(false);
+        console.log(filteredLeads); // Log the filtered leads
+        return;
+      } else if (permissions?.lead?.includes('read') && userType?.name === 'user') {
+        const filteredLeads = leads.filter((lead) => lead.user_id === user._id);
+        if (StatusUrl) {
+          const filtered = filteredLeads.filter((lead) => lead.status === StatusUrl);
+          setData(filtered);
+          setLoading(false);
+        }
+        setAllLeads(filteredLeads);
+        setLoading(false);
+        console.log(filteredLeads);
+        return;
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log('Error fetching leads:', error);
+    }
+  }
 
   useEffect(() => {
     console.log(StatusUrl);
-    async function fetchLeads() {
-      try {
-        const apiUrl = config.apiUrl + 'api/leads-details';
-        const res = await fetch(apiUrl, {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-
-        if (!res.ok) {
-          if (res.status === 401) {
-            console.error('Unauthorized access. Logging out.');
-            logout();
-          } else if (res.status === 500) {
-            console.error('Internal Server Error.');
-            logout();
-            return;
-          } else {
-            console.error('Error fetching leads data', res.statusText);
-          }
-          return;
-        }
-
-        let leads = await res.json();
-
-        console.log(leads);
-
-        leads = leads.map((lead) => ({
-          reference_number: lead.reference_number,
-          id: lead._id,
-          date: lead.date,
-          scheduled_at: lead.scheduled_at ? lead.scheduled_at : null,
-          scheduled_to: lead.scheduled_to ? lead.scheduled_to : null,
-          name: lead.student_id.name,
-          contact_no: lead.student_id.contact_no,
-          address: lead.student_id.address,
-          dob: lead.student_id.dob,
-          email: lead.student_id.email,
-          nic: lead.student_id.nic,
-          course: lead.course_id.name,
-          course_code: shortenCourseName(lead.course_id.name),
-          branch: lead.branch_id.name,
-          source: lead.source_id ? lead.source_id.name : null,
-          counsellor: lead.assignment_id ? lead.assignment_id.counsellor_id.name : null,
-          counsellor_id: lead.assignment_id ? lead.assignment_id.counsellor_id._id : null,
-          assigned_at: lead.counsellorAssignment ? lead.counsellorAssignment.assigned_at : null,
-          user_id: lead.user_id ? lead.user_id : null,
-          status: lead.status_id ? lead.status_id.name : null
-        }));
-
-        console.log(leads);
-
-        // Assuming that the backend res is an array of leads
-        // Filter leads based on the counselor ID from the backend res
-        if (permissions?.lead?.includes('read-all')) {
-          if (StatusUrl) {
-            const filtered = leads.filter((lead) => lead.status === StatusUrl);
-            setData(filtered);
-            setLoading(false);
-            console.log(StatusUrl); 
-            console.log(filtered);
-          }
-          setAllLeads(leads);
-          setLoading(false);
-          return;
-        } else if (permissions?.lead?.includes('read') && userType?.name === 'counselor') {
-          const filteredLeads = leads.filter((lead) => lead.counsellor_id === user._id);
-          if (StatusUrl) {
-            const filtered = filteredLeads.filter((lead) => lead.status === StatusUrl);
-            setData(filtered);
-            setLoading(false);
-          }
-          setAllLeads(filteredLeads);
-          setLoading(false);
-          console.log(filteredLeads); // Log the filtered leads
-          return;
-        } else if (permissions?.lead?.includes('read') && userType?.name === 'user') {
-          const filteredLeads = leads.filter((lead) => lead.user_id === user._id);
-          if (StatusUrl) {
-            const filtered = filteredLeads.filter((lead) => lead.status === StatusUrl);
-            setData(filtered);
-            setLoading(false);
-          }
-          setAllLeads(filteredLeads);
-          setLoading(false);
-          console.log(filteredLeads);
-          return;
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('Error fetching leads:', error);
-      }
-    }
-
     fetchLeads();
     async function getCounselors() {
       try {
@@ -403,6 +417,32 @@ export default function ViewLeads() {
       }
     }
     getCounselors();
+    async function getAdminCounselors() {
+      try {
+        const res = await fetch(config.apiUrl + 'api/getAdminCounselors', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        if (!res.ok) {
+          if (res.status === 401) {
+            console.error('Unauthorized access. Logging out.');
+            logout();
+          } else if (res.status === 500) {
+            console.error('Internal Server Error.');
+            logout();
+            return;
+          } else {
+            console.error('Error fetching counselors:', res.statusText);
+          }
+          return;
+        }
+        const data = await res.json();
+        setAdminCounselors(data);
+      } catch (error) {
+        console.log('Error fetching counselors:', error);
+      }
+    }
+    getAdminCounselors();
   }, []);
 
   const [data, setData] = useState([]);
@@ -434,16 +474,125 @@ export default function ViewLeads() {
     return shortenedName; // Return the shortened course name
   };
 
+  const handleDelete = () => {
+    if (arrIds.length > 1) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover this file!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, keep it'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          addToArchivedLeads();
+        }
+      });
+    } else {
+      showErrorSwalNoLead();
+    }
+  };
+
+  async function addToArchivedLeads() {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(config.apiUrl + 'api/leads-archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+        body: JSON.stringify({ ids: arrIds })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        console.log(json);
+        setLoading(true);
+        setArrIds([]);
+        fetchLeads();
+        showSuccessSwalBulk();
+      } else {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        } else if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+          return;
+        } else {
+          console.error('Error fetching sources:', res.statusText);
+          showErrorSwalBulk();
+        }
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching sources:', error.message);
+      showErrorSwalBulk();
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  const handleExport = () => {
+    // need to export column data to excel
+    // console.log(data);
+    const csvRows = [];
+    const headers = Object.keys(data[0]);
+    csvRows.push(headers.join(','));
+    for (const row of data) {
+      const values = headers.map((header) => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+    const csvData = csvRows.join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'leads.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <>
-      <MainCard title={StatusUrl + ' leads'}>
+      <MainCard
+        title={StatusUrl + ' leads'}
+        isDeleting={isDeleting}
+        arrIds={arrIds}
+        buttonLabelDeleteAll={
+          arrIds.length > 1 &&
+          permissions?.lead?.includes('delete-all') && (
+            <>
+              <DeleteIcon sx={{ fontSize: '20px' }} />
+              {isDeleting ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>Delete Leads</span>
+              )}
+            </>
+          )
+        }
+        onButtonClickDeleteAll={handleDelete}
+        buttonLabelExport={
+          permissions?.lead?.includes('create') ? (
+            <>
+              <GetAppIcon style={{ fontSize: '25px' }} /> {/* Adjust styling as needed */}
+            </>
+          ) : undefined
+        }
+        onButtonClickExport={handleExport}
+      >
         {loading && <LinearProgress />}
         <Grid container direction="column" justifyContent="center">
-          <Grid container sx={{ p: 3 }} spacing={matchDownSM ? 0 : 2}>
-            <Grid item xs={12} sm={12}>
-              <div style={{ height: 710, width: '100%' }}>
+          <Grid container sx={{ marginTop: '2px' }} alignItems="flex-start" spacing={matchDownSM ? 0 : 2}>
+            <Grid alignItems="flex-start" item xs={12} sm={12}>
+              {!loading && (
                 <StripedDataGrid
                   rows={data}
+                  rowHeight={40}
                   columns={columns}
                   getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
                   // handle row click should trigger for the row but except for the edit and delete buttons and assign to dropdown
@@ -459,11 +608,8 @@ export default function ViewLeads() {
                   }}
                   initialState={{
                     pagination: {
-                      paginationModel: { page: 0, pageSize: 10 }
+                      paginationModel: { page: 0, pageSize: 25 }
                     }
-                  }}
-                  slots={{
-                    toolbar: CustomToolbar
                   }}
                   getRowId={(row) => row.id}
                   getRowStyle={(params) => ({
@@ -471,8 +617,11 @@ export default function ViewLeads() {
                   })}
                   pageSizeOptions={[10, 25, 100]}
                   checkboxSelection
+                  onRowSelectionModelChange={(ids) => {
+                    setArrIds(ids);
+                  }}
                 />
-              </div>
+              )}
             </Grid>
           </Grid>
           <LeadDetailsPopup isOpen={!!selectedLead} onClose={() => setSelectedLead(null)} leadDetails={selectedLead} />

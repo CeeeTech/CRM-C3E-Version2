@@ -7,7 +7,6 @@ async function getStudents(req, res) {
     const students = await Student.find();
     res.status(200).json(students);
   } catch (error) {
-    console.error("Error fetching students:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -19,7 +18,9 @@ async function addStudent(req, res) {
     // Check if a student with the given email already exists
     const existingStudent = await Student.findOne({ email: email });
     if (existingStudent) {
-      return res.status(400).json({ error: "Student with this email already exists" });
+      return res
+        .status(400)
+        .json({ error: "Student with this email already exists" });
     }
 
     // Create a new student
@@ -115,11 +116,8 @@ async function searchStudents(req, res) {
         studentDetails.push(studentDetail);
       }
     }
-
-    console.log(studentDetails);
     res.status(200).json(studentDetails);
   } catch (error) {
-    console.error("Error searching students:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }

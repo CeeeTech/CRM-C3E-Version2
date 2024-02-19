@@ -6,7 +6,6 @@ async function getBranches(req, res) {
         const branches = await Branch.find()
         res.status(200).json(branches)
     } catch (error) {
-        console.log("Error fetching branches:", error)
         res.status(500).json({ error: 'Internal Server Error' })
     }
 }

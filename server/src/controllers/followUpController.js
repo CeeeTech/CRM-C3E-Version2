@@ -4,14 +4,13 @@ const Status = require("../models/status");
 const User = require("../models/user");
 const Lead = require("../models/lead");
 const moment = require("moment-timezone");
-
+console.log
 //get all followUps
 async function getFollowUps(req, res) {
   try {
     const follow_up = await FollowUp.find();
     res.status(200).json(follow_up);
   } catch (error) {
-    console.log("Error fetchong follow_up", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -36,7 +35,7 @@ async function addFollowUp(req, res) {
   }
   const statusdoc =  await Status.findOne({name: status});
   if(!statusdoc){
-    console.log("Error fetching status:");
+    return res.status(400).json({ error: "no such status" });
   }
   
   let date = new Date();
@@ -46,8 +45,7 @@ async function addFollowUp(req, res) {
    const customDateUTC = new Date(
      moment.tz(date, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
    ); // Replace with your desired date and time in UTC
-   console.log("Converted Date:", customDateUTC);
-  
+    
 
   try {
     const newFollowUp = await FollowUp.create({
@@ -64,7 +62,6 @@ async function addFollowUp(req, res) {
 
     return res.status(200).json(newFollowUp);
   } catch (error) {
-    console.log("Error adding follow-up", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -90,9 +87,6 @@ async function updateFollowUp(req, res) {
 
   const leadId = req.body.lead_id;
   const status = req.body.status;
-  console.log(leadId)
-  console.log(status)
-
   const leadDoc = await Lead.findById({ _id: leadId })
   leadDoc.status_id = status;
   await leadDoc.save();
@@ -152,7 +146,6 @@ async function getFollowUpsByLead(req, res) {
     }
     res.status(200).json(followUpDetails);
   } catch (error) {
-    console.log("Error fetching follow-ups by lead_id", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -188,7 +181,7 @@ async function getFollowUpDate(req, res) {
       },
       {}
     );
-    console.log(filteredFollowUp)
+    
     // Counting the number of items with name
     const ringNoAnswerCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Ring no answer"
@@ -242,7 +235,6 @@ async function getFollowUpDate(req, res) {
 
     res.status(200).json(resultCount);
   } catch (error) {
-    console.log("Error fetching follow_up", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -334,7 +326,6 @@ async function getFollowUpDateByUser(req, res) {
 
     res.status(200).json(resultCount);
   } catch (error) {
-    console.log("Error fetching follow_up", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -346,9 +337,7 @@ async function getFollowUpDate(req, res) {
 
     followUps = await Lead.find().populate("status_id").exec();
     // console.log("counsellor exec", followUps);
-
-    console.log("followups", followUps);
-
+    
     // Counting the number of items with each status dynamically
     const resultCount = followUps.reduce((count, followUpItem) => {
       const statusName = followUpItem.status_id?.name;
@@ -372,7 +361,6 @@ async function getFollowUpDate(req, res) {
 
     res.status(200).json(finalResult);
   } catch (error) {
-    console.log("Error fetching follow-up", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -380,7 +368,6 @@ async function getFollowUpDate(req, res) {
 
 async function getCounselorFollowUpStatusCount(req, res) {
   const { user_id, user_type } = req.query;
-  console.log("followups", user_id, user_type);
 
   try {
     let followUps;
@@ -392,8 +379,6 @@ async function getCounselorFollowUpStatusCount(req, res) {
       followUps = await Lead.find({ user_id: user_id }).populate("status_id").exec();
     }
 
-    console.log("followups", followUps);
-
     // Counting the number of items with each status dynamically
     const resultCount = followUps.reduce((count, followUpItem) => {
       const statusName = followUpItem.status_id?.name;
@@ -417,7 +402,6 @@ async function getCounselorFollowUpStatusCount(req, res) {
 
     res.status(200).json(finalResult);
   } catch (error) {
-    console.log("Error fetching follow-up", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }

@@ -36,7 +36,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 const FirebaseLogin = ({ ...others }) => {
   const theme = useTheme();
   const scriptedRef = useScriptRef();
-  const [checked, setChecked] = useState(true);
+  const [checked, setChecked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login, error } = useLogin();
   const handleClickShowPassword = () => {
