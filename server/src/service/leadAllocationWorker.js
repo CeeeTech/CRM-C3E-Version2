@@ -18,7 +18,6 @@ const Notification = require("../models/notification");
 const notificationController = require("../controllers/notificationController");
 const moment = require("moment-timezone");
 const fs = require("fs");
-const { Worker } = require('worker_threads');
 const startTime = 8;
 const endTime = 17;
 const threshold = 4;
