@@ -19,7 +19,6 @@ const startTime = 8
 const endTime = 17
 const threshold = 4
 //get all leads
-console.log
 async function getLeads(req, res) {
   try {
     const leads = await Lead.find();
