@@ -3,7 +3,7 @@ const config = {
   // like '/berry-material-react/react/default'
   apiUrl: 'https://localhost:8080/',
   basename: '/',
-  defaultPath: '/dashboard/default',
+  defaultPath: '/app/dashboard',
   fontFamily: `'Roboto', sans-serif`,
   borderRadius: 12
 };
