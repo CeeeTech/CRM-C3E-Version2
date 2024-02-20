@@ -80,7 +80,7 @@ export default function ViewLeads() {
 
   const [selectedCourse, setselectedCourse] = useState('');
   const [selectedSource, setselectedSource] = useState('');
-  const [dataeFrom, setDateFrom] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [sname, setSname] = useState('');
   const [loading, setLoading] = useState(true);
@@ -88,6 +88,7 @@ export default function ViewLeads() {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [status, setStatus] = useState([]);
   const [arrIds, setArrIds] = useState([]);
+  const [data, setData] = useState([]);
 
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -600,14 +601,65 @@ export default function ViewLeads() {
     fetchStatus();
   }, []);
 
-  const sortDateFrom = (datefrom) => {
-    const sortedLeads = allLeads.filter((lead) => lead.date >= datefrom);
-    setData(sortedLeads);
-    console.log(sortedLeads);
+  const sortLeads = () => {
+    const filteredLeads = allLeads.filter((lead) => {
+      const matchesCourse = checkMatch(lead.course, selectedCourse);
+      const matchesSource = checkMatch(lead.source, selectedSource);
+      const matchesName = checkMatch(lead.name.toLowerCase(), sname.toLowerCase());
+      const matchesStatus = checkMatch(lead.status, selectedStatus);
+      const matchesDateRange = filterByDateRange(lead.date);
+  
+      return matchesCourse && matchesSource && matchesName && matchesStatus && matchesDateRange;
+    });
+  
+    setData(filteredLeads);
+  };
+  
+  const checkMatch = (leadProperty, selectedProperty) => {
+    return selectedProperty ? leadProperty === selectedProperty : true;
+  };
+  
+  const filterByDateRange = (leadDate) => {
+    if (!dateFrom && !dateTo) {
+      return true;
+    }
+  
+    const leadDateObj = new Date(leadDate);
+    const fromDateObj = dateFrom ? new Date(dateFrom) : null;
+    const toDateObj = dateTo ? new Date(dateTo) : null;
+  
+    if (fromDateObj && toDateObj) {
+      return leadDateObj >= fromDateObj && leadDateObj <= toDateObj;
+    } else if (fromDateObj) {
+      return leadDateObj >= fromDateObj;
+    } else if (toDateObj) {
+      return leadDateObj <= toDateObj;
+    } else {
+      return true;
+    }
   };
 
-  const sortDateTo = (dateto) => {
-    const sortedLeads = allLeads.filter((lead) => lead.date <= dateto);
+  // Call sortLeads whenever any filtering criteria changes
+  useEffect(() => {
+    sortLeads();
+  }, [selectedCourse, selectedSource, sname, selectedStatus, dateFrom, dateTo]);
+
+  const sortDateRange = (fromDate, toDate) => {
+    const sortedLeads = allLeads.filter((lead) => {
+      const leadDate = new Date(lead.date);
+      const fromDateObj = fromDate ? new Date(fromDate) : null;
+      const toDateObj = toDate ? new Date(toDate) : null;
+
+      if (fromDate && toDate) {
+        return leadDate >= fromDateObj && leadDate <= toDateObj;
+      } else if (fromDate) {
+        return leadDate >= fromDateObj;
+      } else if (toDate) {
+        return leadDate <= toDateObj;
+      } else {
+        return true;
+      }
+    });
     setData(sortedLeads);
     console.log(sortedLeads);
   };
@@ -635,8 +687,6 @@ export default function ViewLeads() {
     setData(sortedLeads);
     console.log(sortedLeads);
   };
-
-  const [data, setData] = useState([]);
 
   const handleRowClick = (params) => {
     setSelectedLead(params.row);
@@ -985,15 +1035,15 @@ export default function ViewLeads() {
                   </Typography>
                   <TextField
                     fullWidth
-                    // label="First Name"
                     margin="normal"
                     name="date"
                     type="date"
                     size="small"
-                    value={dataeFrom}
+                    value={dateFrom}
                     onChange={(event) => {
-                      setDateFrom(event.target.value);
-                      sortDateFrom(event.target.value);
+                      const selectedDate = event.target.value;
+                      setDateFrom(selectedDate);
+                      sortDateRange(selectedDate, dateTo);
                     }}
                     InputLabelProps={{ shrink: true }}
                   />
@@ -1004,15 +1054,15 @@ export default function ViewLeads() {
                   </Typography>
                   <TextField
                     fullWidth
-                    // label="First Name"
                     margin="normal"
                     name="date"
                     type="date"
                     size="small"
                     value={dateTo}
                     onChange={(event) => {
-                      setDateTo(event.target.value);
-                      sortDateTo(event.target.value);
+                      const selectedDate = event.target.value;
+                      setDateTo(selectedDate);
+                      sortDateRange(dateFrom, selectedDate);
                     }}
                   />
                 </Grid>
