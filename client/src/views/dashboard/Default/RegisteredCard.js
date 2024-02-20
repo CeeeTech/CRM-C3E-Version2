@@ -12,7 +12,6 @@ import { useNavigate } from 'react-router-dom';
 // assets
 import EarningIcon from 'assets/images/icons/register.svg';
 
-
 const CardWrapper = styled(MainCard)(({ theme }) => ({
   backgroundColor: '#508D69',
   color: theme.palette.primary.light,
@@ -51,20 +50,15 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ===========================|| DASHBOARD DEFAULT - EARNING CARD ||=========================== //
 
-const EarningCard = ({ isLoading, data,Coun_data  }) => {
+const EarningCard = ({ isLoading, data, Coun_data }) => {
   const theme = useTheme();
   const navigate = useNavigate();
-
-  //fetch status details
 
   const handleClick = () => {
     navigate('/app/leads/filtered?status=Registered');
   };
 
-  useEffect(() => {
-
-  }, []);
-
+  useEffect(() => {}, []);
 
   return (
     <>
@@ -94,9 +88,7 @@ const EarningCard = ({ isLoading, data,Coun_data  }) => {
               <Grid item>
                 <Grid container alignItems="center">
                   <Grid item>
-                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>
-                      {data}
-                    </Typography>
+                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{data}</Typography>
                   </Grid>
                   <Grid item></Grid>
                 </Grid>
@@ -121,18 +113,14 @@ const EarningCard = ({ isLoading, data,Coun_data  }) => {
                   }}
                 >
                   <br />
-                  
-                  Highest Assigne counsellor
+                  Highest Assign counsellor
                 </Typography>
               </Grid>
               <br />
               <Grid item>
                 <Grid container alignItems="center">
                   <Grid item>
-                    
-                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>
-                      {Coun_data}
-                    </Typography>
+                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{Coun_data}</Typography>
                   </Grid>
                   <Grid item></Grid>
                 </Grid>
@@ -155,8 +143,7 @@ const EarningCard = ({ isLoading, data,Coun_data  }) => {
 EarningCard.propTypes = {
   isLoading: PropTypes.bool,
   data: PropTypes.number,
-  Coun_data: PropTypes.string,
-  
+  Coun_data: PropTypes.string
 };
 
 export default EarningCard;
