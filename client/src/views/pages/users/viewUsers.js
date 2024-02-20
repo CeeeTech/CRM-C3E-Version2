@@ -15,6 +15,7 @@ import { useAuthContext } from '../../../context/useAuthContext';
 import { useLogout } from '../../../hooks/useLogout';
 import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
 
 const ODD_OPACITY = 0.2;
 
@@ -138,12 +139,13 @@ export default function ViewUsers() {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
 
   const columns = [
-    { field: 'name', headerName: 'User Name', flex: 1 },
-    { field: 'email', headerName: 'User Email', flex: 1 },
+    { field: 'name', headerName: 'User Name', flex:1.5, width: 100, minWidth: 150, },
+    { field: 'email', headerName: 'User Email', flex:2, width: 100, minWidth: 150,},
     {
       field: 'user_type.name',
       headerName: 'User Type',
-      flex: 2,
+      flex:1,
+      width: 100, minWidth: 100,
       valueGetter: (params) => params.row.user_type?.name || ''
     },
     {
@@ -152,7 +154,8 @@ export default function ViewUsers() {
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
       align: 'right',
-      width: 200,
+      flex:0.5,
+      width: 100, minWidth: 100,
       renderCell: (params) => (
         <>
           <Button
@@ -161,9 +164,9 @@ export default function ViewUsers() {
             onClick={() => {
               updateUser(params.row._id);
             }}
-            sx={{ borderRadius: '100px', padding: '10px' }}
+            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
           >
-            <ModeIcon />
+            <ModeIcon sx={{ fontSize: '18px' }} />
           </Button>
           <Button
             variant="contained"
@@ -172,9 +175,9 @@ export default function ViewUsers() {
               // Handle delete logic here
             }}
             style={{ marginLeft: '5px' }}
-            sx={{ borderRadius: '100px', padding: '10px' }}
+            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
           >
-            <DeleteIcon />
+            <DeleteIcon sx={{ fontSize: '18px' }} />
           </Button>
         </>
       )
@@ -198,14 +201,20 @@ export default function ViewUsers() {
     <>
       <MainCard
         title="View Users"
-        buttonLabel={permissions?.user?.includes('create') ? 'Add New User' : undefined}
+        buttonLabel={ permissions?.lead?.includes('create') ? (
+            <>
+              Add New Lead
+              <AddIcon style={{ marginLeft: '5px' }} /> {/* Adjust styling as needed */}
+            </>
+          ) : undefined
+        } 
         onButtonClick={handleButtonClick}
       >
         {loading && <LinearProgress />}
         <Grid container direction="column" justifyContent="center">
           <Grid container sx={{ p: 3 }} spacing={matchDownSM ? 0 : 2}>
             {/* Search Textfield */}
-            <Grid item xs={8} sm={5}>
+            <Grid item xs={12} sm={3.5}>
               <Typography variant="h5" component="h5">
                 Search
               </Typography>
@@ -214,6 +223,7 @@ export default function ViewUsers() {
                 margin="normal"
                 name="search"
                 type="text"
+                size="small"
                 value={searchText}
                 onChange={handleSearchChange}
                 SelectProps={{ native: true }}
@@ -227,7 +237,7 @@ export default function ViewUsers() {
               />
             </Grid>
             {/* User Type Select */}
-            <Grid item xs={8} sm={5}>
+            <Grid item xs={12} sm={3.5}>
               <Typography variant="h5" component="h5">
                 User Type
               </Typography>
@@ -235,6 +245,7 @@ export default function ViewUsers() {
                 fullWidth
                 margin="normal"
                 name="userType"
+                size="small"
                 select
                 value={selectedUserType}
                 onChange={(e) => setSelectedUserType(e.target.value)}
@@ -256,13 +267,14 @@ export default function ViewUsers() {
             </Grid>
             {/* DataGrid */}
             <Grid item xs={12} sm={12}>
-              <div style={{ height: 710, width: '100%' }}>
+              {/* <div style={{ height: 710, width: '100%' }}> */}
                 <StripedDataGrid
                   rows={filteredData}
+                  rowHeight={40}
                   columns={columns}
                   initialState={{
                     pagination: {
-                      paginationModel: { page: 0, pageSize: 10 }
+                      paginationModel: { page: 0, pageSize: 25 }
                     }
                   }}
                   getRowId={(row) => row._id}
@@ -272,7 +284,7 @@ export default function ViewUsers() {
                   pageSizeOptions={[10, 25, 100]}
                   checkboxSelection
                 />
-              </div>
+              {/* </div> */}
             </Grid>
           </Grid>
         </Grid>
