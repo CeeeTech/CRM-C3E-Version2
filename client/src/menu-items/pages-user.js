@@ -24,7 +24,7 @@ const pagesUser = {
       icon: icons.IconAffiliate,
       children: [
         {
-          id: 'material-icons',
+          id: 'leads-list',
           title: 'View Leads',
           type: 'item',
           external: true,

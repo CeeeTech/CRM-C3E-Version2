@@ -24,7 +24,7 @@ const pagesCounselor = {
       icon: icons.IconAffiliate,
       children: [
         {
-          id: 'material-icons',
+          id: 'leads-list',
           title: 'View Leads',
           type: 'item',
           external: true,
@@ -40,7 +40,7 @@ const pagesCounselor = {
       icon: icons.IconCertificate,
       children: [
         {
-          id: 'material-icons',
+          id: 'courses-list',
           title: 'View Course',
           type: 'item',
           external: true,
