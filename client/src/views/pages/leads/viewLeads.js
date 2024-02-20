@@ -32,6 +32,7 @@ import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import PersonIcon from '@mui/icons-material/Person';
 
 const ODD_OPACITY = 0.2;
 
@@ -1059,24 +1060,6 @@ export default function ViewLeads() {
                 </Grid>
                 <Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                    Date To
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    name="date"
-                    type="date"
-                    size="small"
-                    value={dateTo}
-                    onChange={(event) => {
-                      const selectedDate = event.target.value;
-                      setDateTo(selectedDate);
-                      sortDateRange(dateFrom, selectedDate);
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Counselor
                   </Typography>
                   <TextField
@@ -1096,7 +1079,7 @@ export default function ViewLeads() {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <AssignmentIcon />
+                          <PersonIcon />
                         </InputAdornment>
                       )
                     }}
@@ -1114,6 +1097,24 @@ export default function ViewLeads() {
                       </option>
                     )}
                   </TextField>
+                </Grid>
+                <Grid item xs={12} sm={1.5}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                    Date To
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    name="date"
+                    type="date"
+                    size="small"
+                    value={dateTo}
+                    onChange={(event) => {
+                      const selectedDate = event.target.value;
+                      setDateTo(selectedDate);
+                      sortDateRange(dateFrom, selectedDate);
+                    }}
+                  />
                 </Grid>
                 <Grid style={{ marginTop: '30px' }} item xs={12} sm={0.5}>
                   <Button
