@@ -13,7 +13,7 @@ import SkeletonEarningCard from 'ui-component/cards/Skeleton/EarningCard';
 import EarningIcon from 'assets/images/icons/fake.svg';
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: '#a31d1c',
+  backgroundColor: '#c26a4c',
   color: theme.palette.primary.light,
   overflow: 'hidden',
   position: 'relative',
@@ -22,7 +22,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#c22221',  // Blue color
+    background: '#e38464',  // Blue color
     borderRadius: '50%',
     top: -85,
     right: -95,
@@ -36,7 +36,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#c22221',
+    background: '#e38464',
     borderRadius: '50%',
     top: -125,
     right: -15,
@@ -81,7 +81,7 @@ const EarningCard = ({ isLoading, data }) => {
                       sx={{
                         ...theme.typography.commonAvatar,
                         ...theme.typography.largeAvatar,
-                        backgroundColor: '#c71e1e',
+                        backgroundColor: '#8f4e38',
                         mt: 1
                       }}
                     >

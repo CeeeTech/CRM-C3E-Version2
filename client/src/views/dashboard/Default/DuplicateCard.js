@@ -13,7 +13,7 @@ import SkeletonEarningCard from 'ui-component/cards/Skeleton/EarningCard';
 import EarningIcon from 'assets/images/icons/duplicate-svgrepo.svg';
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: '#820300',
+  backgroundColor: '#944E63',
   color: theme.palette.primary.light,
   overflow: 'hidden',
   position: 'relative',
@@ -22,7 +22,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#a30905',  // Blue color
+    background: '#B47B84',  // Blue color
     borderRadius: '50%',
     top: -85,
     right: -95,
@@ -36,7 +36,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#a30905',
+    background: '#B47B84',
     borderRadius: '50%',
     top: -125,
     right: -15,
@@ -81,7 +81,7 @@ const EarningCard = ({ isLoading, data }) => {
                       sx={{
                         ...theme.typography.commonAvatar,
                         ...theme.typography.largeAvatar,
-                        backgroundColor: '#a30905',
+                        backgroundColor: '#995a64',
                         mt: 1
                       }}
                     >

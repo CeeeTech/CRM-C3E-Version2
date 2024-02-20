@@ -51,7 +51,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ===========================|| DASHBOARD DEFAULT - EARNING CARD ||=========================== //
 
-const EarningCard = ({ isLoading, data }) => {
+const EarningCard = ({ isLoading, data,Coun_data  }) => {
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -112,6 +112,38 @@ const EarningCard = ({ isLoading, data }) => {
                   REGISTERED
                 </Typography>
               </Grid>
+              <Grid item sx={{ mb: 1.25 }}>
+                <Typography
+                  sx={{
+                    fontSize: '1rem',
+                    fontWeight: 500,
+                    color: 'fff'
+                  }}
+                >
+                  <br />
+                  
+                  Highest Assigne counsellor
+                </Typography>
+              </Grid>
+              <br />
+              <Grid item>
+                <Grid container alignItems="center">
+                  <Grid item>
+                    
+                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>
+                      {Coun_data}
+                    </Typography>
+                  </Grid>
+                  <Grid item></Grid>
+                </Grid>
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+              </Grid>
             </Grid>
           </Box>
         </CardWrapper>
@@ -123,6 +155,8 @@ const EarningCard = ({ isLoading, data }) => {
 EarningCard.propTypes = {
   isLoading: PropTypes.bool,
   data: PropTypes.number,
+  Coun_data: PropTypes.string,
+  
 };
 
 export default EarningCard;

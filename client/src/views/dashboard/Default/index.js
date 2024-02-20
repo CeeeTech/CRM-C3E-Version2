@@ -21,8 +21,6 @@ import config from '../../../config';
 import { useAuthContext } from '../../../context/useAuthContext';
 import io from 'socket.io-client';
 import Bumps from './Bumps';
-import { CircularProgress } from '@mui/material';
-import EarningIcon from 'assets/images/icons/undraw_statistic_chart_re_w0pk.svg';
 
 
 
@@ -34,15 +32,11 @@ const Dashboard = () => {
   const [isLoading, setLoading] = useState(true);
   const { permissions } = user || {};
   const { userType } = user || {};
+  const [cardData, setCardData] = useState();
+  const [registeredLeads, setRegisteredLeads] = useState();
+  const [counsellors, setCounsellors] = useState();
 
   
-
-  const [cardData, setCardData] = useState();
-
-  //fetch course details
-
- 
-
   async function fetchStatusDetails() {
     try {
       const response = await fetch(config.apiUrl + 'api/followupsdate', {
@@ -58,6 +52,68 @@ const Dashboard = () => {
     }
   }
 
+  useEffect(() => {
+    const fetchRegisteredLeads = async () => {
+        try {
+            const response = await fetch(config.apiUrl + 'api/leads', {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            const data = await response.json();
+            // Filter leads with status_id of '65ada308da40b8a3e87bda83'
+            const filteredLeads = data.filter(lead => lead.status_id === '65ada308da40b8a3e87bda83');
+            // Find lead with highest council_id
+            const leadWithHighestCouncilId = filteredLeads.reduce((prevLead, currentLead) => {
+                return parseInt(currentLead.council_id) > parseInt(prevLead.council_id) ? currentLead : prevLead;
+            }, filteredLeads[0]);
+            setRegisteredLeads(leadWithHighestCouncilId);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching registered leads:', error.message);
+        }
+    };
+
+    if (user) {
+        fetchRegisteredLeads();
+        socket.on('notification', (message) => {
+            console.log('Received notification:', message);
+        });
+    }
+}, [user]);
+
+useEffect(() => {
+    const fetchcounselors = async () => {
+        try {
+            const response = await fetch(config.apiUrl + 'api/getCounsellors', {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            const data = await response.json();
+            setCounsellors(data);
+            setLoading(false);
+        }
+        catch (error) {
+            console.error('Error fetching counselors:', error.message);
+        }
+    };
+
+    if (user) {
+        fetchcounselors();
+        socket.on('notification', (message) => {
+            console.log('Received notification:', message);
+        });
+    }
+}, [user]);
+
+console.log(registeredLeads);
+console.log(counsellors);
+
+// Filter counsellors based on the councilor id from registeredLeads
+// const filteredCounsellors = counsellors.filter(counsellor => counsellor.id === registeredLeads.counsellor_id);
+// console.log(filteredCounsellors);
+
+  
+
   async function fetchCardDetails(usertype) {
     try {
       const response = await fetch(config.apiUrl + `api/statusCount?user_id=${user._id}&user_type=${usertype}`, {
@@ -66,7 +122,6 @@ const Dashboard = () => {
       });
       const getdata = await response.json();
       setCardData(getdata);
-      // setIsTrue(true);
     } catch (error) {
       console.error('Error fetching data:', error.message);
     }
@@ -85,8 +140,12 @@ const Dashboard = () => {
       } else if (permissions?.lead?.includes('read') && userType?.name === 'user') {
         fetchCardDetails(userType.name).then(() => setLoading(false));
       }
+      
+
     }
   }, [user]);
+
+  
 
   return (
     <Grid container spacing={gridSpacing}>
@@ -94,22 +153,22 @@ const Dashboard = () => {
         <Grid container spacing={gridSpacing}>
                     <Grid item lg={4} md={6} sm={6} xs={12}>
              
-                <EarningCard  data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.NewCount} />
+                <EarningCard  isLoading={isLoading}  data={cardData?.NewCount} />
               
             </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
           <Grid container spacing={gridSpacing}>
               <Grid item sm={6} xs={12} md={6} lg={12}>
-                <TotalIncomeDarkCard data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.meetingCount} />
+                <TotalIncomeDarkCard isLoading={isLoading} data={cardData?.meetingCount} />
               </Grid>
               <Grid item sm={6} xs={12} md={6} lg={12}>
-              <TotalOrderLineChartCard data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.registeredCount} />
+              <TotalOrderLineChartCard  isLoading={isLoading} data={cardData?.registeredCount}  />
 
               </Grid>
             </Grid>
           </Grid>
           <Grid item lg={4} md={12} sm={12} xs={12}>
-          <TotalIncomeLightCard data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.fakeCount} />
+          <TotalIncomeLightCard  isLoading={isLoading} data={cardData?.fakeCount} />
 
           </Grid>
         </Grid>
@@ -117,45 +176,35 @@ const Dashboard = () => {
       <Grid item xs={12}>
         <Grid container spacing={gridSpacing}>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-            <EarningCard1 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.registeredCount} />
+            <EarningCard1  isLoading={isLoading} data={ cardData?.registeredCount} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
           <Grid container spacing={gridSpacing}>
               <Grid item sm={6} xs={12} md={6} lg={12}>
-              <TotalOrderLineChartCard1 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.emailCount} />
+              <TotalOrderLineChartCard1  isLoading={isLoading} data={ cardData?.emailCount} />
 
               </Grid>
               <Grid item sm={6} xs={12} md={6} lg={12}>
-                <TotalIncomeLightCard1 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.cousedetailsCount} />
+                <TotalIncomeLightCard1  isLoading={isLoading} data={ cardData?.cousedetailsCount} />
               </Grid>
+              
+              <Grid item sm={6} xs={12} md={6} lg={12}>
+              <EarningCard3  isLoading={isLoading} data={cardData?.whatsappCount} />
+              </Grid>
+              <Grid item sm={6} xs={12} md={6} lg={12}>
+              <TotalOrderLineChartCard2  isLoading={isLoading} data={cardData?.nextintakeCount} />
+             
+            </Grid>
             </Grid>
           </Grid>
           <Grid item lg={4} md={12} sm={12} xs={12}>
-          <TotalIncomeDarkCard1 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.duplicateCount} />
+    <div style={{ marginBottom: '27px' }}>
+        <TotalIncomeDarkCard1 isLoading={isLoading} data={cardData?.duplicateCount} />
+    </div>
+    
+    <EarningCard2 isLoading={isLoading} data={cardData?.droppedCount} />
+</Grid>
 
-          </Grid>
-        </Grid>
-      </Grid>
-      <Grid item xs={12}>
-        <Grid container spacing={gridSpacing}>
-          <Grid item lg={4} md={6} sm={6} xs={12}>
-          <img src={EarningIcon} alt="Notification" />
-          </Grid>
-          <Grid item lg={4} md={6} sm={6} xs={12}>
-          <Grid container spacing={gridSpacing}>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-              <TotalOrderLineChartCard2 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.nextintakeCount} />
-
-              </Grid>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-              <EarningCard3 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.whatsappCount} />
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item lg={4} md={6} sm={6} xs={12}>
-          <EarningCard2 data={isLoading ? (<CircularProgress color="inherit"  />) : cardData?.droppedCount} />
-
-          </Grid>
         </Grid>
       </Grid>
       <Grid item xs={12}>
