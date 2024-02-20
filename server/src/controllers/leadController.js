@@ -746,7 +746,16 @@ async function getLeadsSummaryDetails(req, res) {
       })
       .lean()
       .exec();
-    res.status(200).json(leads);
+
+    // format only the lead.date with formatDate(lead.date)
+    const formattedLeads = leads.map((lead) => {
+      return {
+        ...lead,
+        date: formatDate(lead.date),
+      };
+    });
+
+    res.status(200).json(formattedLeads);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
