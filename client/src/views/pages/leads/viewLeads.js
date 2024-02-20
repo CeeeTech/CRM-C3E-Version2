@@ -80,6 +80,7 @@ export default function ViewLeads() {
 
   const [selectedCourse, setselectedCourse] = useState('');
   const [selectedSource, setselectedSource] = useState('');
+  const [selectedCounselor ,setselectedCounselor] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [sname, setSname] = useState('');
@@ -608,8 +609,9 @@ export default function ViewLeads() {
       const matchesName = checkMatch(lead.name.toLowerCase(), sname.toLowerCase());
       const matchesStatus = checkMatch(lead.status, selectedStatus);
       const matchesDateRange = filterByDateRange(lead.date);
+      const matchesCounselor = checkMatch(lead.counsellor, selectedCounselor);
   
-      return matchesCourse && matchesSource && matchesName && matchesStatus && matchesDateRange;
+      return matchesCourse && matchesSource && matchesName && matchesStatus && matchesDateRange && matchesCounselor;
     });
   
     setData(filteredLeads);
@@ -642,7 +644,7 @@ export default function ViewLeads() {
   // Call sortLeads whenever any filtering criteria changes
   useEffect(() => {
     sortLeads();
-  }, [selectedCourse, selectedSource, sname, selectedStatus, dateFrom, dateTo]);
+  }, [selectedCourse, selectedSource, sname, selectedStatus, dateFrom, dateTo, selectedCounselor]);
 
   const sortDateRange = (fromDate, toDate) => {
     const sortedLeads = allLeads.filter((lead) => {
@@ -687,6 +689,12 @@ export default function ViewLeads() {
     setData(sortedLeads);
     console.log(sortedLeads);
   };
+
+  const sortCounselors = (counselor) => {
+    const sortedLeads = allLeads.filter((lead) => lead.counsellor === counselor);
+    setData(sortedLeads);
+    console.log(sortedLeads);
+  }
 
   const handleRowClick = (params) => {
     setSelectedLead(params.row);
@@ -874,7 +882,7 @@ export default function ViewLeads() {
           <Grid container sx={{ p: 3, marginTop: '4px' }} spacing={matchDownSM ? 0 : 2}>
             <Grid container direction="column">
               <Grid container spacing={matchDownSM ? 0 : 2}>
-                <Grid item xs={12} sm={3.5}>
+                <Grid item xs={12} sm={2.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Search
                   </Typography>
@@ -1029,7 +1037,7 @@ export default function ViewLeads() {
                     <option value="WhatsApp & SMS">WhatsApp & SMS</option> */}
                   </TextField>
                 </Grid>
-                <Grid item xs={12} sm={2}>
+                <Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Date From
                   </Typography>
@@ -1048,7 +1056,7 @@ export default function ViewLeads() {
                     InputLabelProps={{ shrink: true }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={2}>
+                <Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Date To
                   </Typography>
@@ -1065,6 +1073,46 @@ export default function ViewLeads() {
                       sortDateRange(dateFrom, selectedDate);
                     }}
                   />
+                </Grid>
+                <Grid item xs={12} sm={1.5}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                    Counselor
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    // label="First Name"
+                    margin="normal"
+                    name="counselor"
+                    size="small"
+                    select
+                    SelectProps={{ native: true }}
+                    value={selectedCounselor}
+                    onChange={(event) => {
+                      setselectedCounselor(event.target.value);
+                      console.log(event.target.value);
+                      sortCounselors(event.target.value);
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <AssignmentIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                  >
+                    <option value="" disabled></option>
+                    {counselors.concat(adminCounselors) && counselors.concat(adminCounselors).length > 0 ? (
+                      counselors.concat(adminCounselors).map((option) => (
+                        <option key={option.id} value={option.label}>
+                          {option.label}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>
+                        No Counselors available
+                      </option>
+                    )}
+                  </TextField>
                 </Grid>
               </Grid>
             </Grid>
