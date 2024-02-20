@@ -140,21 +140,25 @@ export default function ViewLeads() {
     },
     { field: 'reference_number', headerName: '#', align: 'center', width: 55, headerAlign: 'center' },
 
-    { field: 'date', headerName: 'Date', width: 100 },
-    { field: 'name', headerName: 'Student Name', width: 110 },
-    { field: 'contact_no', headerName: 'Contact No', width: 125 },
-    { field: 'status', headerName: 'Status', width: 70 },
+    { field: 'date', headerName: 'Date', flex: 0, width: 100, minWidth: 50 },
+    { field: 'name', headerName: 'Student Name', flex: 0.5, width: 100, minWidth: 150 },
+    { field: 'contact_no', headerName: 'Contact No', flex: 1, width: 100, minWidth: 150 },
+    { field: 'status', headerName: 'Status', flex: 1, width: 100, minWidth: 150 },
     {
       field: 'course_code',
       headerName: 'Course',
-      width: 75
+      flex: 0.5,
+      width: 100,
+      minWidth: 50
     },
     {
       field: 'counsellor',
       headerName: 'Assign To',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 130,
+      flex: 1,
+      width: 100,
+      minWidth: 150,
       align: 'left',
       renderCell: (params) => {
         if (isAdminOrSupervisor) {

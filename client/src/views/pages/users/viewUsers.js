@@ -201,13 +201,14 @@ export default function ViewUsers() {
     <>
       <MainCard
         title="View Users"
-        buttonLabel={ permissions?.lead?.includes('create') ? (
+        buttonLabel={
+          permissions?.lead?.includes('create') ? (
             <>
-              Add New Lead
+              Add New User
               <AddIcon style={{ marginLeft: '5px' }} /> {/* Adjust styling as needed */}
             </>
           ) : undefined
-        } 
+        }
         onButtonClick={handleButtonClick}
       >
         {loading && <LinearProgress />}

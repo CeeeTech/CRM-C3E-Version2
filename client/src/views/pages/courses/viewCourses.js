@@ -113,14 +113,16 @@ export default function ViewCourses() {
   const columns = [
     { field: 'name', headerName: 'Course Name', flex: 2, width: 100, minWidth: 150, maxWidth: 200 },
 
-    { field: 'description', headerName: 'Course Description', flex: 2.5, width: 100, minWidth: 250},
+    { field: 'description', headerName: 'Course Description', flex: 2.5, width: 100, minWidth: 250 },
     {
       field: 'edit',
       headerName: '',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
       flex: 1,
-      width: 100, minWidth: 150, maxWidth: 200,
+      width: 100,
+      minWidth: 150,
+      maxWidth: 200,
       align: 'right',
       headerAlign: 'right',
       renderCell: (params) => (
@@ -164,20 +166,21 @@ export default function ViewCourses() {
     <>
       <MainCard
         title="View Courses"
-        buttonLabel={ permissions?.lead?.includes('create') ? (
+        buttonLabel={
+          permissions?.lead?.includes('create') ? (
             <>
-              Add New Lead
+              Add New Course
               <AddIcon style={{ marginLeft: '5px' }} /> {/* Adjust styling as needed */}
             </>
           ) : undefined
-        } 
+        }
         onButtonClick={handleButtonClick}
       >
-        {loading && <LinearProgress style={{marginBottom:'30px'}} />}
-        <Grid style={{marginTop:'-30px'}} container direction="column" justifyContent="left">
-          <Grid container sx={{ p: 3 , marginTop:'4px'}} spacing={matchDownSM ? 0 : 2}>
+        {loading && <LinearProgress style={{ marginBottom: '30px' }} />}
+        <Grid style={{ marginTop: '-30px' }} container direction="column" justifyContent="left">
+          <Grid container sx={{ p: 3, marginTop: '4px' }} spacing={matchDownSM ? 0 : 2}>
             <Grid item xs={12} sm={3.5}>
-              <Typography variant="h6" component="h6" style={{marginBottom:'-10px'}}>
+              <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                 Search
               </Typography>
               <TextField
@@ -201,23 +204,23 @@ export default function ViewCourses() {
             </Grid>
             <Grid item xs={12} sm={12}>
               {/* <div style={{ height: 710, width: '100%' }}> */}
-                <StripedDataGrid
-                  rows={filteredData.length > 0 ? filteredData : courseData}
-                  rowHeight={40}
-                  columns={columns}
-                  getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
-                  initialState={{
-                    pagination: {
-                      paginationModel: { page: 0, pageSize: 25 }
-                    }
-                  }}
-                  getRowId={(row) => row._id}
-                  getRowStyle={(params) => ({
-                    backgroundColor: params.index % 2 === 0 ? '#fff' : '#f0f8ff'
-                  })}
-                  pageSizeOptions={[10, 25, 100]}
-                  checkboxSelection
-                />
+              <StripedDataGrid
+                rows={filteredData.length > 0 ? filteredData : courseData}
+                rowHeight={40}
+                columns={columns}
+                getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
+                initialState={{
+                  pagination: {
+                    paginationModel: { page: 0, pageSize: 25 }
+                  }
+                }}
+                getRowId={(row) => row._id}
+                getRowStyle={(params) => ({
+                  backgroundColor: params.index % 2 === 0 ? '#fff' : '#f0f8ff'
+                })}
+                pageSizeOptions={[10, 25, 100]}
+                checkboxSelection
+              />
               {/* </div> */}
             </Grid>
           </Grid>
