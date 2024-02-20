@@ -31,6 +31,7 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 const ODD_OPACITY = 0.2;
 
@@ -80,7 +81,7 @@ export default function ViewLeads() {
 
   const [selectedCourse, setselectedCourse] = useState('');
   const [selectedSource, setselectedSource] = useState('');
-  const [selectedCounselor ,setselectedCounselor] = useState('');
+  const [selectedCounselor, setselectedCounselor] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [sname, setSname] = useState('');
@@ -610,26 +611,26 @@ export default function ViewLeads() {
       const matchesStatus = checkMatch(lead.status, selectedStatus);
       const matchesDateRange = filterByDateRange(lead.date);
       const matchesCounselor = checkMatch(lead.counsellor, selectedCounselor);
-  
+
       return matchesCourse && matchesSource && matchesName && matchesStatus && matchesDateRange && matchesCounselor;
     });
-  
+
     setData(filteredLeads);
   };
-  
+
   const checkMatch = (leadProperty, selectedProperty) => {
     return selectedProperty ? leadProperty === selectedProperty : true;
   };
-  
+
   const filterByDateRange = (leadDate) => {
     if (!dateFrom && !dateTo) {
       return true;
     }
-  
+
     const leadDateObj = new Date(leadDate);
     const fromDateObj = dateFrom ? new Date(dateFrom) : null;
     const toDateObj = dateTo ? new Date(dateTo) : null;
-  
+
     if (fromDateObj && toDateObj) {
       return leadDateObj >= fromDateObj && leadDateObj <= toDateObj;
     } else if (fromDateObj) {
@@ -694,7 +695,7 @@ export default function ViewLeads() {
     const sortedLeads = allLeads.filter((lead) => lead.counsellor === counselor);
     setData(sortedLeads);
     console.log(sortedLeads);
-  }
+  };
 
   const handleRowClick = (params) => {
     setSelectedLead(params.row);
@@ -1113,6 +1114,25 @@ export default function ViewLeads() {
                       </option>
                     )}
                   </TextField>
+                </Grid>
+                <Grid style={{ marginTop: '30px' }} item xs={12} sm={0.5}>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
+                    onClick={() => {
+                      setselectedCourse('');
+                      setselectedSource('');
+                      setselectedCounselor('');
+                      setDateFrom('');
+                      setDateTo('');
+                      setSname('');
+                      setSelectedStatus('');
+                      setData(allLeads);
+                    }}
+                  >
+                    <HighlightOffIcon sx={{ fontSize: '18px' }} />
+                  </Button>
                 </Grid>
               </Grid>
             </Grid>
