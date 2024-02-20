@@ -4,7 +4,7 @@ const Status = require("../models/status");
 const User = require("../models/user");
 const Lead = require("../models/lead");
 const moment = require("moment-timezone");
-console.log
+console.log;
 //get all followUps
 async function getFollowUps(req, res) {
   try {
@@ -33,19 +33,18 @@ async function addFollowUp(req, res) {
   else if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return res.status(400).json({ error: "no such user" });
   }
-  const statusdoc =  await Status.findOne({name: status});
-  if(!statusdoc){
+  const statusdoc = await Status.findOne({ name: status });
+  if (!statusdoc) {
     return res.status(400).json({ error: "no such status" });
   }
-  
+
   let date = new Date();
 
-   // Current datetime
-   const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
-   const customDateUTC = new Date(
-     moment.tz(date, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
-   ); // Replace with your desired date and time in UTC
-    
+  // Current datetime
+  const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+  const customDateUTC = new Date(
+    moment.tz(date, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+  ); // Replace with your desired date and time in UTC
 
   try {
     const newFollowUp = await FollowUp.create({
@@ -56,8 +55,8 @@ async function addFollowUp(req, res) {
       date: customDateUTC,
     });
 
-    const leadDoc = await Lead.findById({ _id: lead_id })
-    leadDoc.status_id =  statusdoc._id;
+    const leadDoc = await Lead.findById({ _id: lead_id });
+    leadDoc.status_id = statusdoc._id;
     await leadDoc.save();
 
     return res.status(200).json(newFollowUp);
@@ -87,10 +86,9 @@ async function updateFollowUp(req, res) {
 
   const leadId = req.body.lead_id;
   const status = req.body.status;
-  const leadDoc = await Lead.findById({ _id: leadId })
+  const leadDoc = await Lead.findById({ _id: leadId });
   leadDoc.status_id = status;
   await leadDoc.save();
-
 
   res.status(200).json(followup);
 }
@@ -167,7 +165,6 @@ async function getFollowUpDate(req, res) {
       return acc;
     }, {});
 
-
     // Filtering the latest date within each group
     const filteredFollowUp = Object.keys(groupedFollowUp).reduce(
       (result, leadId) => {
@@ -181,7 +178,7 @@ async function getFollowUpDate(req, res) {
       },
       {}
     );
-    
+
     // Counting the number of items with name
     const ringNoAnswerCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Ring no answer"
@@ -330,33 +327,32 @@ async function getFollowUpDateByUser(req, res) {
   }
 }
 
-
 async function getFollowUpDate(req, res) {
   try {
     let followUps;
 
     followUps = await Lead.find().populate("status_id").exec();
     // console.log("counsellor exec", followUps);
-    
+
     // Counting the number of items with each status dynamically
     const resultCount = followUps.reduce((count, followUpItem) => {
       const statusName = followUpItem.status_id?.name;
-      count[statusName + 'Count'] = (count[statusName + 'Count'] || 0) + 1;
+      count[statusName + "Count"] = (count[statusName + "Count"] || 0) + 1;
       return count;
     }, {});
 
     const finalResult = {
-      ringNoAnswerCount: resultCount['Ring no answerCount'] || 0,
-      registeredCount: resultCount['RegisteredCount'] || 0,
-      emailCount: resultCount['Sent EmailCount'] || 0,
-      whatsappCount: resultCount['Whatsapp & smsCount'] || 0,
-      meetingCount: resultCount['Schedule meetingsCount'] || 0,
-      cousedetailsCount: resultCount['Course details sentCount'] || 0,
-      nextintakeCount: resultCount['Next intakeCount'] || 0,
-      droppedCount: resultCount['DroppedCount'] || 0,
-      fakeCount: resultCount['FakeCount'] || 0,
-      duplicateCount: resultCount['DuplicateCount'] || 0,
-      NewCount: resultCount['NewCount'] || 0,
+      ringNoAnswerCount: resultCount["Ring no answerCount"] || 0,
+      registeredCount: resultCount["RegisteredCount"] || 0,
+      emailCount: resultCount["Sent EmailCount"] || 0,
+      whatsappCount: resultCount["Whatsapp & smsCount"] || 0,
+      meetingCount: resultCount["Schedule meetingsCount"] || 0,
+      cousedetailsCount: resultCount["Course details sentCount"] || 0,
+      nextintakeCount: resultCount["Next intakeCount"] || 0,
+      droppedCount: resultCount["DroppedCount"] || 0,
+      fakeCount: resultCount["FakeCount"] || 0,
+      duplicateCount: resultCount["DuplicateCount"] || 0,
+      NewCount: resultCount["NewCount"] || 0,
     };
 
     res.status(200).json(finalResult);
@@ -365,39 +361,42 @@ async function getFollowUpDate(req, res) {
   }
 }
 
-
 async function getCounselorFollowUpStatusCount(req, res) {
   const { user_id, user_type } = req.query;
 
   try {
     let followUps;
 
-    if (user_type == 'counselor') {
-      followUps = await Lead.find({ counsellor_id: user_id }).populate("status_id").exec();
+    if (user_type == "counselor") {
+      followUps = await Lead.find({ counsellor_id: user_id })
+        .populate("status_id")
+        .exec();
       // console.log("counsellor exec", followUps);
     } else {
-      followUps = await Lead.find({ user_id: user_id }).populate("status_id").exec();
+      followUps = await Lead.find({ user_id: user_id })
+        .populate("status_id")
+        .exec();
     }
 
     // Counting the number of items with each status dynamically
     const resultCount = followUps.reduce((count, followUpItem) => {
       const statusName = followUpItem.status_id?.name;
-      count[statusName + 'Count'] = (count[statusName + 'Count'] || 0) + 1;
+      count[statusName + "Count"] = (count[statusName + "Count"] || 0) + 1;
       return count;
     }, {});
 
     const finalResult = {
-      ringNoAnswerCount: resultCount['Ring no answerCount'] || 0,
-      registeredCount: resultCount['RegisteredCount'] || 0,
-      emailCount: resultCount['Sent EmailCount'] || 0,
-      whatsappCount: resultCount['Whatsapp & smsCount'] || 0,
-      meetingCount: resultCount['Schedule meetingsCount'] || 0,
-      cousedetailsCount: resultCount['Course details sentCount'] || 0,
-      nextintakeCount: resultCount['Next intakeCount'] || 0,
-      droppedCount: resultCount['DroppedCount'] || 0,
-      fakeCount: resultCount['FakeCount'] || 0,
-      duplicateCount: resultCount['DuplicateCount'] || 0,
-      NewCount: resultCount['NewCount'] || 0,
+      ringNoAnswerCount: resultCount["Ring no answerCount"] || 0,
+      registeredCount: resultCount["RegisteredCount"] || 0,
+      emailCount: resultCount["Sent EmailCount"] || 0,
+      whatsappCount: resultCount["Whatsapp & smsCount"] || 0,
+      meetingCount: resultCount["Schedule meetingsCount"] || 0,
+      cousedetailsCount: resultCount["Course details sentCount"] || 0,
+      nextintakeCount: resultCount["Next intakeCount"] || 0,
+      droppedCount: resultCount["DroppedCount"] || 0,
+      fakeCount: resultCount["FakeCount"] || 0,
+      duplicateCount: resultCount["DuplicateCount"] || 0,
+      NewCount: resultCount["NewCount"] || 0,
     };
 
     res.status(200).json(finalResult);
@@ -414,5 +413,5 @@ module.exports = {
   getFollowUpsByLead,
   getFollowUpDate,
   getFollowUpDateByUser,
-  getCounselorFollowUpStatusCount
+  getCounselorFollowUpStatusCount,
 };
