@@ -1039,6 +1039,48 @@ export default function ViewLeads() {
                     <option value="WhatsApp & SMS">WhatsApp & SMS</option> */}
                   </TextField>
                 </Grid>
+                {permissions?.lead?.includes('read-all') && (
+                  <Grid item xs={12} sm={1.5}>
+                    <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                      Counselor
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      // label="First Name"
+                      margin="normal"
+                      name="counselor"
+                      size="small"
+                      select
+                      SelectProps={{ native: true }}
+                      value={selectedCounselor}
+                      onChange={(event) => {
+                        setselectedCounselor(event.target.value);
+                        console.log(event.target.value);
+                        sortCounselors(event.target.value);
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <PersonIcon />
+                          </InputAdornment>
+                        )
+                      }}
+                    >
+                      <option value="" disabled></option>
+                      {counselors.concat(adminCounselors) && counselors.concat(adminCounselors).length > 0 ? (
+                        counselors.concat(adminCounselors).map((option) => (
+                          <option key={option.id} value={option.label}>
+                            {option.label}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="" disabled>
+                          No Counselors available
+                        </option>
+                      )}
+                    </TextField>
+                  </Grid>
+                )}
                 <Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Date From
@@ -1057,46 +1099,6 @@ export default function ViewLeads() {
                     }}
                     InputLabelProps={{ shrink: true }}
                   />
-                </Grid>
-                <Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                    Counselor
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    // label="First Name"
-                    margin="normal"
-                    name="counselor"
-                    size="small"
-                    select
-                    SelectProps={{ native: true }}
-                    value={selectedCounselor}
-                    onChange={(event) => {
-                      setselectedCounselor(event.target.value);
-                      console.log(event.target.value);
-                      sortCounselors(event.target.value);
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PersonIcon />
-                        </InputAdornment>
-                      )
-                    }}
-                  >
-                    <option value="" disabled></option>
-                    {counselors.concat(adminCounselors) && counselors.concat(adminCounselors).length > 0 ? (
-                      counselors.concat(adminCounselors).map((option) => (
-                        <option key={option.id} value={option.label}>
-                          {option.label}
-                        </option>
-                      ))
-                    ) : (
-                      <option value="" disabled>
-                        No Counselors available
-                      </option>
-                    )}
-                  </TextField>
                 </Grid>
                 <Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
