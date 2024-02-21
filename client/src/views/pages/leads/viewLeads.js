@@ -868,7 +868,7 @@ export default function ViewLeads() {
         }
         onButtonClick={handleButtonClick}
         buttonLabelExport={
-          permissions?.lead?.includes('create') ? (
+          permissions?.lead?.includes('read-all') ? (
             <>
               <GetAppIcon style={{ fontSize: '25px' }} /> {/* Adjust styling as needed */}
             </>
