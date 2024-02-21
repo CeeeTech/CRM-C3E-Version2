@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import MainCard from 'ui-component/cards/MainCard';
-import { TextField, useMediaQuery, CircularProgress } from '@mui/material';
+import { TextField, useMediaQuery, CircularProgress, InputAdornment, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TimelineIcon from '@mui/icons-material/Timeline';
@@ -11,6 +11,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useState } from 'react';
 import GetAppIcon from '@mui/icons-material/GetApp';
+import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -71,9 +72,13 @@ export default function ViewLeads() {
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [data, setData] = useState([]);
+  const [allLeads, setAllLeads] = useState([]);
+
   const [arrIds, setArrIds] = useState([]);
 
   const [selectedLead, setSelectedLead] = useState(null);
+  const [sname, setSname] = useState('');
 
   const [counselors, setCounselors] = useState([]);
   const [adminCounselors, setAdminCounselors] = useState([]);
@@ -356,11 +361,11 @@ export default function ViewLeads() {
         if (StatusUrl) {
           const filtered = leads.filter((lead) => lead.status === StatusUrl);
           setData(filtered);
+          setAllLeads(filtered);
           setLoading(false);
           console.log(StatusUrl);
           console.log(filtered);
         }
-        setAllLeads(leads);
         setLoading(false);
         return;
       } else if (permissions?.lead?.includes('read') && userType?.name === 'counselor') {
@@ -368,9 +373,9 @@ export default function ViewLeads() {
         if (StatusUrl) {
           const filtered = filteredLeads.filter((lead) => lead.status === StatusUrl);
           setData(filtered);
+          setAllLeads(filteredLeads);
           setLoading(false);
         }
-        setAllLeads(filteredLeads);
         setLoading(false);
         console.log(filteredLeads); // Log the filtered leads
         return;
@@ -379,9 +384,9 @@ export default function ViewLeads() {
         if (StatusUrl) {
           const filtered = filteredLeads.filter((lead) => lead.status === StatusUrl);
           setData(filtered);
+          setAllLeads(filteredLeads);
           setLoading(false);
         }
-        setAllLeads(filteredLeads);
         setLoading(false);
         console.log(filteredLeads);
         return;
@@ -449,7 +454,19 @@ export default function ViewLeads() {
     getAdminCounselors();
   }, []);
 
-  const [data, setData] = useState([]);
+  const sortLeadsByField = (value) => {
+    const sortedLeads = allLeads.filter((lead) => {
+      const searchTerm = value.toLowerCase();
+      return (
+        (lead.name && lead.name.toLowerCase().includes(searchTerm)) ||
+        (lead.nic && lead.nic.toLowerCase().includes(searchTerm)) ||
+        (lead.email && lead.email.toLowerCase().includes(searchTerm)) ||
+        (lead.contact_no && lead.contact_no.toLowerCase().includes(searchTerm))
+      );
+    });
+    setData(sortedLeads);
+    console.log(sortedLeads);
+  };
 
   const handleRowClick = (params) => {
     setSelectedLead(params.row);
@@ -581,7 +598,7 @@ export default function ViewLeads() {
         }
         onButtonClickDeleteAll={handleDelete}
         buttonLabelExport={
-          permissions?.lead?.includes('create') ? (
+          permissions?.lead?.includes('read-all') ? (
             <>
               <GetAppIcon style={{ fontSize: '25px' }} /> {/* Adjust styling as needed */}
             </>
@@ -591,6 +608,36 @@ export default function ViewLeads() {
       >
         {loading && <LinearProgress />}
         <Grid container direction="column" justifyContent="center">
+          <Grid container direction="column">
+            <Grid container spacing={matchDownSM ? 0 : 2}>
+              <Grid item xs={12} sm={2.5}>
+                <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                  Search
+                </Typography>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  name="search"
+                  type="text"
+                  size="small"
+                  SelectProps={{ native: true }}
+                  value={sname}
+                  onChange={(event) => {
+                    const { value } = event.target;
+                    setSname(value);
+                    sortLeadsByField(value);
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
           <Grid container sx={{ marginTop: '2px' }} alignItems="flex-start" spacing={matchDownSM ? 0 : 2}>
             <Grid alignItems="flex-start" item xs={12} sm={12}>
               {!loading && (
