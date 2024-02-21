@@ -89,6 +89,8 @@ const ProfileSection = () => {
         setUserTypeName('Supervisor');
       } else if (user.userType?.name === 'counselor') {
         setUserTypeName('Counsellor');
+      } else if (user.userType?.name === 'admin_counselor') {
+        setUserTypeName('Admin Counsellor');
       }
     }
   }, [user]);
