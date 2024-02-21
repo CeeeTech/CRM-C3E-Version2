@@ -14,7 +14,7 @@ import EarningIcon from 'assets/images/icons/meeting.svg';
 
 // styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: '#9195F6',
+  backgroundColor: '#3646d9',
   color: theme.palette.primary.light,
   overflow: 'hidden',
   position: 'relative',
@@ -23,7 +23,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: `linear-gradient(210.04deg, #ccd7f0 -50.94%, rgba(144, 202, 249, 0) 83.49%)`,
+    background: `linear-gradient(210.04deg, #5969f7 -50.94%, rgba(144, 202, 249, 0) 83.49%)`,
     borderRadius: '50%',
     top: -30,
     right: -180
@@ -33,7 +33,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: `linear-gradient(140.9deg, #ccd7f0 -14.02%, rgba(144, 202, 249, 0) 77.58%)`,
+    background: `linear-gradient(140.9deg, #5969f7 -14.02%, rgba(144, 202, 249, 0) 77.58%)`,
     borderRadius: '50%',
     top: -160,
     right: -130
@@ -72,7 +72,7 @@ const TotalIncomeDarkCard = ({ isLoading, data }) => {
                     sx={{
                       ...theme.typography.commonAvatar,
                       ...theme.typography.largeAvatar,
-                      backgroundColor: '#abaef5',
+                      backgroundColor: '#2b38b3',
                       color: '#fff'
                     }}
                   >

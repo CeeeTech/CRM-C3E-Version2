@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
-import EarningCard from './RegisteredCard';
+import EarningCard from './NewCard';
 import TotalIncomeDarkCard from './MeetingCard';
 import TotalOrderLineChartCard from './RingNoAwswerCard';
 import TotalIncomeLightCard from './FakeCard';
@@ -25,7 +25,6 @@ const Dashboard = () => {
   const { permissions } = user || {};
   const { userType } = user || {};
   const [cardData, setCardData] = useState();
-  const [registeredLeads, setRegisteredLeads] = useState();
   const [counsellors, setCounsellors] = useState();
 
   useEffect(() => {
@@ -62,13 +61,12 @@ const Dashboard = () => {
 
   const fetchCounselors = async () => {
     try {
-      const response = await fetch(config.apiUrl + 'api/getCounsellors', {
+      const response = await fetch(config.apiUrl + 'api/highest-achived-counselors', {
         method: 'GET',
         headers: { Authorization: `Bearer ${user.token}` }
       });
       const data = await response.json();
       setCounsellors(data);
-      setLoading(false);
       console.log('Counsellors:', data);
     } catch (error) {
       console.error('Error fetching counselors:', error.message);
@@ -89,15 +87,13 @@ const Dashboard = () => {
         return parseInt(currentLead.council_id) > parseInt(prevLead.council_id) ? currentLead : prevLead;
       }, filteredLeads[0]);
       setRegisteredLeads(leadWithHighestCouncilId);
-      setLoading(false);
       console.log('Registered leads:', leadWithHighestCouncilId);
     } catch (error) {
       console.error('Error fetching registered leads:', error.message);
     }
   };
 
-  const filteredCounsellors = counsellors?.filter((counsellor) => counsellor.id === registeredLeads?.counsellor_id);
-  console.log(filteredCounsellors);
+  
 
   async function fetchCardDetails(usertype) {
     try {
@@ -117,16 +113,17 @@ const Dashboard = () => {
       <Grid item xs={12}>
         <Grid container spacing={gridSpacing}>
           <Grid item lg={4} md={6} sm={6} xs={12}>
-            <EarningCard isLoading={isLoading} data={cardData?.NewCount} Coun_data={filteredCounsellors?.label} />
+            <EarningCard isLoading={isLoading} data={cardData?.NewCount} counsellorData={counsellors} />
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
             <Grid container spacing={gridSpacing}>
+            <Grid item sm={6} xs={12} md={6} lg={12}>
+                <TotalOrderLineChartCard isLoading={isLoading} data={cardData?.ringNoAnswerCount} />
+              </Grid>
               <Grid item sm={6} xs={12} md={6} lg={12}>
                 <TotalIncomeDarkCard isLoading={isLoading} data={cardData?.meetingCount} />
               </Grid>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-                <TotalOrderLineChartCard isLoading={isLoading} data={cardData?.ringNoAnswerCount} />
-              </Grid>
+              
             </Grid>
           </Grid>
           <Grid item lg={4} md={12} sm={12} xs={12}>
@@ -141,16 +138,18 @@ const Dashboard = () => {
           </Grid>
           <Grid item lg={4} md={6} sm={6} xs={12}>
             <Grid container spacing={gridSpacing}>
+            <Grid item sm={6} xs={12} md={6} lg={12}>
+                <EarningCard3 isLoading={isLoading} data={cardData?.whatsappCount} />
+              </Grid>
               <Grid item sm={6} xs={12} md={6} lg={12}>
                 <TotalOrderLineChartCard1 isLoading={isLoading} data={cardData?.emailCount} />
               </Grid>
+              
               <Grid item sm={6} xs={12} md={6} lg={12}>
                 <TotalIncomeLightCard1 isLoading={isLoading} data={cardData?.cousedetailsCount} />
               </Grid>
 
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-                <EarningCard3 isLoading={isLoading} data={cardData?.whatsappCount} />
-              </Grid>
+              
               <Grid item sm={6} xs={12} md={6} lg={12}>
                 <TotalOrderLineChartCard2 isLoading={isLoading} data={cardData?.nextintakeCount} />
               </Grid>

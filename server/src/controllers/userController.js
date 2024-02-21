@@ -5,6 +5,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const multer = require("multer");
+const Lead = require("../models/lead");
+const Status = require("../models/status");
+
 const upload = multer.memoryStorage();
 
 async function getUsers(req, res) {
@@ -140,6 +143,56 @@ async function getUserById(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+
+async function getHighestAchivedCounselors(req, res) {
+  try {
+    
+    const RegisteredStatus = await Status.findOne({ name: 'Registered' });
+
+    console.log(RegisteredStatus)
+
+    const CounsellorsDesending = Lead.aggregate([
+      {
+        $match: {
+          status_id: RegisteredStatus._id // Filter by status ID
+        }
+      },
+      {
+        $group: {
+          _id: '$counsellor_id',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $lookup: {
+          from: 'users', // Name of the counselor collection
+          localField: 'counsellor_id',
+          foreignField: '_id',
+          as: 'counselor_data'
+        }
+      }
+    ])
+
+
+
+
+
+
+    if (!CounsellorsDesending) {
+      return res.status(404).json({ error: "Counsellor data not found" });
+    }
+
+    res.status(200).json(CounsellorsDesending);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: error });
+  }
+}
+
 
 // update user by id
 async function updateUserById(req, res) {
@@ -430,4 +483,5 @@ module.exports = {
   updatePassword,
   updateUserByIdUsernameEmailUserTypeProductType,
   getAdminCounselors,
+  getHighestAchivedCounselors
 };

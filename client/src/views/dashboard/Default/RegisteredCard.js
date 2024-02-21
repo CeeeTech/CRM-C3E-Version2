@@ -4,14 +4,15 @@ import { useEffect } from 'react';
 // material-ui
 import { styled, useTheme } from '@mui/material/styles';
 import { Avatar, Box, Grid, Typography } from '@mui/material';
+import Divider from '@mui/material/Divider';
+
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
-import SkeletonEarningCard from 'ui-component/cards/Skeleton/EarningCard';
+import SkeletonEarningCard from 'ui-component/cards/Skeleton/RegisteredCard';
 import { useNavigate } from 'react-router-dom';
 // assets
-import EarningIcon from 'assets/images/icons/register.svg';
-
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 const CardWrapper = styled(MainCard)(({ theme }) => ({
   backgroundColor: '#508D69',
   color: theme.palette.primary.light,
@@ -80,7 +81,7 @@ const EarningCard = ({ isLoading, data, Coun_data }) => {
                         mt: 1
                       }}
                     >
-                      <img src={EarningIcon} alt="Notification" />
+                      <EmojiEventsIcon fontSize="large" style={{ color: 'white' }}/>
                     </Avatar>
                   </Grid>
                 </Grid>
@@ -104,8 +105,20 @@ const EarningCard = ({ isLoading, data, Coun_data }) => {
                   REGISTERED
                 </Typography>
               </Grid>
+              <Divider style={{ marginTop:20 }}/>
+
               <Grid item sx={{ mb: 1.25 }}>
                 <Typography
+                  sx={{
+                    fontSize: '1.2rem',
+                    fontWeight: 500,
+                    color: 'fff'
+                  }}
+                >
+                  <br />
+                  Highest Achieved Counsellors 
+                  </Typography>
+                  <Typography
                   sx={{
                     fontSize: '1rem',
                     fontWeight: 500,
@@ -113,8 +126,9 @@ const EarningCard = ({ isLoading, data, Coun_data }) => {
                   }}
                 >
                   <br />
-                  Highest Assign counsellor
-                </Typography>
+                ~Will soon be available~
+    
+                  </Typography>
               </Grid>
               <br />
               <Grid item>
@@ -127,10 +141,7 @@ const EarningCard = ({ isLoading, data, Coun_data }) => {
                 <br />
                 <br />
                 <br />
-                <br />
-                <br />
-                <br />
-                <br />
+               
               </Grid>
             </Grid>
           </Box>

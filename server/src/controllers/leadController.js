@@ -18,6 +18,7 @@ const Notification = require("../models/notification");
 const notificationController = require("../controllers/notificationController");
 const moment = require("moment-timezone");
 const fs = require("fs");
+const cron = require('node-cron');
 const startTime = 8;
 const endTime = 17;
 const threshold = 4;
@@ -1146,7 +1147,31 @@ async function assignLeadsToCounselorsTest(req, res) {
   }
 }
 
-async function scheduleNextExecution() {
+// async function scheduleNextExecution() {
+//   let currentDate = new Date();
+//   const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+//   const currentDateTime = new Date(
+//     moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+//   );
+//   const currentHour = currentDateTime.getUTCHours();
+//   // Check if the current time is between 8 am and 5 pm
+//   if (currentHour >= startTime && currentHour <= endTime) {
+//     // Call the function every minute
+//     setInterval(() => {
+//       assignLeadsToCounselors();
+//     }, 1200000);
+//     //1200000
+//   } else {
+//   }
+
+//   // Schedule the next check after 1 hour
+//   setTimeout(scheduleNextExecution, 3600000); // 1 hour in milliseconds
+// }
+
+
+ // Schedule the cron job to run every minute
+ cron.schedule('*/30 * * * *', () => {
+
   let currentDate = new Date();
   const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
   const currentDateTime = new Date(
@@ -1156,18 +1181,16 @@ async function scheduleNextExecution() {
   // Check if the current time is between 8 am and 5 pm
   if (currentHour >= startTime && currentHour <= endTime) {
     // Call the function every minute
-    setInterval(() => {
+      console.log(currentDateTime,' - Lead auto allocation job executed.');
       assignLeadsToCounselors();
-    }, 1200000);
     //1200000
   } else {
+      console.log(currentDateTime,' - The auto allocation is sleeping now it will start again between the working hours.');
   }
 
-  // Schedule the next check after 1 hour
-  setTimeout(scheduleNextExecution, 3600000); // 1 hour in milliseconds
-}
+});
 
-scheduleNextExecution();
+
 
 module.exports = {
   getLeads,

@@ -20,14 +20,11 @@ const counsellorAssignmentRoutes = require("./routes/counsellorAssignmentRoutes"
 const requireAuth = require("./middleware/requireAuth");
 const logFunctionExecution = require("./middleware/log");
 const socketIo = require("socket.io");
-const moment = require("moment-timezone");
-
-process.env.TZ = "Asia/Colombo";
 
 const app = express();
 app.use(cors());
 
-const port = 8080;
+const port = 443;
 
 // Use body-parser middleware
 app.use(bodyParser.json());
@@ -60,12 +57,7 @@ app.use((req, res, next) => {
   if (req.path === "/api/test-leads") {
     return next();
   }
-  if (req.path === "/api/fbtestaddlead") {
-    return next();
-  }
-  return next();
-
-  //requireAuth(req, res, next);
+  requireAuth(req, res, next);
 });
 
 // Use the student routes
@@ -82,8 +74,8 @@ app.use("/api", counsellorAssignmentRoutes);
 app.use("/api", notificationRoutes);
 
 const httpsOptions = {
-  key: fs.readFileSync(path.join(__dirname, "../server.key")),
-  cert: fs.readFileSync(path.join(__dirname, "../server.cert")),
+  key: fs.readFileSync('/etc/letsencrypt/live/apicrmv2.sltc.ac.lk/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/apicrmv2.sltc.ac.lk/fullchain.pem')
 };
 
 // Create an HTTP server and listen on the specified port
@@ -96,12 +88,17 @@ const io = socketIo(server, {
       "http://localhost:3000",
       "http://localhost",
       "http://localhost/build/",
+      "https://crm.c3e.tech",
+      "http://crm.c3e.tech",
+      "https://crm2.c3e.tech",
+      "http://crm2.c3e.tech",
     ],
   },
 });
 
 const { initializeSocket } = require("./service/notification");
 initializeSocket(io);
+
 server.listen(port, () => {
   console.log(`Server running at https://localhost:${port}/`);
 });

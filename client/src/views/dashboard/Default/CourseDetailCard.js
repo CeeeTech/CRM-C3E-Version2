@@ -14,7 +14,7 @@ import EarningIcon from 'assets/images/icons/details.svg';
 
 // styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: ' #C68484',
+  backgroundColor: ' #700987',
   overflow: 'hidden',
   position: 'relative',
   '&:after': {
@@ -22,7 +22,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: 'linear-gradient(210.04deg, #fab1b1 -50.94%, rgba(144, 202, 249, 0) 83.49%)',
+    background: 'linear-gradient(210.04deg, #b90de0 -50.94%, rgba(144, 202, 249, 0) 83.49%)',
     borderRadius: '50%',
     top: -30,
     right: -180,
@@ -36,7 +36,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: 'linear-gradient(140.9deg, #fab1b1 -14.02%, rgba(144, 202, 249, 0) 77.58%)',
+    background: 'linear-gradient(140.9deg, #b90de0 -14.02%, rgba(144, 202, 249, 0) 77.58%)',
     borderRadius: '50%',
     top: -160,
     right: -130
@@ -74,7 +74,7 @@ const TotalIncomeLightCard = ({ isLoading, data }) => {
                     sx={{
                       ...theme.typography.commonAvatar,
                       ...theme.typography.largeAvatar,
-                      backgroundColor: '#d49494',
+                      backgroundColor: '#b90de0',
                       color: theme.palette.warning.dark
                     }}
                   >

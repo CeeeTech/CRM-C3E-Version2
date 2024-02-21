@@ -63,7 +63,6 @@ async function getLeads(req, res) {
   // we need to echo back if the "verify_token" is as specified
   if (req.query["hub.verify_token"] === "CRM_WEBHOOK_VERIFY_TOKEN") {
     res.send(req.query["hub.challenge"]);
-    return;
   }
 }
 
@@ -243,14 +242,15 @@ async function addLead(student_id, course_name, formId, leadId) {
       newLead.assignment_id = newCounsellorAssignment._id;
       newLead.counsellor_id = cid;
       await newLead.save();
-      
+
       await notificationController.sendNotificationToCounselor(
         cid,
         `You have assigned a new lead belongs to ${studentDoc.email}.`,
         "success"
       );
+      console.log(date,' - FB automated lead added with counselor .');
+
     } else {
-      ("No counselor available");
 
       const status = await Status.findOne({ name: "New" });
 
@@ -260,6 +260,7 @@ async function addLead(student_id, course_name, formId, leadId) {
         status._id,
         date
       );
+      console.log(date,' - FB automated lead added withot counselor .');
 
       return "added_without_counselor";
     }
