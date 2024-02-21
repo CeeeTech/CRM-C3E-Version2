@@ -612,12 +612,11 @@ export default function ViewLeads() {
     const filteredLeads = allLeads.filter((lead) => {
       const matchesCourse = checkMatch(lead.course, selectedCourse);
       const matchesSource = checkMatch(lead.source, selectedSource);
-      const matchesName = checkMatch(lead.name.toLowerCase(), sname.toLowerCase());
       const matchesStatus = checkMatch(lead.status, selectedStatus);
       const matchesDateRange = filterByDateRange(lead.date);
       const matchesCounselor = checkMatch(lead.counsellor, selectedCounselor);
 
-      return matchesCourse && matchesSource && matchesName && matchesStatus && matchesDateRange && matchesCounselor;
+      return matchesCourse && matchesSource && matchesStatus && matchesDateRange && matchesCounselor;
     });
 
     setData(filteredLeads);
@@ -650,7 +649,7 @@ export default function ViewLeads() {
   // Call sortLeads whenever any filtering criteria changes
   useEffect(() => {
     sortLeads();
-  }, [selectedCourse, selectedSource, sname, selectedStatus, dateFrom, dateTo, selectedCounselor]);
+  }, [selectedCourse, selectedSource, selectedStatus, dateFrom, dateTo, selectedCounselor]);
 
   const sortDateRange = (fromDate, toDate) => {
     const sortedLeads = allLeads.filter((lead) => {
@@ -678,8 +677,16 @@ export default function ViewLeads() {
     console.log(sortedLeads);
   };
 
-  const sortName = (name) => {
-    const sortedLeads = allLeads.filter((lead) => lead.name.toLowerCase().includes(name.toLowerCase()));
+  const sortLeadsByField = (value) => {
+    const sortedLeads = allLeads.filter((lead) => {
+      const searchTerm = value.toLowerCase();
+      return (
+        (lead.name && lead.name.toLowerCase().includes(searchTerm)) ||
+        (lead.nic && lead.nic.toLowerCase().includes(searchTerm)) ||
+        (lead.email && lead.email.toLowerCase().includes(searchTerm)) ||
+        (lead.contact_no && lead.contact_no.toLowerCase().includes(searchTerm))
+      );
+    });
     setData(sortedLeads);
     console.log(sortedLeads);
   };
@@ -894,16 +901,16 @@ export default function ViewLeads() {
                   </Typography>
                   <TextField
                     fullWidth
-                    // label="First Name"
                     margin="normal"
-                    name="course"
+                    name="search"
                     type="text"
                     size="small"
                     SelectProps={{ native: true }}
                     value={sname}
                     onChange={(event) => {
-                      setSname(event.target.value);
-                      sortName(event.target.value);
+                      const { value } = event.target;
+                      setSname(value);
+                      sortLeadsByField(value);
                     }}
                     InputProps={{
                       startAdornment: (
