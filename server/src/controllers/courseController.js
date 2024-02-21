@@ -6,7 +6,6 @@ async function getCourses(req, res) {
         const courses = await Course.find()
         res.status(200).json(courses)
     } catch (error) {
-        console.log("Error fetching courses:", error)
         res.status(500).json({ error: "Internal Server Error" })
     }
 }
@@ -34,7 +33,6 @@ async function addCourse(req, res) {
         const newCourse = await course.save()
         res.status(201).json(newCourse)
     } catch (error) {
-        console.log("Error saving course:", error)
         res.status(500).json({ error: "Internal Server Error" })
     }
 }

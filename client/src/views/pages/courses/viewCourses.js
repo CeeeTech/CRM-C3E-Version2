@@ -14,6 +14,7 @@ import { useAuthContext } from '../../../context/useAuthContext';
 import { useLogout } from '../../../hooks/useLogout';
 import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
 
 const ODD_OPACITY = 0.2;
 
@@ -110,15 +111,18 @@ export default function ViewCourses() {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
 
   const columns = [
-    { field: 'name', headerName: 'Course Name', flex: 1.5 },
+    { field: 'name', headerName: 'Course Name', flex: 2, width: 100, minWidth: 150, maxWidth: 200 },
 
-    { field: 'description', headerName: 'Course Description', flex: 3 },
+    { field: 'description', headerName: 'Course Description', flex: 2.5, width: 100, minWidth: 250 },
     {
       field: 'edit',
       headerName: '',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
       flex: 1,
+      width: 100,
+      minWidth: 150,
+      maxWidth: 200,
       align: 'right',
       headerAlign: 'right',
       renderCell: (params) => (
@@ -129,9 +133,9 @@ export default function ViewCourses() {
             onClick={() => {
               updateCourse(params.row._id);
             }}
-            sx={{ borderRadius: '100px', padding: '10px' }}
+            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
           >
-            <ModeIcon />
+            <ModeIcon sx={{ fontSize: '18px' }} />
           </Button>
           <Button
             variant="contained"
@@ -140,9 +144,9 @@ export default function ViewCourses() {
               // Handle delete logic here
             }}
             style={{ marginLeft: '5px' }}
-            sx={{ borderRadius: '100px', padding: '10px' }}
+            sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
           >
-            <DeleteIcon />
+            <DeleteIcon sx={{ fontSize: '18px' }} />
           </Button>
         </>
       )
@@ -162,14 +166,21 @@ export default function ViewCourses() {
     <>
       <MainCard
         title="View Courses"
-        buttonLabel={permissions?.user?.includes('create') ? 'Add New Course' : undefined}
+        buttonLabel={
+          permissions?.lead?.includes('create') ? (
+            <>
+              Add New Course
+              <AddIcon style={{ marginLeft: '5px' }} /> {/* Adjust styling as needed */}
+            </>
+          ) : undefined
+        }
         onButtonClick={handleButtonClick}
       >
-        {loading && <LinearProgress />}
-        <Grid container direction="column" justifyContent="center">
-          <Grid container sx={{ p: 3 }} spacing={matchDownSM ? 0 : 2}>
-            <Grid item xs={8} sm={5}>
-              <Typography variant="h5" component="h5">
+        {loading && <LinearProgress style={{ marginBottom: '30px' }} />}
+        <Grid style={{ marginTop: '-30px' }} container direction="column" justifyContent="left">
+          <Grid container sx={{ p: 3, marginTop: '4px' }} spacing={matchDownSM ? 0 : 2}>
+            <Grid item xs={12} sm={3.5}>
+              <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                 Search
               </Typography>
               <TextField
@@ -178,6 +189,7 @@ export default function ViewCourses() {
                 margin="normal"
                 name="course"
                 type="text"
+                size="small"
                 SelectProps={{ native: true }}
                 defaultValue=""
                 InputProps={{
@@ -191,24 +203,25 @@ export default function ViewCourses() {
               />
             </Grid>
             <Grid item xs={12} sm={12}>
-              <div style={{ height: 710, width: '100%' }}>
-                <StripedDataGrid
-                  rows={filteredData.length > 0 ? filteredData : courseData}
-                  columns={columns}
-                  getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
-                  initialState={{
-                    pagination: {
-                      paginationModel: { page: 0, pageSize: 10 }
-                    }
-                  }}
-                  getRowId={(row) => row._id}
-                  getRowStyle={(params) => ({
-                    backgroundColor: params.index % 2 === 0 ? '#fff' : '#f0f8ff'
-                  })}
-                  pageSizeOptions={[10, 25, 100]}
-                  checkboxSelection
-                />
-              </div>
+              {/* <div style={{ height: 710, width: '100%' }}> */}
+              <StripedDataGrid
+                rows={filteredData.length > 0 ? filteredData : courseData}
+                rowHeight={40}
+                columns={columns}
+                getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
+                initialState={{
+                  pagination: {
+                    paginationModel: { page: 0, pageSize: 25 }
+                  }
+                }}
+                getRowId={(row) => row._id}
+                getRowStyle={(params) => ({
+                  backgroundColor: params.index % 2 === 0 ? '#fff' : '#f0f8ff'
+                })}
+                pageSizeOptions={[10, 25, 100]}
+                checkboxSelection
+              />
+              {/* </div> */}
             </Grid>
           </Grid>
         </Grid>

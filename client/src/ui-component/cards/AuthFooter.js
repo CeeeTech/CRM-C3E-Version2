@@ -8,7 +8,7 @@ const AuthFooter = () => (
     <Typography variant="subtitle2" color={'white'} component={Link} href="https://sltc.edu.lk" target="_blank" underline="hover">
       SLTC - Research Univercity
     </Typography>
-    <Typography variant="subtitle2" color={'white'} component={Link} href="https://ceee.lk" target="_blank" underline="hover">
+    <Typography variant="subtitle2" color={'white'} component={Link} href="https://c3e.tech/" target="_blank" underline="hover">
       &copy; CEEE Technologies
     </Typography>
   </Stack>

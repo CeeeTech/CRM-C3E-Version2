@@ -4,18 +4,18 @@ import { useEffect } from 'react';
 // material-ui
 import { styled, useTheme } from '@mui/material/styles';
 import { Avatar, Box, Grid, Typography } from '@mui/material';
+import Divider from '@mui/material/Divider';
+
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
-import SkeletonEarningCard from 'ui-component/cards/Skeleton/EarningCard';
+import SkeletonEarningCard from 'ui-component/cards/Skeleton/RegisteredCard';
 import { useNavigate } from 'react-router-dom';
 // assets
-import EarningIcon from 'assets/images/icons/register.svg';
-
-
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: '#994D1C',
-  color: '#fff',
+  backgroundColor: '#508D69',
+  color: theme.palette.primary.light,
   overflow: 'hidden',
   position: 'relative',
   '&:after': {
@@ -23,7 +23,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#E48F45',
+    background: '#80b567',
     borderRadius: '50%',
     top: -85,
     right: -95,
@@ -37,7 +37,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#E48F45',
+    background: '#80b567',
     borderRadius: '50%',
     top: -125,
     right: -15,
@@ -51,20 +51,15 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ===========================|| DASHBOARD DEFAULT - EARNING CARD ||=========================== //
 
-const EarningCard = ({ isLoading, data }) => {
+const EarningCard = ({ isLoading, data, Coun_data }) => {
   const theme = useTheme();
   const navigate = useNavigate();
-
-  //fetch status details
 
   const handleClick = () => {
     navigate('/app/leads/filtered?status=Registered');
   };
 
-  useEffect(() => {
-
-  }, []);
-
+  useEffect(() => {}, []);
 
   return (
     <>
@@ -82,11 +77,11 @@ const EarningCard = ({ isLoading, data }) => {
                       sx={{
                         ...theme.typography.commonAvatar,
                         ...theme.typography.largeAvatar,
-                        backgroundColor: '#804118',
+                        backgroundColor: '#345e45',
                         mt: 1
                       }}
                     >
-                      <img src={EarningIcon} alt="Notification" />
+                      <EmojiEventsIcon fontSize="large" style={{ color: 'white' }}/>
                     </Avatar>
                   </Grid>
                 </Grid>
@@ -94,9 +89,7 @@ const EarningCard = ({ isLoading, data }) => {
               <Grid item>
                 <Grid container alignItems="center">
                   <Grid item>
-                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>
-                      {data}
-                    </Typography>
+                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{data}</Typography>
                   </Grid>
                   <Grid item></Grid>
                 </Grid>
@@ -112,6 +105,44 @@ const EarningCard = ({ isLoading, data }) => {
                   REGISTERED
                 </Typography>
               </Grid>
+              <Divider style={{ marginTop:20 }}/>
+
+              <Grid item sx={{ mb: 1.25 }}>
+                <Typography
+                  sx={{
+                    fontSize: '1.2rem',
+                    fontWeight: 500,
+                    color: 'fff'
+                  }}
+                >
+                  <br />
+                  Highest Achieved Counsellors 
+                  </Typography>
+                  <Typography
+                  sx={{
+                    fontSize: '1rem',
+                    fontWeight: 500,
+                    color: 'fff'
+                  }}
+                >
+                  <br />
+                ~Will soon be available~
+    
+                  </Typography>
+              </Grid>
+              <br />
+              <Grid item>
+                <Grid container alignItems="center">
+                  <Grid item>
+                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{Coun_data}</Typography>
+                  </Grid>
+                  <Grid item></Grid>
+                </Grid>
+                <br />
+                <br />
+                <br />
+               
+              </Grid>
             </Grid>
           </Box>
         </CardWrapper>
@@ -123,6 +154,7 @@ const EarningCard = ({ isLoading, data }) => {
 EarningCard.propTypes = {
   isLoading: PropTypes.bool,
   data: PropTypes.number,
+  Coun_data: PropTypes.string
 };
 
 export default EarningCard;

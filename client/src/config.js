@@ -1,9 +1,9 @@
 const config = {
   // basename: only at build time to set, and Don't add '/' at end off BASENAME for breadcrumbs, also Don't put only '/' use blank('') instead,
   // like '/berry-material-react/react/default'
-  apiUrl: 'https://localhost:8080/',
+  apiUrl: 'http://apicrmv2.sltc.ac.lk/',
   basename: '/',
-  defaultPath: '/dashboard/default',
+  defaultPath: '/app/dashboard',
   fontFamily: `'Roboto', sans-serif`,
   borderRadius: 12
 };

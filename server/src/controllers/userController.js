@@ -5,6 +5,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const multer = require("multer");
+const Lead = require("../models/lead");
+const Status = require("../models/status");
+
 const upload = multer.memoryStorage();
 
 async function getUsers(req, res) {
@@ -16,7 +19,6 @@ async function getUsers(req, res) {
     });
     res.status(200).json(users);
   } catch (error) {
-    console.error("Error fetching users:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -24,9 +26,6 @@ async function getUsers(req, res) {
 async function createUser(req, res) {
   try {
     const { name, password, email, user_type, product_type } = req.body;
-
-    console.log("req.body", req.body);
-
     // Check if user_type exists in the user_type collection
     const user_type_document = await User_type.findOne({ name: user_type });
 
@@ -59,7 +58,6 @@ async function createUser(req, res) {
     await user.save();
     res.status(201).json({ user, message: "User created!" });
   } catch (error) {
-    console.error("Error creating user:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -121,7 +119,6 @@ async function login(req, res) {
       permissions,
     });
   } catch (error) {
-    console.error("Error during login:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -143,10 +140,59 @@ async function getUserById(req, res) {
 
     res.status(200).json(user);
   } catch (error) {
-    console.error("Error fetching user:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+
+async function getHighestAchivedCounselors(req, res) {
+  try {
+    
+    const RegisteredStatus = await Status.findOne({ name: 'Registered' });
+
+    console.log(RegisteredStatus)
+
+    const CounsellorsDesending = Lead.aggregate([
+      {
+        $match: {
+          status_id: RegisteredStatus._id // Filter by status ID
+        }
+      },
+      {
+        $group: {
+          _id: '$counsellor_id',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $lookup: {
+          from: 'users', // Name of the counselor collection
+          localField: 'counsellor_id',
+          foreignField: '_id',
+          as: 'counselor_data'
+        }
+      }
+    ])
+
+
+
+
+
+
+    if (!CounsellorsDesending) {
+      return res.status(404).json({ error: "Counsellor data not found" });
+    }
+
+    res.status(200).json(CounsellorsDesending);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: error });
+  }
+}
+
 
 // update user by id
 async function updateUserById(req, res) {
@@ -189,7 +235,6 @@ async function updateUserById(req, res) {
 
     res.status(200).json({ user: updatedUser, message: "User updated!" });
   } catch (error) {
-    console.error("Error updating user:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -199,9 +244,6 @@ async function updateUserByIdUsernameEmailUserTypeProductType(req, res) {
   try {
     const { id } = req.params;
     const { name, email, userType, product_type } = req.body;
-
-    console.log("req.body", req.body);
-
     // check if the id is a valid object id
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({ error: "Invalid id" });
@@ -218,7 +260,7 @@ async function updateUserByIdUsernameEmailUserTypeProductType(req, res) {
     const updateData = {
       name,
       email,
-      userType,
+      user_type: userType,
       product_type,
     };
 
@@ -234,7 +276,6 @@ async function updateUserByIdUsernameEmailUserTypeProductType(req, res) {
 
     res.status(200).json({ user: updatedUser, message: "User updated!" });
   } catch (error) {
-    console.error("Error updating user:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -274,9 +315,7 @@ async function updateUserByIdUsernamePassword(req, res) {
     res
       .status(200)
       .json({ user: updatedUser, message: "User updated successfully!" });
-    console.log("updatedUser", updatedUser);
   } catch (error) {
-    console.error("Error updating user:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -298,7 +337,6 @@ async function getUsersByUserType(req, res) {
       const users = await User.find({ user_type: user_type_document[0]._id });
       res.status(200).json(users);
     } catch (error) {
-      console.error("Error fetching users by user_type", error);
       res.status(500).json({
         error: "Internal Server Error",
         message: "Error fetching users by user_type",
@@ -330,7 +368,37 @@ async function getCounsellors(req, res) {
 
       res.status(200).json(counsellorDetails);
     } catch (error) {
-      console.error("Error fetching counsellors", error);
+      res.status(500).json({
+        error: "Internal Server Error",
+        message: "Error fetching users by user_type",
+      });
+    }
+  }
+}
+
+// get admin_counselors
+async function getAdminCounselors(req, res) {
+  const user_type_document = await User_type.find({ name: "admin_counselor" });
+
+  if (!user_type_document) {
+    res.status(400).json({ error: `user_type not found: admin_counselor` });
+  }
+
+  if (user_type_document[0]._id != null) {
+    try {
+      const users = await User.find({ user_type: user_type_document[0]._id });
+      const counsellorDetails = [];
+
+      for (const counsellor of users) {
+        const counsellorDetail = {
+          id: counsellor._id,
+          label: counsellor.name,
+        };
+        counsellorDetails.push(counsellorDetail);
+      }
+
+      res.status(200).json(counsellorDetails);
+    } catch (error) {
       res.status(500).json({
         error: "Internal Server Error",
         message: "Error fetching users by user_type",
@@ -365,7 +433,6 @@ async function handleEnableDisable(req, res) {
 
     res.status(200).json({ user: updatedUser, message: "User updated!" });
   } catch (error) {
-    console.error("Error updating user:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -399,7 +466,6 @@ async function updatePassword(req, res) {
 
     res.status(200).json({ user: updatedUser, message: "User updated!" });
   } catch (error) {
-    console.error("Error updating user:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -416,4 +482,6 @@ module.exports = {
   updateUserByIdUsernamePassword,
   updatePassword,
   updateUserByIdUsernameEmailUserTypeProductType,
+  getAdminCounselors,
+  getHighestAchivedCounselors
 };

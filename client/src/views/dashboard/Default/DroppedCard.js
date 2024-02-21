@@ -14,7 +14,7 @@ import EarningIcon from 'assets/images/icons/call-missed.svg';
 
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-  backgroundColor: '#c26a4c',
+  backgroundColor: '#820300',
   color: '#fff',
   overflow: 'hidden',
   position: 'relative',
@@ -23,7 +23,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#a14f33',
+    background: '#a30905',
     borderRadius: '50%',
     top: -85,
     right: -95,
@@ -37,7 +37,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     position: 'absolute',
     width: 210,
     height: 210,
-    background: '#a14f33',
+    background: '#a30905',
     borderRadius: '50%',
     top: -125,
     right: -15,
@@ -82,7 +82,7 @@ const EarningCard = ({ isLoading, data }) => {
                       sx={{
                         ...theme.typography.commonAvatar,
                         ...theme.typography.largeAvatar,
-                        backgroundColor: '#8f4e38',
+                        backgroundColor: '#a30905',
                         mt: 1
                       }}
                     >

@@ -295,7 +295,8 @@ export default function UpdateForm() {
 
     // Set the initial value for showProductType
     const counselorUserType = userTypes.find((userType) => userType.name === 'counselor');
-    const shouldShowProductType = selectedUserType === counselorUserType?._id;
+    const admin_counselorUserType = userTypes.find((userType) => userType.name === 'admin_counselor');
+    const shouldShowProductType = selectedUserType === counselorUserType?._id || selectedUserType === admin_counselorUserType?._id;
     setShowProductType(shouldShowProductType);
 
     // Check if product type exists in userData, and set the selectedProductTypes state
@@ -378,9 +379,10 @@ export default function UpdateForm() {
                         onChange={(event) => {
                           formikUserDetails.handleChange(event);
                           const counselorUserType = userTypes.find((userType) => userType.name === 'counselor');
+                          const admin_counselorUserType = userTypes.find((userType) => userType.name === 'admin_counselor');
                           console.log('Selected User Type ID:', event.target.value);
                           console.log('Counselor User Type ID:', counselorUserType?._id);
-                          const shouldShowProductType = event.target.value === counselorUserType?._id;
+                          const shouldShowProductType = event.target.value === counselorUserType?._id || event.target.value === admin_counselorUserType?._id;
                           setShowProductType(shouldShowProductType);
                         }}
                         onBlur={formikUserDetails.handleBlur}
