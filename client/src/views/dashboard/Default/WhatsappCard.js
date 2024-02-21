@@ -51,9 +51,7 @@ const TotalIncomeLightCard = ({ isLoading, data }) => {
   //fetch status details
   const navigate = useNavigate();
 
-  useEffect(() => {
-    
-  }, []);
+  useEffect(() => {}, []);
 
   const handleClick = () => {
     navigate('/app/leads/filtered?status=' + encodeURIComponent('Whatsapp & sms'));
@@ -115,7 +113,7 @@ const TotalIncomeLightCard = ({ isLoading, data }) => {
 
 TotalIncomeLightCard.propTypes = {
   isLoading: PropTypes.bool,
-  data: PropTypes.number,
+  data: PropTypes.number
 };
 
 export default TotalIncomeLightCard;

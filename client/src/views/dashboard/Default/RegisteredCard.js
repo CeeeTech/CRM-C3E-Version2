@@ -6,7 +6,6 @@ import { styled, useTheme } from '@mui/material/styles';
 import { Avatar, Box, Grid, Typography } from '@mui/material';
 import Divider from '@mui/material/Divider';
 
-
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import SkeletonEarningCard from 'ui-component/cards/Skeleton/RegisteredCard';
@@ -81,7 +80,7 @@ const EarningCard = ({ isLoading, data, Coun_data }) => {
                         mt: 1
                       }}
                     >
-                      <EmojiEventsIcon fontSize="large" style={{ color: 'white' }}/>
+                      <EmojiEventsIcon fontSize="large" style={{ color: 'white' }} />
                     </Avatar>
                   </Grid>
                 </Grid>
@@ -105,7 +104,7 @@ const EarningCard = ({ isLoading, data, Coun_data }) => {
                   REGISTERED
                 </Typography>
               </Grid>
-              <Divider style={{ marginTop:20 }}/>
+              <Divider style={{ marginTop: 20 }} />
 
               <Grid item sx={{ mb: 1.25 }}>
                 <Typography
@@ -115,33 +114,16 @@ const EarningCard = ({ isLoading, data, Coun_data }) => {
                     color: 'fff'
                   }}
                 >
-                  <br />
-                  Highest Achieved Counsellors 
-                  </Typography>
-                  <Typography
-                  sx={{
-                    fontSize: '1rem',
-                    fontWeight: 500,
-                    color: 'fff'
-                  }}
-                >
-                  <br />
-                ~Will soon be available~
-    
-                  </Typography>
+                  Highest Achieved Counsellors
+                </Typography>
               </Grid>
-              <br />
               <Grid item>
                 <Grid container alignItems="center">
                   <Grid item>
-                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{Coun_data}</Typography>
+                    <Typography sx={{ fontSize: '1.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{Coun_data}</Typography>
                   </Grid>
                   <Grid item></Grid>
                 </Grid>
-                <br />
-                <br />
-                <br />
-               
               </Grid>
             </Grid>
           </Box>
