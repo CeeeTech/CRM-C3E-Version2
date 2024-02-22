@@ -34,11 +34,11 @@ const Dashboard = () => {
         console.log('Received notification:', message);
       });
       if (permissions?.lead?.includes('read-all')) {
-        fetchStatusDetails().then(() => setLoading(false));
+        fetchStatusDetails().then(() => fetchCounselorData().then(() => setLoading(false)));
       } else if (permissions?.lead?.includes('read') && userType?.name === 'counselor') {
-        fetchCardDetails(userType.name).then(() => setLoading(false));
+        fetchCardDetails(userType.name).then(() => fetchCounselorData().then(() => setLoading(false)));
       } else if (permissions?.lead?.includes('read') && userType?.name === 'user') {
-        fetchCardDetails(userType.name).then(() => setLoading(false));
+        fetchCardDetails(userType.name).then(() => fetchCounselorData().then(() => setLoading(false)));
       }
     }
   }, [user]);
@@ -70,48 +70,67 @@ const Dashboard = () => {
     }
   }
   //fetching Counsellor data
+  // async function fetchCounselorData() {
+  //   try {
+  //     const response = await fetch(config.apiUrl + 'api/leads-details', {
+  //       method: 'GET',
+  //       headers: { Authorization: `Bearer ${user.token}` }
+  //     });
+  //     const data = await response.json();
+  //     console.log('counsellor data', data);
+
+  //     // Filter data where status_id is "Registered"
+  //     const registeredCounsellors = data.filter((counsellor) => counsellor.status_id && counsellor.status_id.name === 'Registered');
+
+  //     // Group leads by counsellor_id
+  //     const groupedLeads = registeredCounsellors.reduce((acc, lead) => {
+  //       if (!acc[lead.counsellor_id]) {
+  //         acc[lead.counsellor_id] = [];
+  //       }
+  //       acc[lead.counsellor_id].push(lead);
+  //       return acc;
+  //     }, {});
+
+  //     // Convert object to array of entries, sort, and slice the top 5
+  //     const top5Groups = Object.entries(groupedLeads)
+  //       .sort((a, b) => b[1].length - a[1].length) // Sort by number of leads
+  //       .slice(0, 5); // Slice the first 5 elements
+
+  //     // Get counselor names from leads, ordered by the most counselor_id
+  //     const counselorNames = top5Groups.map(([, leads]) => {
+  //       const counselorName = leads[0]?.assignment_id?.counsellor_id?.name || ''; // Get counselor name from the first lead in the group
+  //       return counselorName;
+  //     });
+
+  //     // Set the counselor names
+  //     setCounsellors(counselorNames);
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error.message);
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   fetchCounselorData();
+  // }, []);
+
+  // console.log('counsellors', counsellors);
+
   async function fetchCounselorData() {
     try {
-      const response = await fetch(config.apiUrl + 'api/leads-details', {
+      const response = await fetch(config.apiUrl + 'api/top_CourserCounselors', {
         method: 'GET',
         headers: { Authorization: `Bearer ${user.token}` }
       });
       const data = await response.json();
-      console.log('counsellor data', data);
-
-      // Filter data where status_id is "Registered"
-      const registeredCounsellors = data.filter((counsellor) => counsellor.status_id && counsellor.status_id.name === 'Registered');
-
-      // Group leads by counsellor_id
-      const groupedLeads = registeredCounsellors.reduce((acc, lead) => {
-        if (!acc[lead.counsellor_id]) {
-          acc[lead.counsellor_id] = [];
-        }
-        acc[lead.counsellor_id].push(lead);
-        return acc;
-      }, {});
-
-      // Convert object to array of entries, sort, and slice the top 5
-      const top5Groups = Object.entries(groupedLeads)
-        .sort((a, b) => b[1].length - a[1].length) // Sort by number of leads
-        .slice(0, 5); // Slice the first 5 elements
-
-      // Get counselor names from leads, ordered by the most counselor_id
-      const counselorNames = top5Groups.map(([, leads]) => {
-        const counselorName = leads[0]?.assignment_id?.counsellor_id?.name || ''; // Get counselor name from the first lead in the group
-        return counselorName;
-      });
-
-      // Set the counselor names
-      setCounsellors(counselorNames);
+      setCounsellors(data);
     } catch (error) {
       console.error('Error fetching data:', error.message);
     }
   }
 
-  useEffect(() => {
-    fetchCounselorData();
-  }, []);
+  // useEffect(() => {
+  //   fetchCounselorData();
+  // }, []);
 
   console.log('counsellors', counsellors);
 

@@ -18,7 +18,7 @@ const Notification = require("../models/notification");
 const notificationController = require("../controllers/notificationController");
 const moment = require("moment-timezone");
 const fs = require("fs");
-const cron = require('node-cron');
+const cron = require("node-cron");
 const startTime = 8;
 const endTime = 17;
 const threshold = 4;
@@ -762,6 +762,57 @@ async function getLeadsSummaryDetails(req, res) {
   }
 }
 
+async function topCourserCounselors(req, res) {
+  try {
+    const leads = await Lead.find()
+      .populate("student_id", "name contact_no dob address email nic")
+      .populate("course_id", "name")
+      .populate("branch_id", "name")
+      .populate("source_id", "name")
+      .populate("status_id", "name")
+      .populate({
+        path: "assignment_id",
+        select: "counsellor_id",
+        populate: {
+          path: "counsellor_id",
+          model: "User",
+          select: "name",
+        },
+      })
+      .lean()
+      .exec();
+
+    // Filter data where status_id is "Registered"
+    const registeredCounselors = leads.filter(
+      (lead) => lead.status_id && lead.status_id.name === "Registered"
+    );
+
+    // Group leads by counselor_id
+    const groupedLeads = registeredCounselors.reduce((acc, lead) => {
+      if (!acc[lead.assignment_id?.counsellor_id?._id]) {
+        acc[lead.assignment_id?.counsellor_id?._id] = [];
+      }
+      acc[lead.assignment_id?.counsellor_id?._id].push(lead);
+      return acc;
+    }, {});
+
+    // Convert object to array of entries, sort, and slice the top 5
+    const top5Groups = Object.entries(groupedLeads)
+      .sort((a, b) => b[1].length - a[1].length) // Sort by number of leads
+      .slice(0, 5); // Slice the first 5 elements
+
+    // Get counselor names from leads, ordered by the most counselor_id
+    const counselorNames = top5Groups.map(([counselorId, leads]) => {
+      const counselorName = leads[0]?.assignment_id?.counsellor_id?.name || ""; // Get counselor name from the first lead in the group
+      return counselorName;
+    });
+    // console.log(counselorNames);
+    res.status(200).json(counselorNames);
+  } catch (error) {
+    console.error("Error fetching data:", error.message);
+  }
+}
+
 function formatDate(inputDate) {
   const date = new Date(inputDate);
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -1168,10 +1219,8 @@ async function assignLeadsToCounselorsTest(req, res) {
 //   setTimeout(scheduleNextExecution, 3600000); // 1 hour in milliseconds
 // }
 
-
- // Schedule the cron job to run every minute
- cron.schedule('*/30 * * * *', () => {
-
+// Schedule the cron job to run every minute
+cron.schedule("*/30 * * * *", () => {
   let currentDate = new Date();
   const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
   const currentDateTime = new Date(
@@ -1181,16 +1230,16 @@ async function assignLeadsToCounselorsTest(req, res) {
   // Check if the current time is between 8 am and 5 pm
   if (currentHour >= startTime && currentHour <= endTime) {
     // Call the function every minute
-      console.log(currentDateTime,' - Lead auto allocation job executed.');
-      assignLeadsToCounselors();
+    console.log(currentDateTime, " - Lead auto allocation job executed.");
+    assignLeadsToCounselors();
     //1200000
   } else {
-      console.log(currentDateTime,' - The auto allocation is sleeping now it will start again between the working hours.');
+    console.log(
+      currentDateTime,
+      " - The auto allocation is sleeping now it will start again between the working hours."
+    );
   }
-
 });
-
-
 
 module.exports = {
   getLeads,
@@ -1207,4 +1256,5 @@ module.exports = {
   bulkImport,
   archiveLeads,
   assignLeadsToCounselors,
+  topCourserCounselors,
 };
