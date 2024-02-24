@@ -346,8 +346,8 @@ export default function ViewLeads() {
         course_code: shortenCourseName(lead.course_id.name),
         branch: lead.branch_id.name,
         source: lead.source_id ? lead.source_id.name : null,
-        counsellor: lead.assignment_id ? lead.assignment_id.counsellor_id.name : null,
-        counsellor_id: lead.assignment_id ? lead.assignment_id.counsellor_id._id : null,
+        counsellor: lead.counsellor_id ? lead.counsellor_id.name : null,
+        counsellor_id: lead.counsellor_id ? lead.counsellor_id._id : null,
         assigned_at: lead.counsellorAssignment ? lead.counsellorAssignment.assigned_at : null,
         user_id: lead.user_id ? lead.user_id : null,
         status: lead.status_id ? lead.status_id.name : null

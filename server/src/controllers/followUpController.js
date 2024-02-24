@@ -193,7 +193,7 @@ async function getFollowUpDate(req, res) {
       (item) => item.status_id.name === "Whatsapp & sms"
     ).length;
     const meetingCount = Object.values(filteredFollowUp).filter(
-      (item) => item.status_id.name === "Schedule meetings"
+      (item) => item.status_id.name === "Scheduled meeting"
     ).length;
     const cousedetailsCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Course details sent"
@@ -284,7 +284,7 @@ async function getFollowUpDateByUser(req, res) {
       (item) => item.status_id.name === "Whatsapp & sms"
     ).length;
     const meetingCount = Object.values(filteredFollowUp).filter(
-      (item) => item.status_id.name === "Schedule meetings"
+      (item) => item.status_id.name === "Scheduled meeting"
     ).length;
     const cousedetailsCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Course details sent"
@@ -346,7 +346,7 @@ async function getFollowUpDate(req, res) {
       registeredCount: resultCount["RegisteredCount"] || 0,
       emailCount: resultCount["Sent EmailCount"] || 0,
       whatsappCount: resultCount["Whatsapp & smsCount"] || 0,
-      meetingCount: resultCount["Schedule meetingsCount"] || 0,
+      meetingCount: resultCount["Scheduled meetingCount"] || 0,
       cousedetailsCount: resultCount["Course details sentCount"] || 0,
       nextintakeCount: resultCount["Next intakeCount"] || 0,
       droppedCount: resultCount["DroppedCount"] || 0,
@@ -390,7 +390,7 @@ async function getCounselorFollowUpStatusCount(req, res) {
       registeredCount: resultCount["RegisteredCount"] || 0,
       emailCount: resultCount["Sent EmailCount"] || 0,
       whatsappCount: resultCount["Whatsapp & smsCount"] || 0,
-      meetingCount: resultCount["Schedule meetingsCount"] || 0,
+      meetingCount: resultCount["Scheduled meetingCount"] || 0,
       cousedetailsCount: resultCount["Course details sentCount"] || 0,
       nextintakeCount: resultCount["Next intakeCount"] || 0,
       droppedCount: resultCount["DroppedCount"] || 0,
