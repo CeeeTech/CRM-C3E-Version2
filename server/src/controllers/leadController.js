@@ -914,8 +914,15 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
     });
     //"these are the counselors",counselors,admin_counselorType._id,counselorType._id);
 
+    // get the status id from status table which is New
+    const status = await Status.findOne({ name: "New" });
+
     // Fetch leads with counselors allocated
-    const leadsWithCounselors = await CounsellorAssignment.find();
+    // const leadsWithCounselors = await CounsellorAssignment.find();
+    const leadsWithCounselors = await Lead.find({
+      assignment_id: { $exists: true },
+      status_id: status._id,
+    });
     // leadsWithCounselors);
 
     // Filter counselors based on the specified productType
