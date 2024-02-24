@@ -92,6 +92,8 @@ const io = socketIo(server, {
       "http://crm.c3e.tech",
       "https://crm2.c3e.tech",
       "http://crm2.c3e.tech",
+      "http://crm3.c3e.tech",
+      "https://crm3.c3e.tech"
     ],
   },
 });
