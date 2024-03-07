@@ -102,6 +102,7 @@ export default function CourseForm() {
     const formData = {
       name: values.name,
       description: values.description,
+      rate: values.rate,
       code: values.code
     };
 
@@ -159,11 +160,13 @@ export default function CourseForm() {
           initialValues={{
             name: courseData.name || '',
             description: courseData.description || '',
+            rate: courseData.rate || '',
             code: courseData.code || ''
           }}
           validationSchema={Yup.object().shape({
             name: Yup.string().required('Name is required'),
             description: Yup.string().required('Description is required'),
+            rate: Yup.number().required('Rate is required'),
             code: Yup.string().required('Course Code is required')
           })}
           onSubmit={handleSubmit}
@@ -209,6 +212,29 @@ export default function CourseForm() {
                       value={values.code}
                       error={Boolean(touched.code && errors.code)}
                       helperText={touched.code && errors.code}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CodeIcon />
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="h5" component="h5">
+                      Course Rate
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      margin="normal"
+                      name="rate"
+                      type="number"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.rate}
+                      error={Boolean(touched.rate && errors.rate)}
+                      helperText={touched.rate && errors.rate}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
