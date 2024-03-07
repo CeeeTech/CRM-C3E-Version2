@@ -24,7 +24,7 @@ async function getCourse(req, res) {
 
 // add new course - name, description(not required)
 async function addCourse(req, res) {
-    const { name, description, code } = req.body
+    const { name, description, code, rate } = req.body
     if (!name) {
         res.status(400).json({ error: "Name is required" })
     }
@@ -40,7 +40,7 @@ async function addCourse(req, res) {
 // update course - name, description(not required)
 async function updateCourse(req, res) {
     const { id } = req.params
-    const { name, description,code } = req.body
+    const { name, description,code, rate } = req.body
     if (!mongoose.Types.ObjectId.isValid(id)) {
         res.status(404).json({ error: "No such course" })
     }
