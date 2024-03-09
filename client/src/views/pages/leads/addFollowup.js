@@ -239,7 +239,7 @@ export default function LeadForm() {
             targetPosition: tPosition,
             position: { x: xVal, y: yVal },
             type: 'customNode',
-            data: { label: followup.status, comment: followup.date, color: cusColor },
+            data: { label: followup.status , date:followup.date,color:cusColor, comment:followup.comment},
             handle: {
               x: 0.5, // Adjust the handle x-position as needed
               y: 1 // Adjust the handle y-position as needed
@@ -367,8 +367,8 @@ export default function LeadForm() {
               branch: values?.branch || '',
               dob: values?.dob || '',
               scheduled_to: values?.scheduled_to || '',
-              status: values?.status || '',
-              comment: values?.comment || '',
+              status: '',
+              comment: '',
             }}
             validationSchema={Yup.object().shape({
               // other fields validation...

@@ -25,7 +25,10 @@ export default memo(({ data, selected }) => {
       <Handle type="target" position={Position.Left} />
       <div >
         <strong>{data.label}</strong>
-        <p style={{marginTop:'-2px'}}>{data.comment}</p>
+        <p style={{marginTop:'-2px'}}>{data.date}</p>
+        <div style={{width:130}}>
+        <p style={{marginTop:'-5px',fontSize:12}} width={20}>{data.comment}</p>
+        </div>
       </div>
       <Handle type="source" position={Position.Right} />
     </Node>
