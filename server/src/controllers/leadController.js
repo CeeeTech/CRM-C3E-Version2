@@ -476,14 +476,24 @@ async function addLead(req, res) {
     // res.status(200).json(newLead);
 
     var cid;
+    let customLeastAllocatedCunselor;
+    const userAdding = await User.findOne({ _id: user_id });
+    const adminCounsellor = await User_type.findOne({ name: 'admin_counselor' });
+    const counsellor = await User_type.findOne({ name: 'counselor' });
 
+    
     const { leastAllocatedCounselor } =
       await getLeastAndNextLeastAllocatedCounselors(
         course_document._id.toString()
       );
+      customLeastAllocatedCunselor= leastAllocatedCounselor
 
-    if (leastAllocatedCounselor) {
-      cid = leastAllocatedCounselor._id;
+    if(userAdding.user_type.equals(adminCounsellor._id) || userAdding.user_type.equals(counsellor._id)){
+      customLeastAllocatedCunselor = userAdding
+    }
+
+    if (customLeastAllocatedCunselor) {
+      cid = customLeastAllocatedCunselor._id;
 
       // Create new counselor assignment
       const newCounsellorAssignment = await CounsellorAssignment.create({
@@ -580,6 +590,7 @@ async function addLeadAPI(req, res) {
     course_name,
     branch_name,
     user_id,
+    comment
   } = req.body;
   let resNewLead;
   
@@ -724,6 +735,7 @@ async function addLeadAPI(req, res) {
         user_id: null,
         status_id: status_document._id,
         date: currentDateTime,
+        comment:comment
       });
 
       const leadDoc = await Lead.findById({ _id: lead_id });
@@ -778,7 +790,7 @@ async function addLeadWithExistingStudentAPI(req, res) {
     return res.status(401).json({ error: "API Secret is Invalid" });
   }
 
-  const { student_id, date, sheduled_to, course_name, branch_name, user_id } =
+  const { student_id, date, sheduled_to, course_name, branch_name, user_id,comment } =
     req.body;
   let resNewLead;
   //add lead
@@ -899,6 +911,7 @@ async function addLeadWithExistingStudentAPI(req, res) {
         user_id: user_id,
         status_id: status_document._id,
         date: currentDateTime,
+        comment:comment
       });
 
       const leadDoc = await Lead.findById({ _id: lead_id });
@@ -983,14 +996,24 @@ async function addLeadWithExistingStudent(req, res) {
     // res.status(200).json(newLead);
 
     var cid;
+    let customLeastAllocatedCunselor;
+    const userAdding = await User.findOne({ _id: user_id });
+    const adminCounsellor = await User_type.findOne({ name: 'counselor' });
+    const counsellor = await User_type.findOne({ name: 'admin_counselor' });
 
+    
     const { leastAllocatedCounselor } =
       await getLeastAndNextLeastAllocatedCounselors(
         course_document._id.toString()
       );
+      customLeastAllocatedCunselor= leastAllocatedCounselor
+      if(userAdding.user_type.equals(adminCounsellor._id) || userAdding.user_type.equals(counsellor._id)){
+        customLeastAllocatedCunselor = userAdding
+    }
 
-    if (leastAllocatedCounselor) {
-      cid = leastAllocatedCounselor._id;
+
+    if (customLeastAllocatedCunselor) {
+      cid = customLeastAllocatedCunselor._id;
 
       // Create new counselor assignment
       const newCounsellorAssignment = await CounsellorAssignment.create({
