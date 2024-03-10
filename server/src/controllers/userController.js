@@ -123,6 +123,8 @@ async function login(req, res) {
   }
 }
 
+
+
 async function getUserById(req, res) {
   try {
     const { id } = req.params;
