@@ -163,7 +163,7 @@ async function addLeadDefault(student_id, course_code, reference_number) {
     }
 
     // Check if source name exists in the source table
-    const source_document = await Source.findOne({ name: "bulk" });
+    const source_document = await Source.findOne({ name: "Bulk Upload" });
     if (!source_document) {
       return "error";
     }
@@ -646,9 +646,9 @@ async function addLeadAPI(req, res) {
     }
 
     // Check if source name exists in the source table
-    const source_document = await Source.findOne({ name: "Manual" });
+    const source_document = await Source.findOne({ name: "Referral" });
     if (!source_document) {
-      return res.status(400).json({ error: `Source not found: Manual` });
+      return res.status(400).json({ error: `Source not found: Refferal` });
     }
 
     const sequenceValue = await getNextSequenceValue("unique_id_sequence");
@@ -824,9 +824,9 @@ async function addLeadWithExistingStudentAPI(req, res) {
     }
 
     // Check if source name exists in the source table
-    const source_document = await Source.findOne({ name: "Manual" });
+    const source_document = await Source.findOne({ name: "Referral" });
     if (!source_document) {
-      return res.status(400).json({ error: `Source not found: Manual` });
+      return res.status(400).json({ error: `Source not found: Referral` });
     }
 
     const sequenceValue = await getNextSequenceValue("unique_id_sequence");
