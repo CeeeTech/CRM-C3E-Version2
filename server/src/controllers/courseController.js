@@ -28,7 +28,7 @@ async function addCourse(req, res) {
     if (!name) {
         res.status(400).json({ error: "Name is required" })
     }
-    const course = new Course({ name, description, course_code: code, refferal_fee:rate })
+    const course = new Course({ name, description, course_code: code, rate:rate })
     try {
         const newCourse = await course.save()
         res.status(201).json(newCourse)
@@ -44,7 +44,7 @@ async function updateCourse(req, res) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         res.status(404).json({ error: "No such course" })
     }
-    const course = await Course.findByIdAndUpdate(id, { name, description, course_code:code, refferal_fee:rate }, { new: true })
+    const course = await Course.findByIdAndUpdate(id, { name, description, course_code:code, rate:rate }, { new: true })
     if (!course) {
         res.status(400).json({ error: "No such course" })
     }

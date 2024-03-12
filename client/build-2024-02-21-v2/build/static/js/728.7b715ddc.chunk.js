@@ -1,0 +1,28 @@
+"use strict";(self.webpackChunkberry_free_material_react_cra=self.webpackChunkberry_free_material_react_cra||[]).push([[728],{1728:function(e,r,t){t.r(r);var a=t(7313),i=t(9019),s=t(1113),o=t(9881),n=t(1095),l=t(5281),c=t(3497),d=t(4487),u=t(6287),h=t(7122),m=t(7114),f=t.n(m),v=t(1399),p=t.n(v),k=t(6417);r.default=()=>{const[e,r]=(0,a.useState)(!1),{user:t}=(0,h.E)(),m=(0,a.useRef)(null),v=p()(f().mixin({toast:!0,position:"bottom-end",iconColor:"white",customClass:{popup:"colored-toast"},showConfirmButton:!1,timer:3500,timerProgressBar:!0}));return(0,k.jsx)(c.Z,{title:"Bulk Import",children:(0,k.jsxs)(i.ZP,{container:!0,direction:"column",alignItems:"center",spacing:2,children:[(0,k.jsx)(i.ZP,{item:!0,children:(0,k.jsx)(s.Z,{variant:"body",children:"Use this feature to bulk import leads into the system."})}),e&&(0,k.jsx)(i.ZP,{item:!0,children:(0,k.jsx)(o.Z,{severity:"info",children:"Please wait. It may take around 1 minute to upload 100 data."})}),(0,k.jsx)(i.ZP,{item:!0,children:(0,k.jsxs)(n.Z,{variant:"contained",component:"label",size:"large",startIcon:(0,k.jsx)(d.Z,{}),disabled:e,children:[e?(0,k.jsx)(l.Z,{size:24,color:"inherit"}):"Upload File",(0,k.jsx)("input",{type:"file",accept:".csv",onChange:async e=>{const a=e.target.files[0];if(a){r(!0);const e=new FormData;e.append("file",a);try{const a=await fetch(u.Z.apiUrl+"api/leads/bulk-import",{method:"POST",headers:{Authorization:`Bearer ${t.token}`},body:e}),i=await a.json();console.log("Server response:",i);const s=i.bulk_upload_details;let o="";s.successfully_added_leads>0&&(o+=`<li>Lead Added Successfully: ${s.successfully_added_leads}</li>`),s.added_without_counselor>0&&(o+=`<li>Leads Added Without Counselor: ${s.added_without_counselor}</li>`),s.existing_student_added_leads>0&&(o+=`<li>Invalid Leads: ${s.existing_student_added_leads}</li>`),s.error_added_leads>0&&(o+=`<li>Error Adding Lead: ${s.error_added_leads}</li>`),o+="</ul>",o&&v.fire({icon:"info",title:"Upload Details",html:o})}catch(i){console.error("Error uploading file:",i)}finally{r(!1),m.current.value=null}}},hidden:!0,ref:m})]})})]})})}},4487:function(e,r,t){var a=t(4836);r.Z=void 0;var i=a(t(5045)),s=t(6417),o=(0,i.default)((0,s.jsx)("path",{d:"M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11z"}),"UploadFile");r.Z=o},5281:function(e,r,t){t.d(r,{Z:function(){return C}});var a=t(3366),i=t(7462),s=t(7313),o=t(2197),n=t(1921),l=t(686),c=t(1615),d=t(7342),u=t(7592),h=t(7430),m=t(2298);function f(e){return(0,m.ZP)("MuiCircularProgress",e)}(0,h.Z)("MuiCircularProgress",["root","determinate","indeterminate","colorPrimary","colorSecondary","svg","circle","circleDeterminate","circleIndeterminate","circleDisableShrink"]);var v=t(6417);const p=["className","color","disableShrink","size","style","thickness","value","variant"];let k,x,Z,g,y=e=>e;const _=44,b=(0,l.F4)(k||(k=y`
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+`)),S=(0,l.F4)(x||(x=y`
+  0% {
+    stroke-dasharray: 1px, 200px;
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dasharray: 100px, 200px;
+    stroke-dashoffset: -15px;
+  }
+
+  100% {
+    stroke-dasharray: 100px, 200px;
+    stroke-dashoffset: -125px;
+  }
+`)),w=(0,u.ZP)("span",{name:"MuiCircularProgress",slot:"Root",overridesResolver:(e,r)=>{const{ownerState:t}=e;return[r.root,r[t.variant],r[`color${(0,c.Z)(t.color)}`]]}})((e=>{let{ownerState:r,theme:t}=e;return(0,i.Z)({display:"inline-block"},"determinate"===r.variant&&{transition:t.transitions.create("transform")},"inherit"!==r.color&&{color:(t.vars||t).palette[r.color].main})}),(e=>{let{ownerState:r}=e;return"indeterminate"===r.variant&&(0,l.iv)(Z||(Z=y`
+      animation: ${0} 1.4s linear infinite;
+    `),b)})),P=(0,u.ZP)("svg",{name:"MuiCircularProgress",slot:"Svg",overridesResolver:(e,r)=>r.svg})({display:"block"}),j=(0,u.ZP)("circle",{name:"MuiCircularProgress",slot:"Circle",overridesResolver:(e,r)=>{const{ownerState:t}=e;return[r.circle,r[`circle${(0,c.Z)(t.variant)}`],t.disableShrink&&r.circleDisableShrink]}})((e=>{let{ownerState:r,theme:t}=e;return(0,i.Z)({stroke:"currentColor"},"determinate"===r.variant&&{transition:t.transitions.create("stroke-dashoffset")},"indeterminate"===r.variant&&{strokeDasharray:"80px, 200px",strokeDashoffset:0})}),(e=>{let{ownerState:r}=e;return"indeterminate"===r.variant&&!r.disableShrink&&(0,l.iv)(g||(g=y`
+      animation: ${0} 1.4s ease-in-out infinite;
+    `),S)}));var C=s.forwardRef((function(e,r){const t=(0,d.Z)({props:e,name:"MuiCircularProgress"}),{className:s,color:l="primary",disableShrink:u=!1,size:h=40,style:m,thickness:k=3.6,value:x=0,variant:Z="indeterminate"}=t,g=(0,a.Z)(t,p),y=(0,i.Z)({},t,{color:l,disableShrink:u,size:h,thickness:k,value:x,variant:Z}),b=(e=>{const{classes:r,variant:t,color:a,disableShrink:i}=e,s={root:["root",t,`color${(0,c.Z)(a)}`],svg:["svg"],circle:["circle",`circle${(0,c.Z)(t)}`,i&&"circleDisableShrink"]};return(0,n.Z)(s,f,r)})(y),S={},C={},$={};if("determinate"===Z){const e=2*Math.PI*((_-k)/2);S.strokeDasharray=e.toFixed(3),$["aria-valuenow"]=Math.round(x),S.strokeDashoffset=`${((100-x)/100*e).toFixed(3)}px`,C.transform="rotate(-90deg)"}return(0,v.jsx)(w,(0,i.Z)({className:(0,o.Z)(b.root,s),style:(0,i.Z)({width:h,height:h},C,m),ownerState:y,ref:r,role:"progressbar"},$,g,{children:(0,v.jsx)(P,{className:b.svg,ownerState:y,viewBox:"22 22 44 44",children:(0,v.jsx)(j,{className:b.circle,style:S,ownerState:y,cx:_,cy:_,r:(_-k)/2,fill:"none",strokeWidth:k})})}))}))}}]);

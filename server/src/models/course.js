@@ -8,7 +8,7 @@ const courseSchema = new mongoose.Schema({
         default: true
     },
     course_code: {type: String, required: false},
-    refferal_fee: {type: Number, required: false}
+    rate: {type: Number, required: false}
 })
 
 const course = mongoose.model('Course', courseSchema)
