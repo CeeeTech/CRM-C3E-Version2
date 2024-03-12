@@ -1,4 +1,5 @@
 const Lead = require("../models/lead");
+require("dotenv").config();
 const Course = require("../models/course");
 const Status = require("../models/status");
 const Branch = require("../models/branch");
@@ -18,7 +19,7 @@ const Notification = require("../models/notification");
 const notificationController = require("../controllers/notificationController");
 const moment = require("moment-timezone");
 const fs = require("fs");
-const cron = require('node-cron');
+const cron = require("node-cron");
 const startTime = 8;
 const endTime = 17;
 const threshold = 4;
@@ -162,7 +163,7 @@ async function addLeadDefault(student_id, course_code, reference_number) {
     }
 
     // Check if source name exists in the source table
-    const source_document = await Source.findOne({ name: "bulk" });
+    const source_document = await Source.findOne({ name: "Bulk Upload" });
     if (!source_document) {
       return "error";
     }
@@ -450,9 +451,9 @@ async function addLead(req, res) {
     }
 
     // Check if source name exists in the source table
-    const source_document = await Source.findOne({ name: "manual" });
+    const source_document = await Source.findOne({ name: "Manual" });
     if (!source_document) {
-      return res.status(400).json({ error: `Source not found: manual` });
+      return res.status(400).json({ error: `Source not found: Manual` });
     }
 
     const sequenceValue = await getNextSequenceValue("unique_id_sequence");
@@ -475,14 +476,24 @@ async function addLead(req, res) {
     // res.status(200).json(newLead);
 
     var cid;
+    let customLeastAllocatedCunselor;
+    const userAdding = await User.findOne({ _id: user_id });
+    const adminCounsellor = await User_type.findOne({ name: 'admin_counselor' });
+    const counsellor = await User_type.findOne({ name: 'counselor' });
 
+    
     const { leastAllocatedCounselor } =
       await getLeastAndNextLeastAllocatedCounselors(
         course_document._id.toString()
       );
+      customLeastAllocatedCunselor= leastAllocatedCounselor
 
-    if (leastAllocatedCounselor) {
-      cid = leastAllocatedCounselor._id;
+    if(userAdding.user_type.equals(adminCounsellor._id) || userAdding.user_type.equals(counsellor._id)){
+      customLeastAllocatedCunselor = userAdding
+    }
+
+    if (customLeastAllocatedCunselor) {
+      cid = customLeastAllocatedCunselor._id;
 
       // Create new counselor assignment
       const newCounsellorAssignment = await CounsellorAssignment.create({
@@ -553,7 +564,373 @@ async function addLead(req, res) {
   } catch (e) {}
 }
 
+async function addLeadAPI(req, res) {
+  console.log('addLeadAPI has been called')
+  const { authorizationapi } = req.headers;
+
+  if (!authorizationapi) {
+    return res.status(401).json({ error: "Authorization token required" });
+  }
+  const token = authorizationapi.split(" ")[1];
+  console.log('auth token', token)
+
+  if(token != process.env.API_SECRET){
+    return res.status(401).json({ error: "API Secret is Invalid" });
+  }
+
+  const {
+    name,
+    nic,
+    dob,
+    contact_no,
+    email,
+    address,
+    date,
+    sheduled_to,
+    course_name,
+    branch_name,
+    user_id,
+    comment
+  } = req.body;
+  let resNewLead;
+  
+  var student_id;
+  var lead_id;
+
+  // add student
+  try {
+    // Create a new student
+    const newStudent = await Student.create({
+      name,
+      nic,
+      dob,
+      contact_no,
+      email,
+      address,
+    });
+
+    student_id = newStudent._id;
+    // res.status(200).json(newStudent);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+
+  //add lead
+  try {
+    // Check if course_name exists in the course table
+    const course_document = await Course.findOne({ name: course_name });
+    if (!course_document) {
+      return res
+        .status(400)
+        .json({ error: `Course not found: ${course_name}` });
+    }
+
+    // Check if branch_name exists in the branch table
+    const branch_document = await Branch.findOne({ name: branch_name });
+    if (!branch_document) {
+      return res
+        .status(400)
+        .json({ error: `Branch not found: ${branch_name}` });
+    }
+
+    // Current datetime
+    let currentDate = new Date();
+    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+    const customDateUTC = new Date(
+      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+    ); // Replace with your desired date and time in UTC
+
+    // Check if student exists in the student table
+    if (!mongoose.Types.ObjectId.isValid(student_id)) {
+      return res.status(400).json({ error: "No such student" });
+    }
+
+    // Check if source name exists in the source table
+    const source_document = await Source.findOne({ name: "Referral" });
+    if (!source_document) {
+      return res.status(400).json({ error: `Source not found: Refferal` });
+    }
+
+    const sequenceValue = await getNextSequenceValue("unique_id_sequence");
+
+    // Create new lead
+    const newLead = await Lead.create({
+      date: customDateUTC,
+      sheduled_at: customDateUTC,
+      scheduled_to: sheduled_to,
+      course_id: course_document._id,
+      branch_id: branch_document._id,
+      student_id: student_id,
+      user_id: user_id,
+      source_id: source_document._id,
+      reference_number: sequenceValue,
+    });
+    resNewLead = newLead
+    lead_id = newLead._id;
+    // Send success response
+    // res.status(200).json(newLead);
+
+    var cid;
+
+    const { leastAllocatedCounselor } =
+      await getLeastAndNextLeastAllocatedCounselors(
+        course_document._id.toString()
+      );
+
+    if (leastAllocatedCounselor) {
+      cid = leastAllocatedCounselor._id;
+
+      // Create new counselor assignment
+      const newCounsellorAssignment = await CounsellorAssignment.create({
+        lead_id: newLead._id,
+        counsellor_id: cid,
+        assigned_at: date,
+      });
+
+      const studentDoc = await Student.findById({ _id: student_id });
+
+      // Update lead with assignment_id
+      newLead.assignment_id = newCounsellorAssignment._id;
+      newLead.counsellor_id = cid;
+      await newLead.save();
+
+      await notificationController.sendNotificationToCounselor(
+        cid,
+        `You have assigned a new lead belongs to ${studentDoc.email}.`,
+        "success"
+      );
+    } else {
+      
+    }
+    
+  } catch (error) {
+    // Send internal server error response
+    console.log(error)
+    //return res.status(500).json({ error: "Internal Server Error" });
+  }
+
+  try {
+    // Check if lead exists in the lead table
+    if (!mongoose.Types.ObjectId.isValid(lead_id)) {
+      return res.status(400).json({ error: "no such lead" });
+    }
+
+
+    const status_document = await Status.findOne({ name: "New" });
+    if (!status_document) {
+      return res.status(400).json({ error: `Status not found: New` });
+    }
+
+    // Current datetime
+
+    let currentDate = new Date();
+    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+    const currentDateTime = new Date(
+      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+    );
+
+    try {
+      const newFollowUp = await FollowUp.create({
+        lead_id: lead_id,
+        user_id: null,
+        status_id: status_document._id,
+        date: currentDateTime,
+        comment:comment
+      });
+
+      const leadDoc = await Lead.findById({ _id: lead_id });
+      leadDoc.status_id = status_document._id;
+      await leadDoc.save();
+
+      return res.status(200).json(resNewLead);
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  } catch (e) {}
+}
+async function checkDuplicateEmailAPI(req,res){
+  const { authorization } = req.headers;
+
+  if (!authorization) {
+    return res.status(401).json({ error: "Authorization token required" });
+  }
+  const token = authorization.split(" ")[1];
+
+  if(token != process.env.API_SECRET){
+    return res.status(401).json({ error: "API Secret is Invalid" });
+  }
+  
+  const { email } = req.body;
+
+  try {
+    console.log("checkDuplicateStudent", email);
+    const student = await Student.findOne({ email });
+
+    // need to return true with student
+    res.status(200).json({ isDuplicateStudent: !!student, student });
+  } catch (error) {
+    // Handle any errors that occur during the process
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
 //add lead and followup
+
+async function addLeadWithExistingStudentAPI(req, res) {
+  console.log('addLeadWithExistingStudentAPI has been called')
+  const { authorizationapi } = req.headers;
+
+  if (!authorizationapi) {
+    return res.status(401).json({ error: "Authorization token required" });
+  }
+  const token = authorizationapi.split(" ")[1];
+  console.log('auth token', token)
+
+  if(token != process.env.API_SECRET){
+    return res.status(401).json({ error: "API Secret is Invalid" });
+  }
+
+  const { student_id, date, sheduled_to, course_name, branch_name, user_id,comment } =
+    req.body;
+  let resNewLead;
+  //add lead
+  try {
+    // Check if course_name exists in the course table
+    const course_document = await Course.findOne({ name: course_name });
+    if (!course_document) {
+      return res
+        .status(400)
+        .json({ error: `Course not found: ${course_name}` });
+    }
+
+    // Check if branch_name exists in the branch table
+    const branch_document = await Branch.findOne({ name: branch_name });
+    if (!branch_document) {
+      return res
+        .status(400)
+        .json({ error: `Branch not found: ${branch_name}` });
+    }
+
+    // Current datetime
+    let currentDate = new Date();
+    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+    const currentDateTime = new Date(
+      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+    );
+
+    // Check if student exists in the student table
+    if (!mongoose.Types.ObjectId.isValid(student_id)) {
+      return res.status(400).json({ error: "No such student" });
+    }
+
+    // Check if source name exists in the source table
+    const source_document = await Source.findOne({ name: "Referral" });
+    if (!source_document) {
+      return res.status(400).json({ error: `Source not found: Referral` });
+    }
+
+    const sequenceValue = await getNextSequenceValue("unique_id_sequence");
+
+    // Create new lead
+    const newLead = await Lead.create({
+      date: date,
+      sheduled_at: currentDateTime,
+      scheduled_to: sheduled_to,
+      course_id: course_document._id,
+      branch_id: branch_document._id,
+      student_id: student_id,
+      user_id: user_id,
+      source_id: source_document._id,
+      reference_number: sequenceValue,
+    });
+
+    resNewLead = newLead;
+    lead_id = newLead._id;
+    // Send success response
+    // res.status(200).json(newLead);
+
+    var cid;
+
+    const { leastAllocatedCounselor } =
+      await getLeastAndNextLeastAllocatedCounselors(
+        course_document._id.toString()
+      );
+
+    if (leastAllocatedCounselor) {
+      cid = leastAllocatedCounselor._id;
+
+      // Create new counselor assignment
+      const newCounsellorAssignment = await CounsellorAssignment.create({
+        lead_id: newLead._id,
+        counsellor_id: cid,
+        assigned_at: date,
+      });
+
+      const studentDoc = await Student.findById({ _id: student_id });
+
+      // Update lead with assignment_id
+      newLead.assignment_id = newCounsellorAssignment._id;
+      newLead.counsellor_id = cid;
+      await newLead.save();
+
+      await notificationController.sendNotificationToCounselor(
+        cid,
+        `You have assigned a new lead belongs to ${studentDoc.email}.`,
+        "success"
+      );
+    } else {
+    }
+  } catch (error) {
+    // Send internal server error response
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+
+  try {
+    // Check if lead exists in the lead table
+    if (!mongoose.Types.ObjectId.isValid(lead_id)) {
+      return res.status(400).json({ error: "no such lead" });
+    }
+
+   
+
+    const status_document = await Status.findOne({ name: "New" });
+    if (!status_document) {
+      return res.status(400).json({ error: `Status not found: New` });
+    }
+
+    // Current datetime
+    let currentDate = new Date();
+    const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
+    const currentDateTime = new Date(
+      moment.tz(currentDate, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
+    );
+
+    try {
+      const newFollowUp = await FollowUp.create({
+        lead_id: lead_id,
+        user_id: user_id,
+        status_id: status_document._id,
+        date: currentDateTime,
+        comment:comment
+      });
+
+      const leadDoc = await Lead.findById({ _id: lead_id });
+      leadDoc.status_id = status_document._id;
+      await leadDoc.save();
+
+      return res.status(200).json(resNewLead);
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+  } catch (e) {
+    console.log(e)
+    return res.status(500).json({ error: "Internal Server Error" });
+
+  }
+}
+
 async function addLeadWithExistingStudent(req, res) {
   const { student_id, date, sheduled_to, course_name, branch_name, user_id } =
     req.body;
@@ -594,9 +971,9 @@ async function addLeadWithExistingStudent(req, res) {
     }
 
     // Check if source name exists in the source table
-    const source_document = await Source.findOne({ name: "manual" });
+    const source_document = await Source.findOne({ name: "Manual" });
     if (!source_document) {
-      return res.status(400).json({ error: `Source not found: manual` });
+      return res.status(400).json({ error: `Source not found: Manual` });
     }
 
     const sequenceValue = await getNextSequenceValue("unique_id_sequence");
@@ -619,14 +996,24 @@ async function addLeadWithExistingStudent(req, res) {
     // res.status(200).json(newLead);
 
     var cid;
+    let customLeastAllocatedCunselor;
+    const userAdding = await User.findOne({ _id: user_id });
+    const adminCounsellor = await User_type.findOne({ name: 'counselor' });
+    const counsellor = await User_type.findOne({ name: 'admin_counselor' });
 
+    
     const { leastAllocatedCounselor } =
       await getLeastAndNextLeastAllocatedCounselors(
         course_document._id.toString()
       );
+      customLeastAllocatedCunselor= leastAllocatedCounselor
+      if(userAdding.user_type.equals(adminCounsellor._id) || userAdding.user_type.equals(counsellor._id)){
+        customLeastAllocatedCunselor = userAdding
+    }
 
-    if (leastAllocatedCounselor) {
-      cid = leastAllocatedCounselor._id;
+
+    if (customLeastAllocatedCunselor) {
+      cid = customLeastAllocatedCunselor._id;
 
       // Create new counselor assignment
       const newCounsellorAssignment = await CounsellorAssignment.create({
@@ -737,13 +1124,9 @@ async function getLeadsSummaryDetails(req, res) {
       .populate("source_id", "name")
       .populate("status_id", "name")
       .populate({
-        path: "assignment_id",
-        select: "counsellor_id",
-        populate: {
-          path: "counsellor_id",
-          model: "User",
-          select: "name",
-        },
+        path: "counsellor_id",
+        model: "User",
+        select: "name",
       })
       .lean()
       .exec();
@@ -863,8 +1246,15 @@ async function getLeastAndNextLeastAllocatedCounselors(productType) {
     });
     //"these are the counselors",counselors,admin_counselorType._id,counselorType._id);
 
+    // get the status id from status table which is New
+    const status = await Status.findOne({ name: "New" });
+
     // Fetch leads with counselors allocated
-    const leadsWithCounselors = await CounsellorAssignment.find();
+    // const leadsWithCounselors = await CounsellorAssignment.find();
+    const leadsWithCounselors = await Lead.find({
+      assignment_id: { $exists: true },
+      status_id: status._id,
+    });
     // leadsWithCounselors);
 
     // Filter counselors based on the specified productType
@@ -1168,10 +1558,8 @@ async function assignLeadsToCounselorsTest(req, res) {
 //   setTimeout(scheduleNextExecution, 3600000); // 1 hour in milliseconds
 // }
 
-
- // Schedule the cron job to run every minute
- cron.schedule('*/30 * * * *', () => {
-
+// Schedule the cron job to run every minute
+cron.schedule("*/30 * * * *", () => {
   let currentDate = new Date();
   const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
   const currentDateTime = new Date(
@@ -1181,16 +1569,16 @@ async function assignLeadsToCounselorsTest(req, res) {
   // Check if the current time is between 8 am and 5 pm
   if (currentHour >= startTime && currentHour <= endTime) {
     // Call the function every minute
-      console.log(currentDateTime,' - Lead auto allocation job executed.');
-      assignLeadsToCounselors();
+    console.log(currentDateTime, " - Lead auto allocation job executed.");
+    assignLeadsToCounselors();
     //1200000
   } else {
-      console.log(currentDateTime,' - The auto allocation is sleeping now it will start again between the working hours.');
+    console.log(
+      currentDateTime,
+      " - The auto allocation is sleeping now it will start again between the working hours."
+    );
   }
-
 });
-
-
 
 module.exports = {
   getLeads,
@@ -1207,4 +1595,7 @@ module.exports = {
   bulkImport,
   archiveLeads,
   assignLeadsToCounselors,
+  addLeadAPI,
+  addLeadWithExistingStudentAPI,
+  checkDuplicateEmailAPI
 };

@@ -190,7 +190,7 @@ async function addLead(student_id, course_name, formId, leadId) {
     }
 
     // Check if source name exists in the source table
-    const source_document = await Source.findOne({ name: "facebook" });
+    const source_document = await Source.findOne({ name: "Facebook" });
     if (!source_document) {
       return;
     }

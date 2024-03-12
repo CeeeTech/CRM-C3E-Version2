@@ -15,7 +15,7 @@ const MenuItems = () => {
 
   let userSpecificPages;
 
-  if (userType === 'admin' || userType === 'sup_admin') {
+  if (userType === 'admin' || userType === 'sup_admin' || userType === 'admin_counselor') {
     userSpecificPages = [dashboard, pages, utilities];
   } else if (userType === 'user') {
     userSpecificPages = [dashboard, pagesUser, utilities];

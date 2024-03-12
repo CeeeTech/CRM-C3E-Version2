@@ -21,5 +21,9 @@ router.post('/fbleads', fbLeadController.postLeads)
 router.get('/fbleads-health', fbLeadController.getFBLeadsHealth)
 router.get('/test-leads', leadController.assignLeadsToCounselorsTest)
 router.post('/leads-archive', leadController.archiveLeads)
+router.post('/add-lead-api', leadController.addLeadAPI)
+router.post('/add-lead-with-existing-student-api', leadController.addLeadWithExistingStudentAPI)
+router.post('/check-duplicate-email-api', leadController.checkDuplicateEmailAPI)
+
 
 module.exports = router

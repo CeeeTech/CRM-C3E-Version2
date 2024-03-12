@@ -7,7 +7,8 @@ const courseSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    course_code: {type: String, required: false}
+    course_code: {type: String, required: false},
+    rate: {type: Number, required: false}
 })
 
 const course = mongoose.model('Course', courseSchema)

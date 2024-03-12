@@ -15,6 +15,7 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import SearchIcon from '@mui/icons-material/Search';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { useEffect } from 'react';
@@ -71,10 +72,11 @@ export default function ViewLeads() {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const iconComponentMap = {
-    facebook: <FacebookIcon color="primary" style={{ color: 'blue' }} />,
-    manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
-    internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
-    bulk: <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
+    Facebook: <FacebookIcon color="primary" style={{ color: 'blue' }} />,
+    Manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
+    Internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
+    Referral: <Diversity3Icon color="primary" style={{ color: 'green' }} />,
+    'Bulk Upload': <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
   };
   const [courses, setCourses] = useState([]);
   const [source, setSources] = useState([]);
@@ -98,7 +100,7 @@ export default function ViewLeads() {
   const [counselors, setCounselors] = useState([]);
   const [adminCounselors, setAdminCounselors] = useState([]);
 
-  const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor'].includes(userType?.name);
+  const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor','admin_counselor'].includes(userType?.name);
 
   const restorePrevious = async (leadID) => {
     try {
@@ -435,8 +437,8 @@ export default function ViewLeads() {
           course_code: shortenCourseName(lead.course_id.name),
           branch: lead.branch_id.name,
           source: lead.source_id ? lead.source_id.name : null,
-          counsellor: lead.assignment_id ? lead.assignment_id.counsellor_id.name : null,
-          counsellor_id: lead.assignment_id ? lead.assignment_id.counsellor_id._id : null,
+          counsellor: lead.counsellor_id ? lead.counsellor_id.name : null,
+          counsellor_id: lead.counsellor_id ? lead.counsellor_id._id : null,
           assigned_at: lead.counsellorAssignment ? lead.counsellorAssignment.assigned_at : null,
           user_id: lead.user_id || null,
           status: lead.status_id ? lead.status_id.name : null
@@ -612,12 +614,11 @@ export default function ViewLeads() {
     const filteredLeads = allLeads.filter((lead) => {
       const matchesCourse = checkMatch(lead.course, selectedCourse);
       const matchesSource = checkMatch(lead.source, selectedSource);
-      const matchesName = checkMatch(lead.name.toLowerCase(), sname.toLowerCase());
       const matchesStatus = checkMatch(lead.status, selectedStatus);
       const matchesDateRange = filterByDateRange(lead.date);
       const matchesCounselor = checkMatch(lead.counsellor, selectedCounselor);
 
-      return matchesCourse && matchesSource && matchesName && matchesStatus && matchesDateRange && matchesCounselor;
+      return matchesCourse && matchesSource && matchesStatus && matchesDateRange && matchesCounselor;
     });
 
     setData(filteredLeads);
@@ -650,7 +651,7 @@ export default function ViewLeads() {
   // Call sortLeads whenever any filtering criteria changes
   useEffect(() => {
     sortLeads();
-  }, [selectedCourse, selectedSource, sname, selectedStatus, dateFrom, dateTo, selectedCounselor]);
+  }, [selectedCourse, selectedSource, selectedStatus, dateFrom, dateTo, selectedCounselor]);
 
   const sortDateRange = (fromDate, toDate) => {
     const sortedLeads = allLeads.filter((lead) => {
@@ -678,8 +679,16 @@ export default function ViewLeads() {
     console.log(sortedLeads);
   };
 
-  const sortName = (name) => {
-    const sortedLeads = allLeads.filter((lead) => lead.name.toLowerCase().includes(name.toLowerCase()));
+  const sortLeadsByField = (value) => {
+    const sortedLeads = allLeads.filter((lead) => {
+      const searchTerm = value.toLowerCase();
+      return (
+        (lead.name && lead.name.toLowerCase().includes(searchTerm)) ||
+        (lead.nic && lead.nic.toLowerCase().includes(searchTerm)) ||
+        (lead.email && lead.email.toLowerCase().includes(searchTerm)) ||
+        (lead.contact_no && lead.contact_no.toLowerCase().includes(searchTerm))
+      );
+    });
     setData(sortedLeads);
     console.log(sortedLeads);
   };
@@ -861,7 +870,7 @@ export default function ViewLeads() {
         }
         onButtonClick={handleButtonClick}
         buttonLabelExport={
-          permissions?.lead?.includes('create') ? (
+          permissions?.lead?.includes('read-all') ? (
             <>
               <GetAppIcon style={{ fontSize: '25px' }} /> {/* Adjust styling as needed */}
             </>
@@ -894,16 +903,16 @@ export default function ViewLeads() {
                   </Typography>
                   <TextField
                     fullWidth
-                    // label="First Name"
                     margin="normal"
-                    name="course"
+                    name="search"
                     type="text"
                     size="small"
                     SelectProps={{ native: true }}
                     value={sname}
                     onChange={(event) => {
-                      setSname(event.target.value);
-                      sortName(event.target.value);
+                      const { value } = event.target;
+                      setSname(value);
+                      sortLeadsByField(value);
                     }}
                     InputProps={{
                       startAdornment: (

@@ -335,7 +335,6 @@ export default function LeadForm() {
               .matches(/^\+?\d{10,12}$/, 'Contact No should be 10 to 12 digits with an optional leading + sign')
               .required('Contact No is required'),
             email: Yup.string().email('Invalid email format').required('Email is required'),
-            address: Yup.string().required('Address is required'),
             course: Yup.string().required('Course is required'),
             branch: Yup.string().required('Branch is required')
           })}

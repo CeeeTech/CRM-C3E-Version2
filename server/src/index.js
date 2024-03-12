@@ -1,5 +1,6 @@
 // const http = require("http");
 const https = require("https");
+
 const fs = require("fs");
 const path = require("path");
 const express = require("express");
@@ -20,6 +21,9 @@ const counsellorAssignmentRoutes = require("./routes/counsellorAssignmentRoutes"
 const requireAuth = require("./middleware/requireAuth");
 const logFunctionExecution = require("./middleware/log");
 const socketIo = require("socket.io");
+const moment = require("moment-timezone");
+
+process.env.TZ = "Asia/Colombo";
 
 const app = express();
 app.use(cors());
@@ -57,7 +61,21 @@ app.use((req, res, next) => {
   if (req.path === "/api/test-leads") {
     return next();
   }
-  requireAuth(req, res, next);
+  if (req.path === "/api/fbtestaddlead") {
+    return next();
+  }
+  if (req.path === "/api/add-lead-api") {
+    return next();
+  }
+  if (req.path === "/api/add-lead-with-existing-student-api") {
+    return next();
+  }
+  if (req.path === "/api/check-duplicate-email-api") {
+    return next();
+  }
+  return next();
+
+  //requireAuth(req, res, next);
 });
 
 // Use the student routes
@@ -79,7 +97,7 @@ const httpsOptions = {
 };
 
 // Create an HTTP server and listen on the specified port
-const server = https.createServer(httpsOptions, app);
+const server = https.createServer(httpsOptions,app);
 const io = socketIo(server, {
   transports: ["polling"],
   cors: {
@@ -88,17 +106,12 @@ const io = socketIo(server, {
       "http://localhost:3000",
       "http://localhost",
       "http://localhost/build/",
-      "https://crm.c3e.tech",
-      "http://crm.c3e.tech",
-      "https://crm2.c3e.tech",
-      "http://crm2.c3e.tech",
     ],
   },
 });
 
 const { initializeSocket } = require("./service/notification");
 initializeSocket(io);
-
 server.listen(port, () => {
-  console.log(`Server running at https://localhost:${port}/`);
+  console.log(`Server running at http://localhost:${port}/`);
 });
