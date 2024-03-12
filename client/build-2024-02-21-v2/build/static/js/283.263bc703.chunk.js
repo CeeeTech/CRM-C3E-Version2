@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkberry_free_material_react_cra=self.webpackChunkberry_free_material_react_cra||[]).push([[283],{283:function(e,r,a){a.r(r);var t=a(1113),o=a(3497),c=a(6417);r.default=()=>(0,c.jsx)(o.Z,{title:"Page Not Found",children:(0,c.jsx)(t.Z,{variant:"body2",children:"Sorry, the page you are looking for does not exist."})})}}]);

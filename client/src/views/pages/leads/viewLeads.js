@@ -15,6 +15,7 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import SearchIcon from '@mui/icons-material/Search';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { useEffect } from 'react';
@@ -71,10 +72,11 @@ export default function ViewLeads() {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const iconComponentMap = {
-    facebook: <FacebookIcon color="primary" style={{ color: 'blue' }} />,
-    manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
-    internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
-    bulk: <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
+    Facebook: <FacebookIcon color="primary" style={{ color: 'blue' }} />,
+    Manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
+    Internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
+    Referral: <Diversity3Icon color="primary" style={{ color: 'green' }} />,
+    'Bulk Upload': <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
   };
   const [courses, setCourses] = useState([]);
   const [source, setSources] = useState([]);
