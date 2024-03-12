@@ -16,6 +16,7 @@ const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialI
 const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
 const LeadFrom = Loadable(lazy(() => import('views/pages/leads/leadForm')));
 const ViewLeads = Loadable(lazy(() => import('views/pages/leads/viewLeads')));
+const ViewReferral = Loadable(lazy(() => import('views/pages/referral/viewReferral')));
 const CourseForm = Loadable(lazy(() => import('views/pages/courses/courseForm')));
 const ViewCourses = Loadable(lazy(() => import('views/pages/courses/viewCourses')));
 const UserForm = Loadable(lazy(() => import('views/pages/users/userForm')));
@@ -111,6 +112,15 @@ const MainRoutes = {
         {
           path: 'view',
           element: <ViewLeads />
+        }
+      ]
+    },
+    {
+      path: 'referral',
+      children: [
+        {
+          path: 'view',
+          element: <ViewReferral/>
         }
       ]
     },

@@ -48,6 +48,23 @@ const pages = {
       ]
     },
     {
+      id: 'referrals',
+      title: 'referrals',
+      type: 'collapse',
+      icon: icons.IconCertificate,
+      children: [
+        {
+          id: 'view-referal',
+          title: 'View Referal',
+          type: 'item',
+          external: true,
+          url: '/app/referrals',
+          breadcrumbs: false
+        },
+       
+      ]
+    },
+    {
       id: 'courses',
       title: 'Courses',
       type: 'collapse',
