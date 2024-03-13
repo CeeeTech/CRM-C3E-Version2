@@ -3,19 +3,19 @@ import Grid from '@mui/material/Grid';
 import MainCard from 'ui-component/cards/MainCard';
 import { InputAdornment, TextField, useMediaQuery, Typography, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import MonitorIcon from '@mui/icons-material/Monitor';
+//import FacebookIcon from '@mui/icons-material/Facebook';
+//import WorkspacesIcon from '@mui/icons-material/Workspaces';
+//import TimelineIcon from '@mui/icons-material/Timeline';
+//import MonitorIcon from '@mui/icons-material/Monitor';
 import ModeIcon from '@mui/icons-material/Mode';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Autocomplete from '@mui/material/Autocomplete';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import InsertLinkIcon from '@mui/icons-material/InsertLink';
+//import Autocomplete from '@mui/material/Autocomplete';
+//import AssignmentIcon from '@mui/icons-material/Assignment';
+//import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import SearchIcon from '@mui/icons-material/Search';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
+//import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { useEffect } from 'react';
@@ -25,15 +25,15 @@ import LinearProgress from '@mui/material/LinearProgress';
 import config from '../../../config';
 import { useLogout } from '../../../hooks/useLogout';
 import LeadDetailsPopup from '../../../ui-component/popups/LeadDetailsPopup';
-import { Tooltip } from '@mui/material';
+//import { Tooltip } from '@mui/material';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import PersonIcon from '@mui/icons-material/Person';
+//import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+//import PersonIcon from '@mui/icons-material/Person';
 
 const ODD_OPACITY = 0.2;
 
@@ -71,36 +71,36 @@ export default function ViewLeads() {
   // const { id } = useParams();
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
-  const iconComponentMap = {
-    Facebook: <FacebookIcon color="primary" style={{ color: 'blue' }} />,
-    Manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
-    Internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
-    Referral: <Diversity3Icon color="primary" style={{ color: 'green' }} />,
-    'Bulk Upload': <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
-  };
-  const [courses, setCourses] = useState([]);
-  const [source, setSources] = useState([]);
+  // const iconComponentMap = {
+  //   //Facebook: <FacebookIcon color="primary" style={{ color: 'blue' }} />,
+  //   //Manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
+  //   Internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
+  //   Referral: <Diversity3Icon color="primary" style={{ color: 'green' }} />,
+  //   'Bulk Upload': <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
+  // };
+  //const [courses, setCourses] = useState([]);
+  //const [source, setSources] = useState([]);
   const [allLeads, setAllLeads] = useState([]);
 
-  const [selectedCourse, setselectedCourse] = useState('');
-  const [selectedSource, setselectedSource] = useState('');
-  const [selectedCounselor, setselectedCounselor] = useState('');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  //const [selectedCourse, setselectedCourse] = useState('');
+  //const [selectedSource, setselectedSource] = useState('');
+ // const [selectedCounselor, setselectedCounselor] = useState('');
+  //const [dateFrom, setDateFrom] = useState('');
+  //const [dateTo, setDateTo] = useState('');
   const [sname, setSname] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const [status, setStatus] = useState([]);
+ //const [selectedStatus, setSelectedStatus] = useState('');
+  //const [status, setStatus] = useState([]);
   const [arrIds, setArrIds] = useState([]);
   const [data, setData] = useState([]);
 
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const [counselors, setCounselors] = useState([]);
-  const [adminCounselors, setAdminCounselors] = useState([]);
+  //const [counselors, setCounselors] = useState([]);
+ // const [adminCounselors, setAdminCounselors] = useState([]);
 
-  const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor','admin_counselor'].includes(userType?.name);
+  //const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor','admin_counselor'].includes(userType?.name);
 
   const restorePrevious = async (leadID) => {
     try {
@@ -150,12 +150,12 @@ export default function ViewLeads() {
     })
   );
 
-  const showSuccessSwal = () => {
-    Toast.fire({
-      icon: 'success',
-      title: 'Assignment Successfull.'
-    });
-  };
+  // const showSuccessSwal = () => {
+  //   Toast.fire({
+  //     icon: 'success',
+  //     title: 'Assignment Successfull.'
+  //   });
+  // };
   const showStatusRevesedSwal = () => {
     Toast.fire({
       icon: 'success',
@@ -163,12 +163,12 @@ export default function ViewLeads() {
     });
   };
   // error showErrorSwal
-  const showErrorSwal = () => {
-    Toast.fire({
-      icon: 'error',
-      title: 'Error While Assigning.'
-    });
-  };
+  // const showErrorSwal = () => {
+  //   Toast.fire({
+  //     icon: 'error',
+  //     title: 'Error While Assigning.'
+  //   });
+  // };
 
   const showErrorSwal2 = () => {
     Toast.fire({
@@ -199,102 +199,109 @@ export default function ViewLeads() {
   };
 
   const columns = [
-    {
-      field: 'source',
-      headerName: '',
-      width: 10,
-      align: 'center',
-      renderCell: (params) => (
-        <Tooltip title={params.row.source} arrow>
-          {iconComponentMap[params.row.source]}
-        </Tooltip>
-      )
-    },
+    // {
+    //   field: 'source',
+    //   headerName: '',
+    //   width: 10,
+    //   align: 'center',
+    //   renderCell: (params) => (
+    //     <Tooltip title={params.row.source} arrow>
+    //       {iconComponentMap[params.row.source]}
+    //     </Tooltip>
+    //   )
+    // },
     { field: 'reference_number', headerName: '#', align: 'center', width: 55, headerAlign: 'center' },
 
-    { field: 'date', headerName: 'Date', flex: 0, width: 100, minWidth: 50 },
+    //{ field: 'date', headerName: 'Date', flex: 0, width: 100, minWidth: 50 },
     { field: 'name', headerName: 'Student Name', flex: 0.5, width: 100, minWidth: 150 },
-    { field: 'contact_no', headerName: 'Contact No', flex: 1, width: 100, minWidth: 150 },
-    { field: 'status', headerName: 'Status', flex: 1, width: 100, minWidth: 150 },
+    { field: 'contact_no', headerName: 'Student Contact No', flex: 1, width: 100, minWidth: 150 },
     {
       field: 'course_code',
       headerName: 'Course',
+
       flex: 0.5,
       width: 100,
-      minWidth: 50
+      minWidth: 100
     },
-    {
-      field: 'counsellor',
-      headerName: 'Assign To',
-      description: 'This column has a value getter and is not sortable.',
-      sortable: false,
-      flex: 1,
-      width: 100,
-      minWidth: 150,
-      align: 'left',
-      renderCell: (params) => {
-        if (isAdminOrSupervisor) {
-          return (
-            <>
-              <Autocomplete
-                disablePortal
-                id="combo-box-demo"
-                options={counselors.concat(adminCounselors)}
-                sx={{ width: 200, my: 2 }}
-                renderInput={(params) => <TextField {...params} variant="standard" />}
-                value={params.row.counsellor}
-                onChange={(event, newValue) => {
-                  // Handle the selection here
-                  console.log('cid1', params.row.counsellor);
-                  console.log('cid', newValue.label);
-                  console.log('lid', params.row.id);
-                  const lid = params.row.id;
-                  const cid = newValue.id;
-                  params.row.counsellor = newValue.label;
 
-                  const updateLead = async () => {
-                    try {
-                      const updateLead = await fetch(config.apiUrl + 'api/counsellorAssignment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-                        body: JSON.stringify({
-                          counsellor_id: cid,
-                          lead_id: lid
-                        })
-                      });
-                      if (!updateLead.ok) {
-                        if (updateLead.status === 401) {
-                          console.error('Unauthorized access. Logging out.');
-                          logout();
-                        } else if (updateLead.status === 500) {
-                          console.error('Internal Server Error.');
-                          logout();
-                          return;
-                        } else {
-                          console.error('Error updating lead data', updateLead.statusText);
-                        }
-                        return;
-                      } else {
-                        console.log(newValue.label);
-                        console.log('Successfully assigned');
-                        showSuccessSwal();
-                      }
-                    } catch (error) {
-                      console.log(error);
-                      showErrorSwal();
-                    }
-                  };
-                  updateLead();
-                }}
-              />
-            </>
-          );
-        } else {
-          // For other users, display "Assigned to Me" or relevant content
-          return <>{params.row.counsellor ? `Assigned to ${params.row.counsellor}` : 'Pending'}</>;
-        }
-      }
-    },
+    { field: 'status', headerName: 'Status', flex: 1, width: 100, minWidth: 150 },
+
+    { field: 'agent_name', headerName: 'Agent Name', flex: 1, width: 100, minWidth: 150 },
+    { field: 'agent_con', headerName: 'Agent Contact num', flex: 1, width: 100, minWidth: 150 },
+    { field: 'comment', headerName: 'Comment', flex: 1, width: 100, minWidth: 150 },
+
+    // {
+    //  field: 'counsellor',
+    //   headerName: 'Assign To',
+    //   description: 'This column has a value getter and is not sortable.',
+    //   sortable: false,
+    //   flex: 1,
+    //   width: 100,
+    //   minWidth: 150,
+    //   align: 'left',
+    //   renderCell: (params) => {
+    //     if (isAdminOrSupervisor) {
+    //       return (
+    //         <>
+    //           <Autocomplete
+    //             disablePortal
+    //             id="combo-box-demo"
+    //             options={counselors.concat(adminCounselors)}
+    //             sx={{ width: 200, my: 2 }}
+    //             renderInput={(params) => <TextField {...params} variant="standard" />}
+    //             value={params.row.counsellor}
+    //             onChange={(event, newValue) => {
+    //               // Handle the selection here
+    //               console.log('cid1', params.row.counsellor);
+    //               console.log('cid', newValue.label);
+    //               console.log('lid', params.row.id);
+    //               const lid = params.row.id;
+    //               const cid = newValue.id;
+    //               params.row.counsellor = newValue.label;
+
+    //               const updateLead = async () => {
+    //                 try {
+    //                   const updateLead = await fetch(config.apiUrl + 'api/counsellorAssignment', {
+    //                     method: 'POST',
+    //                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+    //                     body: JSON.stringify({
+    //                       counsellor_id: cid,
+    //                       lead_id: lid
+    //                     })
+    //                   });
+    //                   if (!updateLead.ok) {
+    //                     if (updateLead.status === 401) {
+    //                       console.error('Unauthorized access. Logging out.');
+    //                       logout();
+    //                     } else if (updateLead.status === 500) {
+    //                       console.error('Internal Server Error.');
+    //                       logout();
+    //                       return;
+    //                     } else {
+    //                       console.error('Error updating lead data', updateLead.statusText);
+    //                     }
+    //                     return;
+    //                   } else {
+    //                     console.log(newValue.label);
+    //                     console.log('Successfully assigned');
+    //                     showSuccessSwal();
+    //                   }
+    //                 } catch (error) {
+    //                   console.log(error);
+    //                   showErrorSwal();
+    //                 }
+    //               };
+    //               updateLead();
+    //             }}
+    //           />
+    //         </>
+    //       );
+    //     } else {
+    //       // For other users, display "Assigned to Me" or relevant content
+    //       return <>{params.row.counsellor ? `Assigned to ${params.row.counsellor}` : 'Pending'}</>;
+    //     }
+    //   }
+    // },
     // { field: 'assigned_at', headerName: 'Assigned At', width: 150 },
     {
       field: 'edit',
@@ -610,74 +617,74 @@ export default function ViewLeads() {
     fetchStatus();
   }, []);
 
-  const sortLeads = () => {
-    const filteredLeads = allLeads.filter((lead) => {
-      const matchesCourse = checkMatch(lead.course, selectedCourse);
-      const matchesSource = checkMatch(lead.source, selectedSource);
-      const matchesStatus = checkMatch(lead.status, selectedStatus);
-      const matchesDateRange = filterByDateRange(lead.date);
-      const matchesCounselor = checkMatch(lead.counsellor, selectedCounselor);
+  // const sortLeads = () => {
+  //   const filteredLeads = allLeads.filter((lead) => {
+  //     const matchesCourse = checkMatch(lead.course, selectedCourse);
+  //     const matchesSource = checkMatch(lead.source, selectedSource);
+  //     const matchesStatus = checkMatch(lead.status, selectedStatus);
+  //     const matchesDateRange = filterByDateRange(lead.date);
+  //     const matchesCounselor = checkMatch(lead.counsellor, selectedCounselor);
 
-      return matchesCourse && matchesSource && matchesStatus && matchesDateRange && matchesCounselor;
-    });
+  //     return matchesCourse && matchesSource && matchesStatus && matchesDateRange && matchesCounselor;
+  //   });
 
-    setData(filteredLeads);
-  };
+  //   setData(filteredLeads);
+  // };
 
-  const checkMatch = (leadProperty, selectedProperty) => {
-    return selectedProperty ? leadProperty === selectedProperty : true;
-  };
+  // const checkMatch = (leadProperty, selectedProperty) => {
+  //   return selectedProperty ? leadProperty === selectedProperty : true;
+  // };
 
-  const filterByDateRange = (leadDate) => {
-    if (!dateFrom && !dateTo) {
-      return true;
-    }
+  // const filterByDateRange = (leadDate) => {
+  //   if (!dateFrom && !dateTo) {
+  //     return true;
+  //   }
 
-    const leadDateObj = new Date(leadDate);
-    const fromDateObj = dateFrom ? new Date(dateFrom) : null;
-    const toDateObj = dateTo ? new Date(dateTo) : null;
+  //   const leadDateObj = new Date(leadDate);
+  //   const fromDateObj = dateFrom ? new Date(dateFrom) : null;
+  //   const toDateObj = dateTo ? new Date(dateTo) : null;
 
-    if (fromDateObj && toDateObj) {
-      return leadDateObj >= fromDateObj && leadDateObj <= toDateObj;
-    } else if (fromDateObj) {
-      return leadDateObj >= fromDateObj;
-    } else if (toDateObj) {
-      return leadDateObj <= toDateObj;
-    } else {
-      return true;
-    }
-  };
+  //   if (fromDateObj && toDateObj) {
+  //     return leadDateObj >= fromDateObj && leadDateObj <= toDateObj;
+  //   } else if (fromDateObj) {
+  //     return leadDateObj >= fromDateObj;
+  //   } else if (toDateObj) {
+  //     return leadDateObj <= toDateObj;
+  //   } else {
+  //     return true;
+  //   }
+  // };
 
   // Call sortLeads whenever any filtering criteria changes
-  useEffect(() => {
-    sortLeads();
-  }, [selectedCourse, selectedSource, selectedStatus, dateFrom, dateTo, selectedCounselor]);
+  // useEffect(() => {
+  //   sortLeads();
+  // }, [selectedCourse, selectedSource, selectedStatus, dateFrom, dateTo, selectedCounselor]);
 
-  const sortDateRange = (fromDate, toDate) => {
-    const sortedLeads = allLeads.filter((lead) => {
-      const leadDate = new Date(lead.date);
-      const fromDateObj = fromDate ? new Date(fromDate) : null;
-      const toDateObj = toDate ? new Date(toDate) : null;
+  // const sortDateRange = (fromDate, toDate) => {
+  //   const sortedLeads = allLeads.filter((lead) => {
+  //     const leadDate = new Date(lead.date);
+  //     const fromDateObj = fromDate ? new Date(fromDate) : null;
+  //     const toDateObj = toDate ? new Date(toDate) : null;
 
-      if (fromDate && toDate) {
-        return leadDate >= fromDateObj && leadDate <= toDateObj;
-      } else if (fromDate) {
-        return leadDate >= fromDateObj;
-      } else if (toDate) {
-        return leadDate <= toDateObj;
-      } else {
-        return true;
-      }
-    });
-    setData(sortedLeads);
-    console.log(sortedLeads);
-  };
+  //     if (fromDate && toDate) {
+  //       return leadDate >= fromDateObj && leadDate <= toDateObj;
+  //     } else if (fromDate) {
+  //       return leadDate >= fromDateObj;
+  //     } else if (toDate) {
+  //       return leadDate <= toDateObj;
+  //     } else {
+  //       return true;
+  //     }
+  //   });
+  //   setData(sortedLeads);
+  //   console.log(sortedLeads);
+  // };
 
-  const sortSources = (source) => {
-    const sortedLeads = allLeads.filter((lead) => lead.source === source);
-    setData(sortedLeads);
-    console.log(sortedLeads);
-  };
+  // const sortSources = (source) => {
+  //   const sortedLeads = allLeads.filter((lead) => lead.source === source);
+  //   setData(sortedLeads);
+  //   console.log(sortedLeads);
+  // };
 
   const sortLeadsByField = (value) => {
     const sortedLeads = allLeads.filter((lead) => {
@@ -693,28 +700,28 @@ export default function ViewLeads() {
     console.log(sortedLeads);
   };
 
-  const sortCourses = (course) => {
-    const sortedLeads = allLeads.filter((lead) => lead.course === course);
-    setData(sortedLeads);
-    console.log(sortedLeads);
-  };
+  // const sortCourses = (course) => {
+  //   const sortedLeads = allLeads.filter((lead) => lead.course === course);
+  //   setData(sortedLeads);
+  //   console.log(sortedLeads);
+  // };
 
-  const sortStatus = (status) => {
-    const sortedLeads = allLeads.filter((lead) => lead.status === status);
-    setData(sortedLeads);
-    console.log(sortedLeads);
-  };
+  // const sortStatus = (status) => {
+  //   const sortedLeads = allLeads.filter((lead) => lead.status === status);
+  //   setData(sortedLeads);
+  //   console.log(sortedLeads);
+  // };
 
-  const sortCounselors = (counselor) => {
-    const sortedLeads = allLeads.filter((lead) => lead.counsellor === counselor);
-    setData(sortedLeads);
-    console.log(sortedLeads);
-  };
+  // const sortCounselors = (counselor) => {
+  //   const sortedLeads = allLeads.filter((lead) => lead.counsellor === counselor);
+  //   setData(sortedLeads);
+  //   console.log(sortedLeads);
+  // };
 
-  const handleRowClick = (params) => {
-    setSelectedLead(params.row);
-    console.log(params.row);
-  };
+  // const handleRowClick = (params) => {
+  //   setSelectedLead(params.row);
+  //   console.log(params.row);
+  // };
 
   function handleButtonClick() {
     navigate('/app/leads/add');
@@ -924,7 +931,7 @@ export default function ViewLeads() {
                   />
                 </Grid>
                 <Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                  {/* <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Course
                   </Typography>
                   <TextField
@@ -961,9 +968,9 @@ export default function ViewLeads() {
                         No Courses available
                       </option>
                     )}
-                  </TextField>
+                  </TextField> */}
                 </Grid>
-                <Grid item xs={12} sm={1.5}>
+                 {/*<Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Source
                   </Typography>
@@ -1039,7 +1046,7 @@ export default function ViewLeads() {
                         No Status available
                       </option>
                     )}
-                    {/* <option value="New">New</option>
+                    <option value="New">New</option>
                     <option value="Registered">Registered</option>
                     <option value="Dropped">Dropped</option>
                     <option value="Next Intake">Next Intake</option>
@@ -1049,10 +1056,10 @@ export default function ViewLeads() {
                     <option value="Fake">Fake</option>
                     <option value="Duplicate">Duplicate</option>
                     <option value="Course Details sent">Course Details sent</option>
-                    <option value="WhatsApp & SMS">WhatsApp & SMS</option> */}
+                    <option value="WhatsApp & SMS">WhatsApp & SMS</option> 
                   </TextField>
-                </Grid>
-                {permissions?.lead?.includes('read-all') && (
+                </Grid>*/}
+                {/* {permissions?.lead?.includes('read-all') && (
                   <Grid item xs={12} sm={1.5}>
                     <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                       Counselor
@@ -1093,8 +1100,8 @@ export default function ViewLeads() {
                       )}
                     </TextField>
                   </Grid>
-                )}
-                <Grid item xs={12} sm={1.5}>
+                )} */}
+                {/* <Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Date From
                   </Typography>
@@ -1112,8 +1119,8 @@ export default function ViewLeads() {
                     }}
                     InputLabelProps={{ shrink: true }}
                   />
-                </Grid>
-                <Grid item xs={12} sm={1.5}>
+                </Grid> */}
+                {/* <Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Date To
                   </Typography>
@@ -1130,12 +1137,12 @@ export default function ViewLeads() {
                       sortDateRange(dateFrom, selectedDate);
                     }}
                   />
-                </Grid>
-                <Grid style={{ marginTop: '30px' }} item xs={12} sm={0.5}>
+                </Grid> */}
+                {/* <Grid style={{ marginTop: '30px' }} item xs={12} sm={0.5}>
                   <Button
                     variant="contained"
                     color="error"
-                    sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
+                    sx={{ borderRadius: '50%', padding: '80px', minWidth: 'unset', width: '32px', height: '32px' }}
                     onClick={() => {
                       setselectedCourse('');
                       setselectedSource('');
@@ -1149,7 +1156,7 @@ export default function ViewLeads() {
                   >
                     <HighlightOffIcon sx={{ fontSize: '18px' }} />
                   </Button>
-                </Grid>
+                </Grid> */}
               </Grid>
             </Grid>
 
