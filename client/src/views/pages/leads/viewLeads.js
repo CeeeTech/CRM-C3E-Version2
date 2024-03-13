@@ -100,7 +100,7 @@ export default function ViewLeads() {
   const [counselors, setCounselors] = useState([]);
   const [adminCounselors, setAdminCounselors] = useState([]);
 
-  const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor','admin_counselor'].includes(userType?.name);
+  const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor', 'admin_counselor'].includes(userType?.name);
 
   const restorePrevious = async (leadID) => {
     try {

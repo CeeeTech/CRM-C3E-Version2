@@ -2,6 +2,9 @@
 const https = require("https");
 const http = require("http");
 
+
+
+
 const fs = require("fs");
 const path = require("path");
 const express = require("express");
@@ -23,6 +26,7 @@ const requireAuth = require("./middleware/requireAuth");
 const logFunctionExecution = require("./middleware/log");
 const socketIo = require("socket.io");
 const moment = require("moment-timezone");
+const refereestatus =require("./routes/referralRoutes")
 
 process.env.TZ = "Asia/Colombo";
 
@@ -91,6 +95,11 @@ app.use("/api", folowUpRoutes);
 app.use("/api", sourceRoutes);
 app.use("/api", counsellorAssignmentRoutes);
 app.use("/api", notificationRoutes);
+
+//use refree routes
+
+app.use("/api", refereestatus);
+
 
 const httpsOptions = {
   key: fs.readFileSync(path.join(__dirname, "../server.key")),

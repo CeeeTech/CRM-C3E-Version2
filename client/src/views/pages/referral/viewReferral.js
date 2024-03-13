@@ -84,13 +84,13 @@ export default function ViewLeads() {
 
   //const [selectedCourse, setselectedCourse] = useState('');
   //const [selectedSource, setselectedSource] = useState('');
- // const [selectedCounselor, setselectedCounselor] = useState('');
+  // const [selectedCounselor, setselectedCounselor] = useState('');
   //const [dateFrom, setDateFrom] = useState('');
   //const [dateTo, setDateTo] = useState('');
   const [sname, setSname] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
- //const [selectedStatus, setSelectedStatus] = useState('');
+  //const [selectedStatus, setSelectedStatus] = useState('');
   //const [status, setStatus] = useState([]);
   const [arrIds, setArrIds] = useState([]);
   const [data, setData] = useState([]);
@@ -98,7 +98,7 @@ export default function ViewLeads() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   //const [counselors, setCounselors] = useState([]);
- // const [adminCounselors, setAdminCounselors] = useState([]);
+  // const [adminCounselors, setAdminCounselors] = useState([]);
 
   //const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor','admin_counselor'].includes(userType?.name);
 
@@ -199,33 +199,12 @@ export default function ViewLeads() {
   };
 
   const columns = [
-    // {
-    //   field: 'source',
-    //   headerName: '',
-    //   width: 10,
-    //   align: 'center',
-    //   renderCell: (params) => (
-    //     <Tooltip title={params.row.source} arrow>
-    //       {iconComponentMap[params.row.source]}
-    //     </Tooltip>
-    //   )
-    // },
     { field: 'reference_number', headerName: '#', align: 'center', width: 55, headerAlign: 'center' },
-
     //{ field: 'date', headerName: 'Date', flex: 0, width: 100, minWidth: 50 },
     { field: 'name', headerName: 'Student Name', flex: 0.5, width: 100, minWidth: 150 },
     { field: 'contact_no', headerName: 'Student Contact No', flex: 1, width: 100, minWidth: 150 },
-    {
-      field: 'course_code',
-      headerName: 'Course',
-
-      flex: 0.5,
-      width: 100,
-      minWidth: 100
-    },
-
+    { field: 'course_code', headerName: 'Course', flex: 0.5, width: 100, minWidth: 100 },
     { field: 'status', headerName: 'Status', flex: 1, width: 100, minWidth: 150 },
-
     { field: 'agent_name', headerName: 'Agent Name', flex: 1, width: 100, minWidth: 150 },
     { field: 'agent_con', headerName: 'Agent Contact num', flex: 1, width: 100, minWidth: 150 },
     { field: 'comment', headerName: 'Comment', flex: 1, width: 100, minWidth: 150 },
@@ -503,6 +482,7 @@ export default function ViewLeads() {
         console.error('Error fetching courses:', error.message);
       }
     };
+
     fetchCourses();
     const fetchSources = async () => {
       try {
@@ -531,6 +511,36 @@ export default function ViewLeads() {
       }
     };
     fetchSources();
+
+    //newly added-----------------------------------------------------------------------------------------
+    const fetchrefdetails = async () => {
+      try {
+        const res = await fetch(config.apiUrl + 'api/viewreferee', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        if (res.ok) {
+          console.log('Inside Fetch Ref Details');
+          const json = await res.json();
+          setSources(json);
+        } else {
+          if (res.status === 401) {
+            console.error('Unauthorized access. Logging out.');
+            logout();
+          } else if (res.status === 500) {
+            console.error('Internal Server Error.');
+            logout();
+            return;
+          } else {
+            console.error('Error fetching sources:', res.statusText);
+          }
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching sources:', error.message);
+      }
+    };
+    fetchrefdetails();
     async function getCounselors() {
       try {
         const res = await fetch(config.apiUrl + 'api/getCounsellors', {
@@ -556,6 +566,7 @@ export default function ViewLeads() {
         console.log('Error fetching counselors:', error);
       }
     }
+
     getCounselors();
 
     async function getAdminCounselors() {
@@ -970,7 +981,7 @@ export default function ViewLeads() {
                     )}
                   </TextField> */}
                 </Grid>
-                 {/*<Grid item xs={12} sm={1.5}>
+                {/*<Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
                     Source
                   </Typography>
@@ -1204,3 +1215,4 @@ export default function ViewLeads() {
     </>
   );
 }
+//new update
