@@ -3,19 +3,11 @@ import Grid from '@mui/material/Grid';
 import MainCard from 'ui-component/cards/MainCard';
 import { InputAdornment, TextField, useMediaQuery, Typography, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-//import FacebookIcon from '@mui/icons-material/Facebook';
-//import WorkspacesIcon from '@mui/icons-material/Workspaces';
-//import TimelineIcon from '@mui/icons-material/Timeline';
-//import MonitorIcon from '@mui/icons-material/Monitor';
 import ModeIcon from '@mui/icons-material/Mode';
 import DeleteIcon from '@mui/icons-material/Delete';
-//import Autocomplete from '@mui/material/Autocomplete';
-//import AssignmentIcon from '@mui/icons-material/Assignment';
-//import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import SearchIcon from '@mui/icons-material/Search';
-//import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { useEffect } from 'react';
@@ -25,15 +17,12 @@ import LinearProgress from '@mui/material/LinearProgress';
 import config from '../../../config';
 import { useLogout } from '../../../hooks/useLogout';
 import LeadDetailsPopup from '../../../ui-component/popups/LeadDetailsPopup';
-//import { Tooltip } from '@mui/material';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-//import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-//import PersonIcon from '@mui/icons-material/Person';
 
 const ODD_OPACITY = 0.2;
 
@@ -53,7 +42,7 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
           theme.palette.primary.main,
           ODD_OPACITY + theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity
         ),
-        // Reset on touch devices, it doesn't add specificity
+
         '@media (hover: none)': {
           backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY + theme.palette.action.selectedOpacity)
         }
@@ -68,39 +57,16 @@ export default function ViewLeads() {
   const { permissions } = user || {};
   const { userType } = user || {};
   const navigate = useNavigate();
-  // const { id } = useParams();
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
-  // const iconComponentMap = {
-  //   //Facebook: <FacebookIcon color="primary" style={{ color: 'blue' }} />,
-  //   //Manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
-  //   Internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
-  //   Referral: <Diversity3Icon color="primary" style={{ color: 'green' }} />,
-  //   'Bulk Upload': <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
-  // };
-  //const [courses, setCourses] = useState([]);
-  //const [source, setSources] = useState([]);
-  const [allLeads, setAllLeads] = useState([]);
 
-  //const [selectedCourse, setselectedCourse] = useState('');
-  //const [selectedSource, setselectedSource] = useState('');
-  // const [selectedCounselor, setselectedCounselor] = useState('');
-  //const [dateFrom, setDateFrom] = useState('');
-  //const [dateTo, setDateTo] = useState('');
+  const [allLeads, setAllLeads] = useState([]);
   const [sname, setSname] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
-  //const [selectedStatus, setSelectedStatus] = useState('');
-  //const [status, setStatus] = useState([]);
   const [arrIds, setArrIds] = useState([]);
   const [data, setData] = useState([]);
-
   const [isDeleting, setIsDeleting] = useState(false);
-
-  //const [counselors, setCounselors] = useState([]);
-  // const [adminCounselors, setAdminCounselors] = useState([]);
-
-  //const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor','admin_counselor'].includes(userType?.name);
 
   const Toast = withReactContent(
     Swal.mixin({
@@ -115,33 +81,6 @@ export default function ViewLeads() {
       timerProgressBar: true
     })
   );
-
-  // const showSuccessSwal = () => {
-  //   Toast.fire({
-  //     icon: 'success',
-  //     title: 'Assignment Successfull.'
-  //   });
-  // };
-  // const showStatusRevesedSwal = () => {
-  //   Toast.fire({
-  //     icon: 'success',
-  //     title: 'Status Reversed Successfully.'
-  //   });
-  // };
-  // error showErrorSwal
-  // const showErrorSwal = () => {
-  //   Toast.fire({
-  //     icon: 'error',
-  //     title: 'Error While Assigning.'
-  //   });
-  // };
-
-  // const showErrorSwal2 = () => {
-  //   Toast.fire({
-  //     icon: 'error',
-  //     title: 'Error Occured.'
-  //   });
-  // };
 
   const showSuccessSwalBulk = () => {
     Toast.fire({
@@ -174,79 +113,6 @@ export default function ViewLeads() {
     { field: 'agent_con', headerName: 'Agent Contact num', flex: 1, width: 100, minWidth: 150 },
     { field: 'comment', headerName: 'Comment', flex: 1, width: 100, minWidth: 150 },
 
-    // {
-    //  field: 'counsellor',
-    //   headerName: 'Assign To',
-    //   description: 'This column has a value getter and is not sortable.',
-    //   sortable: false,
-    //   flex: 1,
-    //   width: 100,
-    //   minWidth: 150,
-    //   align: 'left',
-    //   renderCell: (params) => {
-    //     if (isAdminOrSupervisor) {
-    //       return (
-    //         <>
-    //           <Autocomplete
-    //             disablePortal
-    //             id="combo-box-demo"
-    //             options={counselors.concat(adminCounselors)}
-    //             sx={{ width: 200, my: 2 }}
-    //             renderInput={(params) => <TextField {...params} variant="standard" />}
-    //             value={params.row.counsellor}
-    //             onChange={(event, newValue) => {
-    //               // Handle the selection here
-    //               console.log('cid1', params.row.counsellor);
-    //               console.log('cid', newValue.label);
-    //               console.log('lid', params.row.id);
-    //               const lid = params.row.id;
-    //               const cid = newValue.id;
-    //               params.row.counsellor = newValue.label;
-
-    //               const updateLead = async () => {
-    //                 try {
-    //                   const updateLead = await fetch(config.apiUrl + 'api/counsellorAssignment', {
-    //                     method: 'POST',
-    //                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-    //                     body: JSON.stringify({
-    //                       counsellor_id: cid,
-    //                       lead_id: lid
-    //                     })
-    //                   });
-    //                   if (!updateLead.ok) {
-    //                     if (updateLead.status === 401) {
-    //                       console.error('Unauthorized access. Logging out.');
-    //                       logout();
-    //                     } else if (updateLead.status === 500) {
-    //                       console.error('Internal Server Error.');
-    //                       logout();
-    //                       return;
-    //                     } else {
-    //                       console.error('Error updating lead data', updateLead.statusText);
-    //                     }
-    //                     return;
-    //                   } else {
-    //                     console.log(newValue.label);
-    //                     console.log('Successfully assigned');
-    //                     showSuccessSwal();
-    //                   }
-    //                 } catch (error) {
-    //                   console.log(error);
-    //                   showErrorSwal();
-    //                 }
-    //               };
-    //               updateLead();
-    //             }}
-    //           />
-    //         </>
-    //       );
-    //     } else {
-    //       // For other users, display "Assigned to Me" or relevant content
-    //       return <>{params.row.counsellor ? `Assigned to ${params.row.counsellor}` : 'Pending'}</>;
-    //     }
-    //   }
-    // },
-    // { field: 'assigned_at', headerName: 'Assigned At', width: 150 },
     {
       field: 'edit',
       headerName: '',
@@ -407,78 +273,51 @@ export default function ViewLeads() {
     }
   }
   //-------------------------------------------------------------newly added----------------------------------------------------------
-  // async function fetchReferees() {
-  //   try {
-  //     const apiUrl = config.apiUrl + 'api/viewreferee';
-  //     const res = await fetch(apiUrl, {
-  //       method: 'GET',
-  //       headers: { Authorization: `Bearer ${user.token}` }
-  //     });
-
-  //     if (!res.ok) {
-  //       if (res.status === 401) {
-  //         console.error('Unauthorized access. Logging out.');
-  //         logout();
-  //       } else if (res.status === 500) {
-  //         console.error('Internal Server Error.');
-  //         logout();
-  //       } else {
-  //         console.error('Error fetching referee data', res.statusText);
-  //       }
-  //       return [];
-  //     }
-
-  //     const data = await res.json();
-  //     console.log(data);
-  //     // Ensure that 'data' is an array before mapping over it
-  //     if (!Array.isArray(data)) {
-  //       console.error('Data received from server is not an array:', data);
-  //       return [];
-  //     }
-
-  //     const referees = data.map((referee) => {
-  //       const ref = referee.referee_id || {};
-  //       return {
-  //         agent_name: ref.agent_name || null,
-  //         agent_con: ref.agent_con || null
-  //       };
-  //     });
-
-  //     console.log('Fetched referees: ', referees);
-  //     return referees;
-  //   } catch (err) {
-  //     console.error(`An error occurred while trying to get the users referee: ${err}`);
-  //     return [];
-  //   }
-  // }
 
   async function fetchReferees() {
     try {
-      const response = await fetch(config.apiUrl + 'api/viewreferee');
-      if (!response.ok) {
-        throw new Error('Failed to fetch referees');
+      const apiUrl = config.apiUrl + 'api/viewreferee';
+      const res = await fetch(apiUrl, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        } else if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+        } else {
+          console.error('Error fetching referee data', res.statusText);
+        }
+        return [];
       }
-      const data = await response.json();
 
-      // Check if data.referees is an array
-      if (!Array.isArray(data.referees)) {
-        throw new Error('Data received from server does not contain a valid referees array');
+      const data = await res.json();
+      console.log(data);
+      // Ensure that 'data' is an array before mapping over it
+      if (!Array.isArray(data)) {
+        console.error('Data received from server is not an array:', data);
+        return [];
       }
 
-      const mappedReferees = data.referees.map((referee) => ({
-        id: referee._id,
-        agent_name: referee.agent_name || '',
-        agent_con: referee.agent_con || ''
-      }));
+      const referees = data.map((referee) => {
+        const ref = referee.referee_id || {};
+        return {
+          agent_name: ref.agent_name || null,
+          agent_con: ref.agent_con || null
+        };
+      });
 
-      setReferees(mappedReferees);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching referees:', error);
-      setLoading(false);
+      console.log('Fetched referees: ', referees);
+      return referees;
+    } catch (err) {
+      console.error(`An error occurred while trying to get the users referee: ${err}`);
+      return [];
     }
   }
-
   //---------------------------------------------------------------------------------------------------------------------------------
   useEffect(() => {
     fetchLeads();
@@ -487,76 +326,6 @@ export default function ViewLeads() {
   useEffect(() => {
     fetchReferees();
   }, []);
-  //
-  //
-  // const sortLeads = () => {
-  //   const filteredLeads = allLeads.filter((lead) => {
-  //     const matchesCourse = checkMatch(lead.course, selectedCourse);
-  //     const matchesSource = checkMatch(lead.source, selectedSource);
-  //     const matchesStatus = checkMatch(lead.status, selectedStatus);
-  //     const matchesDateRange = filterByDateRange(lead.date);
-  //     const matchesCounselor = checkMatch(lead.counsellor, selectedCounselor);
-
-  //     return matchesCourse && matchesSource && matchesStatus && matchesDateRange && matchesCounselor;
-  //   });
-
-  //   setData(filteredLeads);
-  // };
-
-  // const checkMatch = (leadProperty, selectedProperty) => {
-  //   return selectedProperty ? leadProperty === selectedProperty : true;
-  // };
-
-  // const filterByDateRange = (leadDate) => {
-  //   if (!dateFrom && !dateTo) {
-  //     return true;
-  //   }
-
-  //   const leadDateObj = new Date(leadDate);
-  //   const fromDateObj = dateFrom ? new Date(dateFrom) : null;
-  //   const toDateObj = dateTo ? new Date(dateTo) : null;
-
-  //   if (fromDateObj && toDateObj) {
-  //     return leadDateObj >= fromDateObj && leadDateObj <= toDateObj;
-  //   } else if (fromDateObj) {
-  //     return leadDateObj >= fromDateObj;
-  //   } else if (toDateObj) {
-  //     return leadDateObj <= toDateObj;
-  //   } else {
-  //     return true;
-  //   }
-  // };
-
-  // Call sortLeads whenever any filtering criteria changes
-  // useEffect(() => {
-  //   sortLeads();
-  // }, [selectedCourse, selectedSource, selectedStatus, dateFrom, dateTo, selectedCounselor]);
-
-  // const sortDateRange = (fromDate, toDate) => {
-  //   const sortedLeads = allLeads.filter((lead) => {
-  //     const leadDate = new Date(lead.date);
-  //     const fromDateObj = fromDate ? new Date(fromDate) : null;
-  //     const toDateObj = toDate ? new Date(toDate) : null;
-
-  //     if (fromDate && toDate) {
-  //       return leadDate >= fromDateObj && leadDate <= toDateObj;
-  //     } else if (fromDate) {
-  //       return leadDate >= fromDateObj;
-  //     } else if (toDate) {
-  //       return leadDate <= toDateObj;
-  //     } else {
-  //       return true;
-  //     }
-  //   });
-  //   setData(sortedLeads);
-  //   console.log(sortedLeads);
-  // };
-
-  // const sortSources = (source) => {
-  //   const sortedLeads = allLeads.filter((lead) => lead.source === source);
-  //   setData(sortedLeads);
-  //   console.log(sortedLeads);
-  // };
 
   const sortLeadsByField = (value) => {
     const sortedLeads = allLeads.filter((lead) => {
@@ -569,31 +338,8 @@ export default function ViewLeads() {
       );
     });
     setData(sortedLeads);
-    console.log(sortedLeads);
+    //console.log(sortedLeads);
   };
-
-  // const sortCourses = (course) => {
-  //   const sortedLeads = allLeads.filter((lead) => lead.course === course);
-  //   setData(sortedLeads);
-  //   console.log(sortedLeads);
-  // };
-
-  // const sortStatus = (status) => {
-  //   const sortedLeads = allLeads.filter((lead) => lead.status === status);
-  //   setData(sortedLeads);
-  //   console.log(sortedLeads);
-  // };
-
-  // const sortCounselors = (counselor) => {
-  //   const sortedLeads = allLeads.filter((lead) => lead.counsellor === counselor);
-  //   setData(sortedLeads);
-  //   console.log(sortedLeads);
-  // };
-
-  // const handleRowClick = (params) => {
-  //   setSelectedLead(params.row);
-  //   console.log(params.row);
-  // };
 
   function handleButtonClick() {
     navigate('/app/leads/add');
