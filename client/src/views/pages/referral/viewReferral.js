@@ -102,40 +102,6 @@ export default function ViewLeads() {
 
   //const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor','admin_counselor'].includes(userType?.name);
 
-  const restorePrevious = async (leadID) => {
-    try {
-      console.log('my lead id', leadID);
-      const res = await fetch(config.apiUrl + 'api/lead-restore/', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${user.token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: leadID })
-      });
-      if (res.ok) {
-        const json = await res.json();
-        console.log(json);
-        setLoading(true);
-        showStatusRevesedSwal();
-        fetchLeads();
-      } else {
-        if (res.status === 401) {
-          console.error('Unauthorized access. Logging out.');
-          logout();
-        } else if (res.status === 500) {
-          console.error('Internal Server Error.');
-          logout();
-          return;
-        } else {
-          showErrorSwal2();
-          console.error('Error fetching sources:', res.statusText);
-        }
-        return;
-      }
-    } catch (error) {
-      showErrorSwal2();
-      console.error('Error fetching sources:', error.message);
-    }
-  };
-
   const Toast = withReactContent(
     Swal.mixin({
       toast: true,
@@ -156,12 +122,12 @@ export default function ViewLeads() {
   //     title: 'Assignment Successfull.'
   //   });
   // };
-  const showStatusRevesedSwal = () => {
-    Toast.fire({
-      icon: 'success',
-      title: 'Status Reversed Successfully.'
-    });
-  };
+  // const showStatusRevesedSwal = () => {
+  //   Toast.fire({
+  //     icon: 'success',
+  //     title: 'Status Reversed Successfully.'
+  //   });
+  // };
   // error showErrorSwal
   // const showErrorSwal = () => {
   //   Toast.fire({
@@ -170,12 +136,12 @@ export default function ViewLeads() {
   //   });
   // };
 
-  const showErrorSwal2 = () => {
-    Toast.fire({
-      icon: 'error',
-      title: 'Error Occured.'
-    });
-  };
+  // const showErrorSwal2 = () => {
+  //   Toast.fire({
+  //     icon: 'error',
+  //     title: 'Error Occured.'
+  //   });
+  // };
 
   const showSuccessSwalBulk = () => {
     Toast.fire({
@@ -200,7 +166,6 @@ export default function ViewLeads() {
 
   const columns = [
     { field: 'reference_number', headerName: '#', align: 'center', width: 55, headerAlign: 'center' },
-    //{ field: 'date', headerName: 'Date', flex: 0, width: 100, minWidth: 50 },
     { field: 'name', headerName: 'Student Name', flex: 0.5, width: 100, minWidth: 150 },
     { field: 'contact_no', headerName: 'Student Contact No', flex: 1, width: 100, minWidth: 150 },
     { field: 'course_code', headerName: 'Course', flex: 0.5, width: 100, minWidth: 100 },
@@ -410,23 +375,10 @@ export default function ViewLeads() {
         return {
           reference_number: lead.reference_number,
           id: lead._id,
-          date: lead.date,
-          scheduled_at: lead.scheduled_at || null,
-          scheduled_to: lead.scheduled_to || null,
           name: student.name || null,
           contact_no: student.contact_no || null,
-          address: student.address || null,
-          dob: student.dob || null,
-          email: student.email || null,
-          nic: student.nic || null,
           course: lead.course_id.name,
           course_code: shortenCourseName(lead.course_id.name),
-          branch: lead.branch_id.name,
-          source: lead.source_id ? lead.source_id.name : null,
-          counsellor: lead.counsellor_id ? lead.counsellor_id.name : null,
-          counsellor_id: lead.counsellor_id ? lead.counsellor_id._id : null,
-          assigned_at: lead.counsellorAssignment ? lead.counsellorAssignment.assigned_at : null,
-          user_id: lead.user_id || null,
           status: lead.status_id ? lead.status_id.name : null
         };
       });
@@ -447,187 +399,67 @@ export default function ViewLeads() {
         setData(filteredLeads);
         setAllLeads(filteredLeads);
         setLoading(false);
+
         return;
       }
     } catch (error) {
       console.log('Error fetching leads:', error);
     }
   }
-
-  useEffect(() => {
-    fetchLeads();
-    const fetchCourses = async () => {
-      try {
-        const res = await fetch(config.apiUrl + 'api/courses', {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        if (res.ok) {
-          const json = await res.json();
-          setCourses(json);
-        } else {
-          if (res.status === 401) {
-            console.error('Unauthorized access. Logging out.');
-            logout();
-          } else if (res.status === 500) {
-            console.error('Internal Server Error.');
-            logout();
-            return;
-          } else {
-            console.error('Error fetching courses:', res.statusText);
-          }
-          return;
-        }
-      } catch (error) {
-        console.error('Error fetching courses:', error.message);
-      }
-    };
-
-    fetchCourses();
-    const fetchSources = async () => {
-      try {
-        const res = await fetch(config.apiUrl + 'api/source', {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        if (res.ok) {
-          const json = await res.json();
-          setSources(json);
-        } else {
-          if (res.status === 401) {
-            console.error('Unauthorized access. Logging out.');
-            logout();
-          } else if (res.status === 500) {
-            console.error('Internal Server Error.');
-            logout();
-            return;
-          } else {
-            console.error('Error fetching sources:', res.statusText);
-          }
-          return;
-        }
-      } catch (error) {
-        console.error('Error fetching sources:', error.message);
-      }
-    };
-    fetchSources();
-
-    //newly added-----------------------------------------------------------------------------------------
-    const fetchrefdetails = async () => {
-      try {
-        const res = await fetch(config.apiUrl + 'api/viewreferee', {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        if (res.ok) {
-          console.log('Inside Fetch Ref Details');
-          const json = await res.json();
-          setSources(json);
-        } else {
-          if (res.status === 401) {
-            console.error('Unauthorized access. Logging out.');
-            logout();
-          } else if (res.status === 500) {
-            console.error('Internal Server Error.');
-            logout();
-            return;
-          } else {
-            console.error('Error fetching sources:', res.statusText);
-          }
-          return;
-        }
-      } catch (error) {
-        console.error('Error fetching sources:', error.message);
-      }
-    };
-    fetchrefdetails();
-    async function getCounselors() {
-      try {
-        const res = await fetch(config.apiUrl + 'api/getCounsellors', {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        if (!res.ok) {
-          if (res.status === 401) {
-            console.error('Unauthorized access. Logging out.');
-            logout();
-          } else if (res.status === 500) {
-            console.error('Internal Server Error.');
-            logout();
-            return;
-          } else {
-            console.error('Error fetching counselors:', res.statusText);
-          }
-          return;
-        }
-        const data = await res.json();
-        setCounselors(data);
-      } catch (error) {
-        console.log('Error fetching counselors:', error);
-      }
-    }
-
-    getCounselors();
-
-    async function getAdminCounselors() {
-      try {
-        const res = await fetch(config.apiUrl + 'api/getAdminCounselors', {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        if (!res.ok) {
-          if (res.status === 401) {
-            console.error('Unauthorized access. Logging out.');
-            logout();
-          } else if (res.status === 500) {
-            console.error('Internal Server Error.');
-            logout();
-            return;
-          } else {
-            console.error('Error fetching counselors:', res.statusText);
-          }
-          return;
-        }
-        const data = await res.json();
-        setAdminCounselors(data);
-      } catch (error) {
-        console.log('Error fetching counselors:', error);
-      }
-    }
-    getAdminCounselors();
-  }, []);
-
-  async function fetchStatus() {
+  //-------------------------------------------------------------newly added----------------------------------------------------------
+  async function fetchReferees() {
     try {
-      const res = await fetch(config.apiUrl + 'api/status', {
+      const apiUrl = config.apiUrl + 'api/viewreferee';
+      const res = await fetch(apiUrl, {
         method: 'GET',
         headers: { Authorization: `Bearer ${user.token}` }
       });
-      if (res.ok) {
-        const json = await res.json();
-        setStatus(json);
-      } else {
+
+      if (!res.ok) {
         if (res.status === 401) {
           console.error('Unauthorized access. Logging out.');
           logout();
         } else if (res.status === 500) {
           console.error('Internal Server Error.');
           logout();
-          return;
         } else {
-          console.error('Error fetching status:', res.statusText);
+          console.error('Error fetching referee data', res.statusText);
         }
-        return;
+        return [];
       }
-    } catch (error) {
-      console.error('Error fetching status:', error.message);
+
+      const data = await res.json();
+      console.log(data);
+      // Ensure that 'data' is an array before mapping over it
+      if (!Array.isArray(data)) {
+        console.error('Data received from server is not an array:', data);
+        return [];
+      }
+
+      const referees = data.map((referee) => {
+        const ref = referee.referee_id || {};
+        return {
+          agent_name: ref.agent_name || null,
+          agent_con: ref.agent_con || null
+        };
+      });
+
+      console.log('Fetched referees: ', referees);
+      return referees;
+    } catch (err) {
+      console.error(`An error occurred while trying to get the users referee: ${err}`);
+      return [];
     }
   }
 
+  //---------------------------------------------------------------------------------------------------------------------------------
   useEffect(() => {
-    fetchStatus();
+    fetchLeads();
+    fetchReferees();
   }, []);
 
+  //
+  //
   // const sortLeads = () => {
   //   const filteredLeads = allLeads.filter((lead) => {
   //     const matchesCourse = checkMatch(lead.course, selectedCourse);
@@ -757,44 +589,6 @@ export default function ViewLeads() {
     }
   };
 
-  async function addToArchivedLeads() {
-    setIsDeleting(true);
-    try {
-      const res = await fetch(config.apiUrl + 'api/leads-archive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-        body: JSON.stringify({ ids: arrIds })
-      });
-
-      if (res.ok) {
-        const json = await res.json();
-        console.log(json);
-        setLoading(true);
-        setArrIds([]);
-        fetchLeads();
-        showSuccessSwalBulk();
-      } else {
-        if (res.status === 401) {
-          console.error('Unauthorized access. Logging out.');
-          logout();
-        } else if (res.status === 500) {
-          console.error('Internal Server Error.');
-          logout();
-          return;
-        } else {
-          console.error('Error fetching sources:', res.statusText);
-          showErrorSwalBulk();
-        }
-        return;
-      }
-    } catch (error) {
-      console.error('Error fetching sources:', error.message);
-      showErrorSwalBulk();
-    } finally {
-      setIsDeleting(false);
-    }
-  }
-
   async function addToSingleArchivedLead(ids) {
     setIsDeleting(true);
     try {
@@ -808,7 +602,6 @@ export default function ViewLeads() {
         const json = await res.json();
         console.log(json);
         setLoading(true);
-        fetchLeads();
         showSuccessSwalBulk();
       } else {
         if (res.status === 401) {
@@ -848,8 +641,6 @@ export default function ViewLeads() {
   };
 
   const handleExport = () => {
-    // need to export column data to excel
-    // console.log(data);
     const csvRows = [];
     const headers = Object.keys(data[0]);
     csvRows.push(headers.join(','));
@@ -941,233 +732,6 @@ export default function ViewLeads() {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={1.5}>
-                  {/* <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                    Course
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    // label="First Name"
-                    margin="normal"
-                    name="course"
-                    size="small"
-                    select
-                    SelectProps={{ native: true }}
-                    value={selectedCourse}
-                    onChange={(event) => {
-                      setselectedCourse(event.target.value);
-                      console.log(event.target.value);
-                      sortCourses(event.target.value);
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <AssignmentIcon />
-                        </InputAdornment>
-                      )
-                    }}
-                  >
-                    <option value="" disabled></option>
-                    {courses && courses.length > 0 ? (
-                      courses.map((option) => (
-                        <option key={option._id} value={option.name}>
-                          {option.name}
-                        </option>
-                      ))
-                    ) : (
-                      <option value="" disabled>
-                        No Courses available
-                      </option>
-                    )}
-                  </TextField> */}
-                </Grid>
-                {/*<Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                    Source
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    // label="First Name"
-                    margin="normal"
-                    name="media"
-                    size="small"
-                    select
-                    SelectProps={{ native: true }}
-                    value={selectedSource}
-                    onChange={(event) => {
-                      setselectedSource(event.target.value);
-                      sortSources(event.target.value);
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <InsertLinkIcon />
-                        </InputAdornment>
-                      )
-                    }}
-                  >
-                    <option value="" disabled></option>
-                    {source && source.length > 0 ? (
-                      source.map((option) => (
-                        <option key={option._id} value={option.name}>
-                          {option.name}
-                        </option>
-                      ))
-                    ) : (
-                      <option value="" disabled>
-                        No Sources available
-                      </option>
-                    )}
-                  </TextField>
-                </Grid>
-                <Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                    Status
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    // label="First Name"
-                    margin="normal"
-                    name="status"
-                    size="small"
-                    select
-                    SelectProps={{ native: true }}
-                    value={selectedStatus}
-                    onChange={(event) => {
-                      setSelectedStatus(event.target.value);
-                      sortStatus(event.target.value);
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <TimelineIcon />
-                        </InputAdornment>
-                      )
-                    }}
-                  >
-                    <option value="" disabled></option>
-                    {status && status.length > 0 ? (
-                      status.map((option) => (
-                        <option key={option._id} value={option.name}>
-                          {option.name}
-                        </option>
-                      ))
-                    ) : (
-                      <option value="" disabled>
-                        No Status available
-                      </option>
-                    )}
-                    <option value="New">New</option>
-                    <option value="Registered">Registered</option>
-                    <option value="Dropped">Dropped</option>
-                    <option value="Next Intake">Next Intake</option>
-                    <option value="Send Mail">Send Mail</option>
-                    <option value="Ring No Answer">Ring No Answer</option>
-                    <option value="Shedule Meeting">Shedule Meeting</option>
-                    <option value="Fake">Fake</option>
-                    <option value="Duplicate">Duplicate</option>
-                    <option value="Course Details sent">Course Details sent</option>
-                    <option value="WhatsApp & SMS">WhatsApp & SMS</option> 
-                  </TextField>
-                </Grid>*/}
-                {/* {permissions?.lead?.includes('read-all') && (
-                  <Grid item xs={12} sm={1.5}>
-                    <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                      Counselor
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      // label="First Name"
-                      margin="normal"
-                      name="counselor"
-                      size="small"
-                      select
-                      SelectProps={{ native: true }}
-                      value={selectedCounselor}
-                      onChange={(event) => {
-                        setselectedCounselor(event.target.value);
-                        console.log(event.target.value);
-                        sortCounselors(event.target.value);
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <PersonIcon />
-                          </InputAdornment>
-                        )
-                      }}
-                    >
-                      <option value="" disabled></option>
-                      {counselors.concat(adminCounselors) && counselors.concat(adminCounselors).length > 0 ? (
-                        counselors.concat(adminCounselors).map((option) => (
-                          <option key={option.id} value={option.label}>
-                            {option.label}
-                          </option>
-                        ))
-                      ) : (
-                        <option value="" disabled>
-                          No Counselors available
-                        </option>
-                      )}
-                    </TextField>
-                  </Grid>
-                )} */}
-                {/* <Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                    Date From
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    name="date"
-                    type="date"
-                    size="small"
-                    value={dateFrom}
-                    onChange={(event) => {
-                      const selectedDate = event.target.value;
-                      setDateFrom(selectedDate);
-                      sortDateRange(selectedDate, dateTo);
-                    }}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid> */}
-                {/* <Grid item xs={12} sm={1.5}>
-                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                    Date To
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    name="date"
-                    type="date"
-                    size="small"
-                    value={dateTo}
-                    onChange={(event) => {
-                      const selectedDate = event.target.value;
-                      setDateTo(selectedDate);
-                      sortDateRange(dateFrom, selectedDate);
-                    }}
-                  />
-                </Grid> */}
-                {/* <Grid style={{ marginTop: '30px' }} item xs={12} sm={0.5}>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    sx={{ borderRadius: '50%', padding: '80px', minWidth: 'unset', width: '32px', height: '32px' }}
-                    onClick={() => {
-                      setselectedCourse('');
-                      setselectedSource('');
-                      setselectedCounselor('');
-                      setDateFrom('');
-                      setDateTo('');
-                      setSname('');
-                      setSelectedStatus('');
-                      setData(allLeads);
-                    }}
-                  >
-                    <HighlightOffIcon sx={{ fontSize: '18px' }} />
-                  </Button>
-                </Grid> */}
               </Grid>
             </Grid>
 
