@@ -407,57 +407,86 @@ export default function ViewLeads() {
     }
   }
   //-------------------------------------------------------------newly added----------------------------------------------------------
+  // async function fetchReferees() {
+  //   try {
+  //     const apiUrl = config.apiUrl + 'api/viewreferee';
+  //     const res = await fetch(apiUrl, {
+  //       method: 'GET',
+  //       headers: { Authorization: `Bearer ${user.token}` }
+  //     });
+
+  //     if (!res.ok) {
+  //       if (res.status === 401) {
+  //         console.error('Unauthorized access. Logging out.');
+  //         logout();
+  //       } else if (res.status === 500) {
+  //         console.error('Internal Server Error.');
+  //         logout();
+  //       } else {
+  //         console.error('Error fetching referee data', res.statusText);
+  //       }
+  //       return [];
+  //     }
+
+  //     const data = await res.json();
+  //     console.log(data);
+  //     // Ensure that 'data' is an array before mapping over it
+  //     if (!Array.isArray(data)) {
+  //       console.error('Data received from server is not an array:', data);
+  //       return [];
+  //     }
+
+  //     const referees = data.map((referee) => {
+  //       const ref = referee.referee_id || {};
+  //       return {
+  //         agent_name: ref.agent_name || null,
+  //         agent_con: ref.agent_con || null
+  //       };
+  //     });
+
+  //     console.log('Fetched referees: ', referees);
+  //     return referees;
+  //   } catch (err) {
+  //     console.error(`An error occurred while trying to get the users referee: ${err}`);
+  //     return [];
+  //   }
+  // }
+
   async function fetchReferees() {
     try {
-      const apiUrl = config.apiUrl + 'api/viewreferee';
-      const res = await fetch(apiUrl, {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
+      const response = await fetch(config.apiUrl + 'api/viewreferee');
+      if (!response.ok) {
+        throw new Error('Failed to fetch referees');
+      }
+      const data = await response.json();
 
-      if (!res.ok) {
-        if (res.status === 401) {
-          console.error('Unauthorized access. Logging out.');
-          logout();
-        } else if (res.status === 500) {
-          console.error('Internal Server Error.');
-          logout();
-        } else {
-          console.error('Error fetching referee data', res.statusText);
-        }
-        return [];
+      // Check if data.referees is an array
+      if (!Array.isArray(data.referees)) {
+        throw new Error('Data received from server does not contain a valid referees array');
       }
 
-      const data = await res.json();
-      console.log(data);
-      // Ensure that 'data' is an array before mapping over it
-      if (!Array.isArray(data)) {
-        console.error('Data received from server is not an array:', data);
-        return [];
-      }
+      const mappedReferees = data.referees.map((referee) => ({
+        id: referee._id,
+        agent_name: referee.agent_name || '',
+        agent_con: referee.agent_con || ''
+      }));
 
-      const referees = data.map((referee) => {
-        const ref = referee.referee_id || {};
-        return {
-          agent_name: ref.agent_name || null,
-          agent_con: ref.agent_con || null
-        };
-      });
-
-      console.log('Fetched referees: ', referees);
-      return referees;
-    } catch (err) {
-      console.error(`An error occurred while trying to get the users referee: ${err}`);
-      return [];
+      setReferees(mappedReferees);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching referees:', error);
+      setLoading(false);
     }
   }
 
   //---------------------------------------------------------------------------------------------------------------------------------
   useEffect(() => {
     fetchLeads();
-    fetchReferees();
   }, []);
 
+  useEffect(() => {
+    fetchReferees();
+  }, []);
   //
   //
   // const sortLeads = () => {
