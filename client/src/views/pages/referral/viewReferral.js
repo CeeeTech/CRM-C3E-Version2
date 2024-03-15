@@ -106,13 +106,13 @@ export default function ViewLeads() {
 
   const columns = [
     { field: 'reference_number', headerName: '#', align: 'center', width: 55, headerAlign: 'center' },
-    { field: 'name', headerName: 'Student Name', flex: 0.5, width: 100, minWidth: 150 },
-    { field: 'contact_no', headerName: 'Student Contact No', flex: 1, width: 100, minWidth: 150 },
-    { field: 'course_code', headerName: 'Course', flex: 0.5, width: 100, minWidth: 100 },
+    { field: 'student_name', headerName: 'Student Name', flex: 0.5, width: 100, minWidth: 150 },
+    { field: 'mobile_number', headerName: 'Student Contact No', flex: 1, width: 100, minWidth: 150 },
+    { field: 'course_name', headerName: 'Course', flex: 0.5, width: 100, minWidth: 100 },
     { field: 'status', headerName: 'Status', flex: 1, width: 100, minWidth: 150 },
     { field: 'agent_name', headerName: 'Agent Name', flex: 1, width: 100, minWidth: 150 },
     { field: 'agent_con', headerName: 'Agent Contact num', flex: 1, width: 100, minWidth: 150 },
-    { field: 'comment', headerName: 'Comment', flex: 1, width: 100, minWidth: 150 },
+    // { field: 'comment', headerName: 'Comment', flex: 1, width: 100, minWidth: 150 },
 
     {
       field: 'edit',
@@ -283,7 +283,21 @@ export default function ViewLeads() {
       }
       const data = await response.json();
 
-      setReferrals(data);
+      console.log(data);
+
+      const mappedReferrals = data.referrals.map((referral) => ({
+        id: referral._id,
+        reference_number: referral.reference_number,
+        student_name: referral.student_id ? referral.student_id.name : '',
+        course_name: referral.course_id ? referral.course_id.name : '',
+        mobile_number: referral.student_id ? referral.student_id.contact_no : '',
+        agent_name: referral.referee_id ? referral.referee_id.full_name : '',
+        agent_con: referral.referee_id ? referral.referee_id.contact_number : '',
+        status: referral.ref_status_id ? referral.ref_status_id.name : ''
+      }));
+
+      setReferrals(mappedReferrals);
+
       setLoading(false);
     } catch (error) {
       console.error('Error fetching referrals:', error);
@@ -488,7 +502,7 @@ export default function ViewLeads() {
               <Grid alignItems="flex-start" item xs={12} sm={12}>
                 {!loading && (
                   <StripedDataGrid
-                    rows={data}
+                    rows={referrals}
                     rowHeight={40}
                     columns={columns}
                     getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
