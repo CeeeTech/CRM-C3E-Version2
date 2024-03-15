@@ -23,6 +23,10 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import PersonIcon from '@mui/icons-material/Person';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 const ODD_OPACITY = 0.2;
 
@@ -495,9 +499,106 @@ export default function ViewLeads() {
                     }}
                   />
                 </Grid>
+
+                <Grid item xs={12} sm={2.5}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                  Course
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    name="search"
+                    type="text"
+                    size="small"
+                    SelectProps={{ native: true }}
+                    value={sname}
+                    onChange={(event) => {
+                      const { value } = event.target;
+                      setSname(value);
+                      sortLeadsByField(value);
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                        <AssignmentIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={2.5}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                  Status
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    name="search"
+                    type="text"
+                    size="small"
+                    SelectProps={{ native: true }}
+                    value={sname}
+                    onChange={(event) => {
+                      const { value } = event.target;
+                      setSname(value);
+                      sortLeadsByField(value);
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                        <TimelineIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={2.5}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                  Counselor
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    name="search"
+                    type="text"
+                    size="small"
+                    SelectProps={{ native: true }}
+                    value={sname}
+                    onChange={(event) => {
+                      const { value } = event.target;
+                      setSname(value);
+                      sortLeadsByField(value);
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                         <PersonIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+                <Grid style={{ marginTop: '30px' }} item xs={12} sm={0.5}>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
+                    onClick={() => {
+                      setselectedCourse('');
+                     
+                      setselectedCounselor('');
+                      setDateFrom('');
+                      setDateTo('');
+                      setSname('');
+                      setSelectedStatus('');
+                      setData(allLeads);
+                    }}
+                  >
+                    <HighlightOffIcon sx={{ fontSize: '18px' }} />
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
-
             <Grid container sx={{ marginTop: '2px' }} alignItems="flex-start" spacing={matchDownSM ? 0 : 2}>
               <Grid alignItems="flex-start" item xs={12} sm={12}>
                 {!loading && (

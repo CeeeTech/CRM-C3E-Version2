@@ -1,12 +1,13 @@
 // assets
-import { IconKey,IconAffiliate,IconUsers,IconCertificate } from '@tabler/icons';
+import { IconKey,IconAffiliate,IconUsers,IconCertificate,IconArticle } from '@tabler/icons';
 
 // constant
 const icons = {
   IconKey,
   IconAffiliate,
   IconUsers,
-  IconCertificate
+  IconCertificate,
+  IconArticle
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
@@ -51,7 +52,7 @@ const pages = {
       id: 'referrals',
       title: 'referrals',
       type: 'collapse',
-      icon: icons.IconCertificate,
+      icon: icons.IconArticle,
       children: [
         {
           id: 'view-referal',
