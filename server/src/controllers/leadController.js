@@ -23,6 +23,8 @@ const cron = require("node-cron");
 const startTime = 8;
 const endTime = 17;
 const threshold = 4;
+const axios = require("axios");
+
 //get all leads
 
 async function getLeads(req, res) {
@@ -475,21 +477,29 @@ async function addLead(req, res) {
     // Send success response
     // res.status(200).json(newLead);
 
+    // Construct the message
+    const message = `Thank you for your interest in our ${course_name} course. Your inquiry is being processed. Our student counselor will contact you shortly.`;
+    sendAddLeadMessage(contact_no, message);
+
     var cid;
     let customLeastAllocatedCunselor;
     const userAdding = await User.findOne({ _id: user_id });
-    const adminCounsellor = await User_type.findOne({ name: 'admin_counselor' });
-    const counsellor = await User_type.findOne({ name: 'counselor' });
+    const adminCounsellor = await User_type.findOne({
+      name: "admin_counselor",
+    });
+    const counsellor = await User_type.findOne({ name: "counselor" });
 
-    
     const { leastAllocatedCounselor } =
       await getLeastAndNextLeastAllocatedCounselors(
         course_document._id.toString()
       );
-      customLeastAllocatedCunselor= leastAllocatedCounselor
+    customLeastAllocatedCunselor = leastAllocatedCounselor;
 
-    if(userAdding.user_type.equals(adminCounsellor._id) || userAdding.user_type.equals(counsellor._id)){
-      customLeastAllocatedCunselor = userAdding
+    if (
+      userAdding.user_type.equals(adminCounsellor._id) ||
+      userAdding.user_type.equals(counsellor._id)
+    ) {
+      customLeastAllocatedCunselor = userAdding;
     }
 
     if (customLeastAllocatedCunselor) {
@@ -565,16 +575,16 @@ async function addLead(req, res) {
 }
 
 async function addLeadAPI(req, res) {
-  console.log('addLeadAPI has been called')
+  console.log("addLeadAPI has been called");
   const { authorizationapi } = req.headers;
 
   if (!authorizationapi) {
     return res.status(401).json({ error: "Authorization token required" });
   }
   const token = authorizationapi.split(" ")[1];
-  console.log('auth token', token)
+  console.log("auth token", token);
 
-  if(token != process.env.API_SECRET){
+  if (token != process.env.API_SECRET) {
     return res.status(401).json({ error: "API Secret is Invalid" });
   }
 
@@ -590,10 +600,10 @@ async function addLeadAPI(req, res) {
     course_name,
     branch_name,
     user_id,
-    comment
+    comment,
   } = req.body;
   let resNewLead;
-  
+
   var student_id;
   var lead_id;
 
@@ -665,7 +675,7 @@ async function addLeadAPI(req, res) {
       source_id: source_document._id,
       reference_number: sequenceValue,
     });
-    resNewLead = newLead
+    resNewLead = newLead;
     lead_id = newLead._id;
     // Send success response
     // res.status(200).json(newLead);
@@ -700,12 +710,10 @@ async function addLeadAPI(req, res) {
         "success"
       );
     } else {
-      
     }
-    
   } catch (error) {
     // Send internal server error response
-    console.log(error)
+    console.log(error);
     //return res.status(500).json({ error: "Internal Server Error" });
   }
 
@@ -714,7 +722,6 @@ async function addLeadAPI(req, res) {
     if (!mongoose.Types.ObjectId.isValid(lead_id)) {
       return res.status(400).json({ error: "no such lead" });
     }
-
 
     const status_document = await Status.findOne({ name: "New" });
     if (!status_document) {
@@ -735,7 +742,7 @@ async function addLeadAPI(req, res) {
         user_id: null,
         status_id: status_document._id,
         date: currentDateTime,
-        comment:comment
+        comment: comment,
       });
 
       const leadDoc = await Lead.findById({ _id: lead_id });
@@ -744,12 +751,12 @@ async function addLeadAPI(req, res) {
 
       return res.status(200).json(resNewLead);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   } catch (e) {}
 }
-async function checkDuplicateEmailAPI(req,res){
+async function checkDuplicateEmailAPI(req, res) {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -757,10 +764,10 @@ async function checkDuplicateEmailAPI(req,res){
   }
   const token = authorization.split(" ")[1];
 
-  if(token != process.env.API_SECRET){
+  if (token != process.env.API_SECRET) {
     return res.status(401).json({ error: "API Secret is Invalid" });
   }
-  
+
   const { email } = req.body;
 
   try {
@@ -777,21 +784,28 @@ async function checkDuplicateEmailAPI(req,res){
 //add lead and followup
 
 async function addLeadWithExistingStudentAPI(req, res) {
-  console.log('addLeadWithExistingStudentAPI has been called')
+  console.log("addLeadWithExistingStudentAPI has been called");
   const { authorizationapi } = req.headers;
 
   if (!authorizationapi) {
     return res.status(401).json({ error: "Authorization token required" });
   }
   const token = authorizationapi.split(" ")[1];
-  console.log('auth token', token)
+  console.log("auth token", token);
 
-  if(token != process.env.API_SECRET){
+  if (token != process.env.API_SECRET) {
     return res.status(401).json({ error: "API Secret is Invalid" });
   }
 
-  const { student_id, date, sheduled_to, course_name, branch_name, user_id,comment } =
-    req.body;
+  const {
+    student_id,
+    date,
+    sheduled_to,
+    course_name,
+    branch_name,
+    user_id,
+    comment,
+  } = req.body;
   let resNewLead;
   //add lead
   try {
@@ -891,8 +905,6 @@ async function addLeadWithExistingStudentAPI(req, res) {
       return res.status(400).json({ error: "no such lead" });
     }
 
-   
-
     const status_document = await Status.findOne({ name: "New" });
     if (!status_document) {
       return res.status(400).json({ error: `Status not found: New` });
@@ -911,7 +923,7 @@ async function addLeadWithExistingStudentAPI(req, res) {
         user_id: user_id,
         status_id: status_document._id,
         date: currentDateTime,
-        comment:comment
+        comment: comment,
       });
 
       const leadDoc = await Lead.findById({ _id: lead_id });
@@ -920,14 +932,12 @@ async function addLeadWithExistingStudentAPI(req, res) {
 
       return res.status(200).json(resNewLead);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return res.status(500).json({ error: "Internal Server Error" });
     }
-
   } catch (e) {
-    console.log(e)
+    console.log(e);
     return res.status(500).json({ error: "Internal Server Error" });
-
   }
 }
 
@@ -991,6 +1001,12 @@ async function addLeadWithExistingStudent(req, res) {
       reference_number: sequenceValue,
     });
 
+    // get the student
+    const student_document = await Student.findOne({ _id: student_id });// Construct the message
+    const message = `Thank you for your interest in our ${course_name} course. Your inquiry is being processed. Our student counselor will contact you shortly.`;
+    sendAddLeadMessage(student_document.contact_no, message);
+    console.log(student_document);
+
     lead_id = newLead._id;
     // Send success response
     // res.status(200).json(newLead);
@@ -998,19 +1014,20 @@ async function addLeadWithExistingStudent(req, res) {
     var cid;
     let customLeastAllocatedCunselor;
     const userAdding = await User.findOne({ _id: user_id });
-    const adminCounsellor = await User_type.findOne({ name: 'counselor' });
-    const counsellor = await User_type.findOne({ name: 'admin_counselor' });
+    const adminCounsellor = await User_type.findOne({ name: "counselor" });
+    const counsellor = await User_type.findOne({ name: "admin_counselor" });
 
-    
     const { leastAllocatedCounselor } =
       await getLeastAndNextLeastAllocatedCounselors(
         course_document._id.toString()
       );
-      customLeastAllocatedCunselor= leastAllocatedCounselor
-      if(userAdding.user_type.equals(adminCounsellor._id) || userAdding.user_type.equals(counsellor._id)){
-        customLeastAllocatedCunselor = userAdding
+    customLeastAllocatedCunselor = leastAllocatedCounselor;
+    if (
+      userAdding.user_type.equals(adminCounsellor._id) ||
+      userAdding.user_type.equals(counsellor._id)
+    ) {
+      customLeastAllocatedCunselor = userAdding;
     }
-
 
     if (customLeastAllocatedCunselor) {
       cid = customLeastAllocatedCunselor._id;
@@ -1090,6 +1107,71 @@ async function getNextSequenceValue(sequenceName) {
     { returnOriginal: false, upsert: true }
   );
   return counter.sequence_value;
+}
+
+// Function to send the verification code via SMS (replace with your preferred method)
+async function sendAddLeadMessage(phoneNumber, message) {
+  const url = "https://richcommunication.dialog.lk/api/sms/send";
+  const apiKey = process.env.SMS_API_KEY;
+
+  // Normalize the phone number
+  const newPhoneNumber = normalizePhoneNumber(phoneNumber);
+
+  const data = {
+    messages: [
+      {
+        clientRef: "0934345",
+        number: newPhoneNumber,
+        mask: "SLTC", // Update the mask if necessary
+        text: message,
+        campaignName: "addLeadMessage",
+      },
+    ],
+  };
+
+  // Get the current date time in the required format
+  const currentDateTime = moment().format("YYYY-MM-DDTHH:mm:ss");
+  console.log("Current date time:", currentDateTime);
+
+  try {
+    const response = await axios.post(url, data, {
+      headers: {
+        "Content-Type": "application/json",
+        USER: "user_slt",
+        DIGEST: "23383276670a8227dc53f93a952ccfa6",
+        CREATED: currentDateTime,
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+
+    // Log the response status
+    console.log("Response status:", response.status);
+
+    // Check if response data exists
+    const responseData = response.data;
+    console.log("Response data:", responseData);
+
+    // Check if response status is OK
+    if (response.status === 200) {
+      console.log("Verification code sent successfully");
+      return true;
+    } else {
+      console.error("SMS sending failed:", responseData);
+      throw new Error(
+        `SMS sending failed with status code: ${response.status}`
+      );
+    }
+  } catch (error) {
+    console.error("Error sending verification code:", error.message);
+    throw error;
+  }
+}
+
+function normalizePhoneNumber(phoneNumber) {
+  // Remove any non-digit characters
+  const digitsOnly = phoneNumber.replace(/\D/g, "");
+  // If the number starts with '0', remove it and prepend '94', else just return the number
+  return digitsOnly.startsWith("0") ? "94" + digitsOnly.slice(1) : digitsOnly;
 }
 
 //update lead
@@ -1597,5 +1679,5 @@ module.exports = {
   assignLeadsToCounselors,
   addLeadAPI,
   addLeadWithExistingStudentAPI,
-  checkDuplicateEmailAPI
+  checkDuplicateEmailAPI,
 };
