@@ -25,7 +25,7 @@ const nodeTypes = {
   customNode: CustomNode
 };
 
-const SendEmailPopup = ({ isOpen, onClose, leadDetails }) => {
+const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
   // Custom array of JSON objects
   let mappedFollowupDetails = [];
   let mappedInitialEdges = [];
@@ -163,7 +163,7 @@ const SendEmailPopup = ({ isOpen, onClose, leadDetails }) => {
             </Avatar>
           </Grid>
           <Grid item>
-            <Typography variant="h3">Send Email</Typography>
+            <Typography variant="h3">Send SMS</Typography>
             <Typography variant="h5" color="textSecondary">
               {leadDetails.branch} | {leadDetails.course}
             </Typography>
@@ -245,4 +245,4 @@ const SendEmailPopup = ({ isOpen, onClose, leadDetails }) => {
   }
 };
 
-export default SendEmailPopup;
+export default SendSMSPopup;

@@ -25,7 +25,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import config from '../../../config';
 import { useLogout } from '../../../hooks/useLogout';
 import LeadDetailsPopup from '../../../ui-component/popups/LeadDetailsPopup';
-import SendEmailPopup from '../../../ui-component/popups/sendEmailPopup';
+import SendSMSPopup from '../../../ui-component/popups/sendSMSPopup';
 import { Tooltip } from '@mui/material';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -35,7 +35,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import PersonIcon from '@mui/icons-material/Person';
-import EmailIcon from '@mui/icons-material/Email';
+import MessageIcon from '@mui/icons-material/Message';
 
 const ODD_OPACITY = 0.2;
 
@@ -321,7 +321,7 @@ export default function ViewLeads() {
             }
           }}
         >
-          <EmailIcon sx={{ fontSize: '18px' }} />
+          <MessageIcon sx={{ fontSize: '18px' }} />
         </Button>
       )
     },
@@ -1243,7 +1243,7 @@ export default function ViewLeads() {
             onClose={() => setSelectedLead(null)}
             leadDetails={selectedLead ? selectedLead.data : null}
           />
-          <SendEmailPopup
+          <SendSMSPopup
             isOpen={selectedLead && selectedLead.type === 'sendEmail'}
             onClose={() => setSelectedLead(null)}
             leadDetails={selectedLead ? selectedLead.data : null}
