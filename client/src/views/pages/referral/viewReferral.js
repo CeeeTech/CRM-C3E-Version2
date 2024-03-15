@@ -55,18 +55,19 @@ export default function ViewLeads() {
   const { logout } = useLogout();
   const { user } = useAuthContext();
   const { permissions } = user || {};
-  const { userType } = user || {};
+  // const { userType } = user || {};
   const navigate = useNavigate();
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
 
-  const [allLeads, setAllLeads] = useState([]);
+  // const [allLeads, setAllLeads] = useState([]);
   const [sname, setSname] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
   const [arrIds, setArrIds] = useState([]);
   const [data, setData] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [referrals, setReferrals] = useState([]);
 
   const Toast = withReactContent(
     Swal.mixin({
@@ -184,147 +185,120 @@ export default function ViewLeads() {
     }
   ];
 
-  const shortenCourseName = (courseName) => {
-    // Check if the course name is "Other"
-    if (courseName.toLowerCase() === 'other') {
-      return 'Other'; // Return 'Other' as is
-    }
+  // const shortenCourseName = (courseName) => {
+  //   // Check if the course name is "Other"
+  //   if (courseName.toLowerCase() === 'other') {
+  //     return 'Other'; // Return 'Other' as is
+  //   }
 
-    // Split the course name by spaces to get individual words
-    const words = courseName.split(' ');
+  //   // Split the course name by spaces to get individual words
+  //   const words = courseName.split(' ');
 
-    // Map over each word and extract the first letter while excluding parentheses
-    const shortenedName = words
-      .map((word) => {
-        // Remove parentheses from the word
-        const wordWithoutParentheses = word.replace(/[()]/g, '');
-        // Take the first letter of the word
-        return wordWithoutParentheses.charAt(0).toUpperCase();
-      })
-      .join(''); // Join the first letters together
+  //   // Map over each word and extract the first letter while excluding parentheses
+  //   const shortenedName = words
+  //     .map((word) => {
+  //       // Remove parentheses from the word
+  //       const wordWithoutParentheses = word.replace(/[()]/g, '');
+  //       // Take the first letter of the word
+  //       return wordWithoutParentheses.charAt(0).toUpperCase();
+  //     })
+  //     .join(''); // Join the first letters together
 
-    return shortenedName; // Return the shortened course name
-  };
+  //   return shortenedName; // Return the shortened course name
+  // };
 
   function updateLead(leadId) {
     console.log('clicked lead id', leadId);
     navigate('/app/leads/update?id=' + leadId);
   }
 
-  async function fetchLeads() {
-    try {
-      const apiUrl = config.apiUrl + 'api/leads-details';
-      const res = await fetch(apiUrl, {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
+  // async function fetchLeads() {
+  //   try {
+  //     const apiUrl = config.apiUrl + 'api/leads-details';
+  //     const res = await fetch(apiUrl, {
+  //       method: 'GET',
+  //       headers: { Authorization: `Bearer ${user.token}` }
+  //     });
 
-      if (!res.ok) {
-        if (res.status === 401) {
-          console.error('Unauthorized access. Logging out.');
-          logout();
-        } else if (res.status === 500) {
-          console.error('Internal Server Error.');
-          logout();
-          return;
-        } else {
-          console.error('Error fetching leads data', res.statusText);
-        }
-        return;
-      }
+  //     if (!res.ok) {
+  //       if (res.status === 401) {
+  //         console.error('Unauthorized access. Logging out.');
+  //         logout();
+  //       } else if (res.status === 500) {
+  //         console.error('Internal Server Error.');
+  //         logout();
+  //         return;
+  //       } else {
+  //         console.error('Error fetching leads data', res.statusText);
+  //       }
+  //       return;
+  //     }
 
-      let leads = await res.json();
+  //     let leads = await res.json();
 
-      leads = leads.map((lead) => {
-        const student = lead.student_id || {};
+  //     leads = leads.map((lead) => {
+  //       const student = lead.student_id || {};
 
-        return {
-          reference_number: lead.reference_number,
-          id: lead._id,
-          name: student.name || null,
-          contact_no: student.contact_no || null,
-          course: lead.course_id.name,
-          course_code: shortenCourseName(lead.course_id.name),
-          status: lead.status_id ? lead.status_id.name : null
-        };
-      });
+  //       return {
+  //         reference_number: lead.reference_number,
+  //         id: lead._id,
+  //         name: student.name || null,
+  //         contact_no: student.contact_no || null,
+  //         course: lead.course_id.name,
+  //         course_code: shortenCourseName(lead.course_id.name),
+  //         status: lead.status_id ? lead.status_id.name : null
+  //       };
+  //     });
 
-      if (permissions?.lead?.includes('read-all')) {
-        setData(leads);
-        setAllLeads(leads);
-        setLoading(false);
-        return;
-      } else if (permissions?.lead?.includes('read') && userType?.name === 'counselor') {
-        const filteredLeads = leads.filter((lead) => lead.counsellor_id === user._id);
-        setData(filteredLeads);
-        setAllLeads(filteredLeads);
-        setLoading(false);
-        return;
-      } else if (permissions?.lead?.includes('read') && userType?.name === 'user') {
-        const filteredLeads = leads.filter((lead) => lead.user_id === user._id);
-        setData(filteredLeads);
-        setAllLeads(filteredLeads);
-        setLoading(false);
+  //     if (permissions?.lead?.includes('read-all')) {
+  //       setData(leads);
+  //       setAllLeads(leads);
+  //       setLoading(false);
+  //       return;
+  //     } else if (permissions?.lead?.includes('read') && userType?.name === 'counselor') {
+  //       const filteredLeads = leads.filter((lead) => lead.counsellor_id === user._id);
+  //       setData(filteredLeads);
+  //       setAllLeads(filteredLeads);
+  //       setLoading(false);
+  //       return;
+  //     } else if (permissions?.lead?.includes('read') && userType?.name === 'user') {
+  //       const filteredLeads = leads.filter((lead) => lead.user_id === user._id);
+  //       setData(filteredLeads);
+  //       setAllLeads(filteredLeads);
+  //       setLoading(false);
 
-        return;
-      }
-    } catch (error) {
-      console.log('Error fetching leads:', error);
-    }
-  }
+  //       return;
+  //     }
+  //   } catch (error) {
+  //     console.log('Error fetching leads:', error);
+  //   }
+  // }
   //-------------------------------------------------------------newly added----------------------------------------------------------
 
-  async function fetchReferees() {
+  async function fetchReferrals() {
     try {
-      const apiUrl = config.apiUrl + 'api/viewreferee';
-      const res = await fetch(apiUrl, {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          console.error('Unauthorized access. Logging out.');
-          logout();
-        } else if (res.status === 500) {
-          console.error('Internal Server Error.');
-          logout();
-        } else {
-          console.error('Error fetching referee data', res.statusText);
-        }
-        return [];
+      const response = await fetch(config.apiUrl + 'api/getReferrals');
+      if (!response.ok) {
+        throw new Error('Failed to fetch referrals');
       }
+      const data = await response.json();
 
-      const data = await res.json();
-      console.log(data);
-      // Ensure that 'data' is an array before mapping over it
-      if (!Array.isArray(data)) {
-        console.error('Data received from server is not an array:', data);
-        return [];
-      }
-
-      const referees = data.map((referee) => {
-        const ref = referee.referee_id || {};
-        return {
-          agent_name: ref.agent_name || null,
-          agent_con: ref.agent_con || null
-        };
-      });
-
-      console.log('Fetched referees: ', referees);
-      return referees;
-    } catch (err) {
-      console.error(`An error occurred while trying to get the users referee: ${err}`);
-      return [];
+      setReferrals(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching referrals:', error);
+      setLoading(false);
     }
   }
+
+  console.log(referrals);
   //---------------------------------------------------------------------------------------------------------------------------------
-  useEffect(() => {
-    fetchLeads();
-  }, []);
+  // useEffect(() => {
+  //   fetchLeads();
+  // }, []);
 
   useEffect(() => {
-    fetchReferees();
+    fetchReferrals();
   }, []);
 
   const sortLeadsByField = (value) => {

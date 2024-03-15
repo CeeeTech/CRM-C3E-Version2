@@ -1,12 +1,9 @@
-const express = require('express')
-const multer = require('multer');
-const referral =require('../controllers/refereeController')
+const express = require("express");
+const referralController = require("../controllers/referralController");
 
-const router = express.Router()
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const router = express.Router();
 
-router.get('/viewreferee',referral.getAllReferral)
+router.post("/add-new-referral", referralController.addNewReferral);
+router.get("/getReferrals", referralController.getAllReferral);
 
-
-module.exports = router
+module.exports = router;
