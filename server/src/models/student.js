@@ -5,7 +5,7 @@ const studentSchema = new mongoose.Schema({
   nic: { type: String, required: false },
   dob: { type: Date, required: false },
   contact_no: String,
-  email: { type: String, required: false, unique: true },
+  email: { type: String, required: false, unique: true, sparse: true },
   address: String
 });
 
