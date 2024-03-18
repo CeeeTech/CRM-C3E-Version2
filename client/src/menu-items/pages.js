@@ -1,12 +1,13 @@
 // assets
-import { IconKey,IconAffiliate,IconUsers,IconCertificate } from '@tabler/icons';
+import { IconKey,IconAffiliate,IconUsers,IconCertificate,IconArticle } from '@tabler/icons';
 
 // constant
 const icons = {
   IconKey,
   IconAffiliate,
   IconUsers,
-  IconCertificate
+  IconCertificate,
+  IconArticle
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
@@ -45,6 +46,23 @@ const pages = {
           url: '/app/leads/bulk-import',
           breadcrumbs: false
         },
+      ]
+    },
+    {
+      id: 'referrals',
+      title: 'referrals',
+      type: 'collapse',
+      icon: icons.IconArticle,
+      children: [
+        {
+          id: 'view-referal',
+          title: 'View Referal',
+          type: 'item',
+          external: true,
+          url: '/app/referrals',
+          breadcrumbs: false
+        },
+       
       ]
     },
     {
