@@ -23,6 +23,7 @@ const UserForm = Loadable(lazy(() => import('views/pages/account/profile')));
 const FBHealth = Loadable(lazy(() => import('views/pages/settings/fbLeadsHealth')));
 const PageNotFound = Loadable(lazy(() => import('views/pages/page-not-found/page-not-found')));
 const BulkImport = Loadable(lazy(() => import('views/pages/leads/bulkImport')));
+const ViewReferral = Loadable(lazy(() => import('views/pages/referral/viewReferral')));
 
 export default function ThemeRoutes() {
   const { user } = useAuthContext();
@@ -61,6 +62,15 @@ export default function ThemeRoutes() {
               )
             }
           />
+          <Route
+            path="update"
+            element={permissions?.lead?.includes('update') ? <UpdateLead /> : <Navigate to="/app/access-denied" replace />}
+          />
+        </Route>
+
+        {/* Referral Section */}
+        <Route path="referrals" element={<Outlet />}>
+          <Route index element={permissions?.lead?.includes('read') ? <ViewReferral /> : <Navigate to="/app/access-denied" replace />} />
           <Route
             path="update"
             element={permissions?.lead?.includes('update') ? <UpdateLead /> : <Navigate to="/app/access-denied" replace />}
