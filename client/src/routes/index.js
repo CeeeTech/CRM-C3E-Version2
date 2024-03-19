@@ -24,6 +24,9 @@ const FBHealth = Loadable(lazy(() => import('views/pages/settings/fbLeadsHealth'
 const PageNotFound = Loadable(lazy(() => import('views/pages/page-not-found/page-not-found')));
 const BulkImport = Loadable(lazy(() => import('views/pages/leads/bulkImport')));
 const ViewReferral = Loadable(lazy(() => import('views/pages/referral/viewReferral')));
+const ProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm')));
+const UpdateProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm-update')));
+const ViewProduct = Loadable(lazy(() => import('views/pages/productGroup/viewProduct')));
 
 export default function ThemeRoutes() {
   const { user } = useAuthContext();
@@ -97,6 +100,16 @@ export default function ThemeRoutes() {
           <Route
             path="update"
             element={permissions?.user?.includes('update') ? <UpdateUser /> : <Navigate to="/app/access-denied" replace />}
+          />
+        </Route>
+
+        {/* Products Section */}
+        <Route path="products" element={<Outlet />}>
+          <Route index element={permissions?.course?.includes('create') ? <ViewProduct /> : <Navigate to="/app/access-denied" replace />} />
+          <Route path="add" element={permissions?.user?.includes('create') ? <ProductForm /> : <Navigate to="/app/access-denied" replace />} />
+          <Route
+            path="update"
+            element={permissions?.user?.includes('update') ? <UpdateProductForm /> : <Navigate to="/app/access-denied" replace />}
           />
         </Route>
 

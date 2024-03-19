@@ -1,5 +1,5 @@
 // assets
-import { IconKey,IconAffiliate,IconUsers,IconCertificate,IconArticle } from '@tabler/icons';
+import { IconKey,IconAffiliate,IconUsers,IconCertificate,IconArticle,IconCategory } from '@tabler/icons';
 
 // constant
 const icons = {
@@ -7,7 +7,8 @@ const icons = {
   IconAffiliate,
   IconUsers,
   IconCertificate,
-  IconArticle
+  IconArticle,
+  IconCategory
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
@@ -110,8 +111,30 @@ const pages = {
           breadcrumbs: false
         }
       ]
+    },
+    {
+      id: 'products',
+      title: 'Products',
+      type: 'collapse',
+      icon: icons.IconCategory,
+      children: [
+        {
+          id: 'products-list',
+          title: 'View Products',
+          type: 'item',
+          external: true,
+          url: '/app/products',
+          breadcrumbs: false
+        },
+        {
+          id: 'addProduct',
+          title: 'Add Product',
+          type: 'item',
+          url: '/app/products/add',
+          breadcrumbs: false
+        }
+      ]
     }
-
   ]
 };
 

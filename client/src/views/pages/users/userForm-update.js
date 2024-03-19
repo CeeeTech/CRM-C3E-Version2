@@ -93,7 +93,7 @@ export default function UpdateForm() {
 
   const fetchCourseData = async () => {
     try {
-      const res = await fetch(config.apiUrl + `api/courses`, {
+      const res = await fetch(config.apiUrl + `api/products`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -103,6 +103,8 @@ export default function UpdateForm() {
       console.error(error);
     }
   };
+
+  console.log(courseData);
 
   const fetchUserData = async (userId) => {
     try {
@@ -382,7 +384,8 @@ export default function UpdateForm() {
                           const admin_counselorUserType = userTypes.find((userType) => userType.name === 'admin_counselor');
                           console.log('Selected User Type ID:', event.target.value);
                           console.log('Counselor User Type ID:', counselorUserType?._id);
-                          const shouldShowProductType = event.target.value === counselorUserType?._id || event.target.value === admin_counselorUserType?._id;
+                          const shouldShowProductType =
+                            event.target.value === counselorUserType?._id || event.target.value === admin_counselorUserType?._id;
                           setShowProductType(shouldShowProductType);
                         }}
                         onBlur={formikUserDetails.handleBlur}
@@ -419,7 +422,7 @@ export default function UpdateForm() {
                                 value={course._id}
                               />
                             }
-                            label={course.name}
+                            label={course.groupname}
                             sx={{
                               marginBottom: '10px',
                               display: 'block'

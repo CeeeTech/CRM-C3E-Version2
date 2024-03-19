@@ -14,8 +14,9 @@ async function getEmailTemplates(req, res) {
 
 // send custom sms to a user
 async function sendCustomSMS(req, res) {
+  const { contact_no, message } = req.body;
+  console.log("Request Body:", req.body);
   try {
-    const { contact_no, message } = req.body;
     sendSMStoCustomer(contact_no, message);
     res.status(200).json({ message: "SMS sent successfully" });
   } catch (error) {
@@ -24,12 +25,12 @@ async function sendCustomSMS(req, res) {
 }
 
 // Function to send the verification code via SMS (replace with your preferred method)
-async function sendSMStoCustomer(phoneNumber, message) {
+async function sendSMStoCustomer(contact_no, message) {
   const url = "https://richcommunication.dialog.lk/api/sms/send";
   const apiKey = process.env.SMS_API_KEY;
 
   // Normalize the phone number
-  const newPhoneNumber = normalizePhoneNumber(phoneNumber);
+  const newPhoneNumber = normalizePhoneNumber(contact_no);
 
   const data = {
     messages: [
@@ -81,9 +82,9 @@ async function sendSMStoCustomer(phoneNumber, message) {
   }
 }
 
-function normalizePhoneNumber(phoneNumber) {
+function normalizePhoneNumber(contact_no) {
   // Remove any non-digit characters
-  const digitsOnly = phoneNumber.replace(/\D/g, "");
+  const digitsOnly = contact_no.replace(/\D/g, "");
   // If the number starts with '0', remove it and prepend '94', else just return the number
   return digitsOnly.startsWith("0") ? "94" + digitsOnly.slice(1) : digitsOnly;
 }

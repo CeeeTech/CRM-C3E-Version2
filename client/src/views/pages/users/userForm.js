@@ -72,7 +72,7 @@ export default function UserForm() {
 
   async function fetchCourseDetails() {
     try {
-      const response = await fetch(config.apiUrl + 'api/courses', {
+      const response = await fetch(config.apiUrl + 'api/products', {
         method: 'GET',
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -236,7 +236,7 @@ export default function UserForm() {
             showErrorSwal();
           }
           return;
-        } 
+        }
       } catch (error) {
         console.error('Error submitting form:', error);
         // Set error message
@@ -361,7 +361,8 @@ export default function UserForm() {
                         const admin_counselorUserType = userTypes.find((userType) => userType.name === 'admin_counselor');
                         console.log('Selected User Type ID:', event.target.value);
                         console.log('Counselor User Type ID:', counselorUserType?._id);
-                        const shouldShowProductType = event.target.value === counselorUserType?._id || event.target.value === admin_counselorUserType?._id;
+                        const shouldShowProductType =
+                          event.target.value === counselorUserType?._id || event.target.value === admin_counselorUserType?._id;
                         setShowProductType(shouldShowProductType);
                       }}
                       onBlur={formik.handleBlur}
@@ -398,7 +399,7 @@ export default function UserForm() {
                               value={course.id}
                             />
                           }
-                          label={course.name}
+                          label={course.groupname}
                           sx={{
                             marginBottom: '10px',
                             display: 'block'
