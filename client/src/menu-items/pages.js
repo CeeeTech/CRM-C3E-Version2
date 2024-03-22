@@ -51,7 +51,7 @@ const pages = {
     },
     {
       id: 'referrals',
-      title: 'referrals',
+      title: 'Referrals',
       type: 'collapse',
       icon: icons.IconArticle,
       children: [
