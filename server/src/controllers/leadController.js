@@ -1392,7 +1392,7 @@ async function assignLeadsToCounselors() {
           status_id: "65ada2f8da40b8a3e87bda82"
         },
         {
-          assignment_id: null
+          counsellor_id: null
         }
       ]
     });    
