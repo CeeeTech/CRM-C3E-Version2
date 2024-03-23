@@ -12,8 +12,9 @@ const upload = multer.memoryStorage();
 
 async function getUsers(req, res) {
   // fetch all users with user_type populated
+  // get users only have status true
   try {
-    const users = await User.find().populate({
+    const users = await User.find({ status: true }).populate({
       path: "user_type",
       model: "User_type",
     });
@@ -84,6 +85,11 @@ async function login(req, res) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
+    // check user status is true
+    if (!user.status) {
+      return res.status(401).json({ error: "Permission denied. Please contact admin." });
+    }
+    
     // Extract relevant information for the token payload
     const { _id, name: userName, email: userEmail, user_type: userType } = user;
 
@@ -123,8 +129,6 @@ async function login(req, res) {
   }
 }
 
-
-
 async function getUserById(req, res) {
   try {
     const { id } = req.params;
@@ -146,43 +150,36 @@ async function getUserById(req, res) {
   }
 }
 
-
 async function getHighestAchivedCounselors(req, res) {
   try {
-    
-    const RegisteredStatus = await Status.findOne({ name: 'Registered' });
+    const RegisteredStatus = await Status.findOne({ name: "Registered" });
 
-    console.log(RegisteredStatus)
+    console.log(RegisteredStatus);
 
     const CounsellorsDesending = Lead.aggregate([
       {
         $match: {
-          status_id: RegisteredStatus._id // Filter by status ID
-        }
+          status_id: RegisteredStatus._id, // Filter by status ID
+        },
       },
       {
         $group: {
-          _id: '$counsellor_id',
-          count: { $sum: 1 }
-        }
+          _id: "$counsellor_id",
+          count: { $sum: 1 },
+        },
       },
       {
-        $sort: { count: -1 }
+        $sort: { count: -1 },
       },
       {
         $lookup: {
-          from: 'users', // Name of the counselor collection
-          localField: 'counsellor_id',
-          foreignField: '_id',
-          as: 'counselor_data'
-        }
-      }
-    ])
-
-
-
-
-
+          from: "users", // Name of the counselor collection
+          localField: "counsellor_id",
+          foreignField: "_id",
+          as: "counselor_data",
+        },
+      },
+    ]);
 
     if (!CounsellorsDesending) {
       return res.status(404).json({ error: "Counsellor data not found" });
@@ -190,11 +187,10 @@ async function getHighestAchivedCounselors(req, res) {
 
     res.status(200).json(CounsellorsDesending);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ error: error });
   }
 }
-
 
 // update user by id
 async function updateUserById(req, res) {
@@ -472,6 +468,44 @@ async function updatePassword(req, res) {
   }
 }
 
+// delete user (make the user status to false)
+async function deleteUser(req, res) {
+  try {
+    const { id } = req.params;
+
+    // check if the id is valid object id
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: "Invalid id" });
+    }
+
+    // Update the user by ID
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        status: false,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // make the product_type to null
+    await User.findByIdAndUpdate(
+      id,
+      {
+        product_type: null,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({ user: updatedUser, message: "User deleted!" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   getUsers,
   createUser,
@@ -485,5 +519,6 @@ module.exports = {
   updatePassword,
   updateUserByIdUsernameEmailUserTypeProductType,
   getAdminCounselors,
-  getHighestAchivedCounselors
+  getHighestAchivedCounselors,
+  deleteUser,
 };

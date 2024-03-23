@@ -1282,16 +1282,15 @@ async function getOneLeadSummaryDetails(req, res) {
 }
 
 async function checkForDuplicate(req, res) {
-  const { courseName, branchName, studentNIC } = req.query;
+  const { courseName, branchName, studentContact_no } = req.query;
 
   try {
-    // Find the course and branch IDs based on their names
+    // Find the course, branch, and student based on their names and contact number
     const course = await Course.findOne({ name: courseName });
     const branch = await Branch.findOne({ name: branchName });
+    const student = await Student.findOne({ contact_no: studentContact_no });
 
-    // Find the student based on name and contact number
-    const student = await Student.findOne({ nic: studentNIC });
-
+    // If any of the course, branch, or student is not found, return incomplete information message
     if (!course || !branch || !student) {
       return res.status(200).json({
         isDuplicate: false,
@@ -1299,19 +1298,21 @@ async function checkForDuplicate(req, res) {
       });
     }
 
-    // Check for duplicate lead based on course, branch, and student IDs
-    const duplicateLead = await Lead.findOne({
+    // Find a lead that matches the course, branch, and student IDs
+    const lead = await Lead.findOne({
       course_id: course._id,
       branch_id: branch._id,
       student_id: student._id,
     });
 
-    return res.status(200).json({ isDuplicate: !!duplicateLead }); // Returns true if a duplicate lead is found, false otherwise
+    // If a lead is found, it's a duplicate; otherwise, it's not
+    return res.status(200).json({ isDuplicate: !!lead });
   } catch (error) {
     // Handle any errors that occur during the process
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+
 
 async function getLeastAndNextLeastAllocatedCounselors(productType) {
   try {
