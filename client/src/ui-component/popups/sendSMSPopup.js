@@ -18,9 +18,40 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import config from '../../config';
 import { useAuthContext } from '../../context/useAuthContext';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
+  
   // const [message, setMessage] = useState('');
+
+  const Toast = withReactContent(
+    Swal.mixin({
+      toast: true,
+      position: 'bottom-end',
+      iconColor: 'white',
+      customClass: {
+        popup: 'colored-toast'
+      },
+      showConfirmButton: false,
+      timer: 3500,
+      timerProgressBar: true
+    })
+  );
+
+  const showMessageSuccessSwal = () => {
+    Toast.fire({
+      icon: 'success',
+      title: 'Message Sent Successfully.'
+    });
+  };
+  const showMessageErrorSwal = () => {
+    Toast.fire({
+      icon: 'error',
+      title: 'Error sending message.'
+    });
+  };
+
   const { user } = useAuthContext();
 
   const handleClose = () => {
@@ -58,9 +89,11 @@ const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
       }
       // setLoading(false);
       console.log('SMS sent successfully');
+      showMessageSuccessSwal();
     } catch (error) {
       console.error(error);
       setSubmitting(false);
+      showMessageErrorSwal();
     }
     // setMessage('');
     console.log('SMS sent successfully');

@@ -17,6 +17,7 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 const ODD_OPACITY = 0.2;
 
@@ -95,6 +96,35 @@ export default function ViewUsers() {
       setError(error);
       setLoading(false);
     }
+  };
+
+  const Toast = withReactContent(
+    Swal.mixin({
+      toast: true,
+      position: 'bottom-end',
+      iconColor: 'white',
+      customClass: {
+        popup: 'colored-toast'
+      },
+      showConfirmButton: false,
+      timer: 3500,
+      timerProgressBar: true
+    })
+  );
+
+  const showSuccessSwal = () => {
+    Toast.fire({
+      icon: 'success',
+      title: 'Deleted Successfull.'
+    });
+  };
+
+  // error showErrorSwal
+  const showErrorSwal = () => {
+    Toast.fire({
+      icon: 'error',
+      title: 'Error While Deleting.'
+    });
   };
 
   useEffect(() => {
@@ -227,10 +257,12 @@ export default function ViewUsers() {
         }
         return;
       }
+      showSuccessSwal();
       fetchData();
     } catch (error) {
       console.error(error);
       setError(error);
+      showErrorSwal();
     } finally {
       setIsDeleting(false);
     }

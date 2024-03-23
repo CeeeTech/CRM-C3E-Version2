@@ -298,7 +298,7 @@ export default function ViewLeads() {
       }
     },
     {
-      field: 'email',
+      field: 'sms',
       headerName: '',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
@@ -1210,10 +1210,10 @@ export default function ViewLeads() {
                       console.log(params);
                       console.log(field);
 
-                      if (field === 'email') {
+                      if (field === 'sms') {
                         handleSendEmailClick(params);
                       } else {
-                        // Check if the clicked field is not 'counsellor', 'edit', or 'email'
+                        // Check if the clicked field is not 'counsellor', 'edit', or 'sms'
                         if (!(field === 'counsellor' || field === 'edit')) {
                           handleRowClick(params);
                         }

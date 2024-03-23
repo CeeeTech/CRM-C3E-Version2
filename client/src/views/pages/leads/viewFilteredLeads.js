@@ -20,6 +20,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import config from '../../../config';
 import { useLogout } from '../../../hooks/useLogout';
 import LeadDetailsPopup from '../../../ui-component/popups/LeadDetailsPopup';
+import SendSMSPopup from '../../../ui-component/popups/sendSMSPopup';
 import { Tooltip } from '@mui/material';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -27,6 +28,7 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
+import MessageIcon from '@mui/icons-material/Message';
 
 const ODD_OPACITY = 0.2;
 
@@ -227,6 +229,34 @@ export default function ViewLeads() {
           return <>{params.row.counsellor ? `Assigned to ${params.row.counsellor}` : 'Pending'}</>;
         }
       }
+    },
+    {
+      field: 'sms',
+      headerName: '',
+      description: 'This column has a value getter and is not sortable.',
+      sortable: false,
+      width: 50,
+      align: 'left',
+      renderCell: () => (
+        <Button
+          variant="contained"
+          // set purple as color
+          color="primary"
+          sx={{
+            borderRadius: '50%',
+            padding: '8px',
+            minWidth: 'unset',
+            width: '32px',
+            height: '32px',
+            backgroundColor: '#ffa500',
+            '&:hover': {
+              backgroundColor: '#ff8c00'
+            }
+          }}
+        >
+          <MessageIcon sx={{ fontSize: '18px' }} />
+        </Button>
+      )
     },
     // { field: 'assigned_at', headerName: 'Assigned At', width: 150 },
     {
@@ -469,7 +499,12 @@ export default function ViewLeads() {
   };
 
   const handleRowClick = (params) => {
-    setSelectedLead(params.row);
+    setSelectedLead({ type: 'leadDetails', data: params.row });
+    console.log(params.row);
+  };
+
+  const handleSendEmailClick = (params) => {
+    setSelectedLead({ type: 'sendEmail', data: params.row });
     console.log(params.row);
   };
 
@@ -653,8 +688,13 @@ export default function ViewLeads() {
                     console.log(params);
                     console.log(field);
 
-                    if (!(field == 'counsellor' || field == 'edit')) {
-                      handleRowClick(params);
+                    if (field === 'sms') {
+                      handleSendEmailClick(params);
+                    } else {
+                      // Check if the clicked field is not 'counsellor', 'edit', or 'sms'
+                      if (!(field === 'counsellor' || field === 'edit')) {
+                        handleRowClick(params);
+                      }
                     }
                   }}
                   initialState={{
@@ -675,7 +715,16 @@ export default function ViewLeads() {
               )}
             </Grid>
           </Grid>
-          <LeadDetailsPopup isOpen={!!selectedLead} onClose={() => setSelectedLead(null)} leadDetails={selectedLead} />
+          <LeadDetailsPopup
+            isOpen={selectedLead && selectedLead.type === 'leadDetails'}
+            onClose={() => setSelectedLead(null)}
+            leadDetails={selectedLead ? selectedLead.data : null}
+          />
+          <SendSMSPopup
+            isOpen={selectedLead && selectedLead.type === 'sendEmail'}
+            onClose={() => setSelectedLead(null)}
+            leadDetails={selectedLead ? selectedLead.data : null}
+          />
         </Grid>
       </MainCard>
     </>
