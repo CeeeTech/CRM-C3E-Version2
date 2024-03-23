@@ -15,7 +15,6 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import SearchIcon from '@mui/icons-material/Search';
-import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
@@ -26,6 +25,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import config from '../../../config';
 import { useLogout } from '../../../hooks/useLogout';
 import LeadDetailsPopup from '../../../ui-component/popups/LeadDetailsPopup';
+import SendSMSPopup from '../../../ui-component/popups/sendSMSPopup';
 import { Tooltip } from '@mui/material';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -33,7 +33,9 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import PersonIcon from '@mui/icons-material/Person';
+import MessageIcon from '@mui/icons-material/Message';
 
 const ODD_OPACITY = 0.2;
 
@@ -100,7 +102,7 @@ export default function ViewLeads() {
   const [counselors, setCounselors] = useState([]);
   const [adminCounselors, setAdminCounselors] = useState([]);
 
-  const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor','admin_counselor'].includes(userType?.name);
+  const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor', 'admin_counselor'].includes(userType?.name);
 
   const restorePrevious = async (leadID) => {
     try {
@@ -215,7 +217,7 @@ export default function ViewLeads() {
     { field: 'date', headerName: 'Date', flex: 0, width: 100, minWidth: 50 },
     { field: 'name', headerName: 'Student Name', flex: 0.5, width: 100, minWidth: 150 },
     { field: 'contact_no', headerName: 'Contact No', flex: 1, width: 100, minWidth: 150 },
-    { field: 'status', headerName: 'Status', flex: 1, width: 100, minWidth: 150 },
+    { field: 'status', headerName: 'Status', flex: 1, width: 100, minWidth: 130 },
     {
       field: 'course_code',
       headerName: 'Course',
@@ -295,13 +297,41 @@ export default function ViewLeads() {
         }
       }
     },
+    {
+      field: 'email',
+      headerName: '',
+      description: 'This column has a value getter and is not sortable.',
+      sortable: false,
+      width: 50,
+      align: 'left',
+      renderCell: () => (
+        <Button
+          variant="contained"
+          // set purple as color
+          color="primary"
+          sx={{
+            borderRadius: '50%',
+            padding: '8px',
+            minWidth: 'unset',
+            width: '32px',
+            height: '32px',
+            backgroundColor: '#ffa500',
+            '&:hover': {
+              backgroundColor: '#ff8c00'
+            }
+          }}
+        >
+          <MessageIcon sx={{ fontSize: '18px' }} />
+        </Button>
+      )
+    },
     // { field: 'assigned_at', headerName: 'Assigned At', width: 150 },
     {
       field: 'edit',
       headerName: '',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 135,
+      width: 125,
       align: 'right',
       renderCell: (params) => (
         <>
@@ -357,7 +387,14 @@ export default function ViewLeads() {
                 restorePrevious(params.row.id);
               }}
               style={{ marginLeft: '5px' }}
-              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px', backgroundColor: '#d1bd0a' }}
+              sx={{
+                borderRadius: '50%',
+                padding: '8px',
+                minWidth: 'unset',
+                width: '32px',
+                height: '32px',
+                backgroundColor: '#d1bd0a'
+              }}
             >
               <SettingsBackupRestoreIcon sx={{ fontSize: '18px', color: 'white' }} />
             </Button>
@@ -712,7 +749,12 @@ export default function ViewLeads() {
   };
 
   const handleRowClick = (params) => {
-    setSelectedLead(params.row);
+    setSelectedLead({ type: 'leadDetails', data: params.row });
+    console.log(params.row);
+  };
+
+  const handleSendEmailClick = (params) => {
+    setSelectedLead({ type: 'sendEmail', data: params.row });
     console.log(params.row);
   };
 
@@ -1147,7 +1189,7 @@ export default function ViewLeads() {
                       setData(allLeads);
                     }}
                   >
-                    <FilterAltOffIcon sx={{ fontSize: '18px' }} />
+                    <HighlightOffIcon sx={{ fontSize: '18px' }} />
                   </Button>
                 </Grid>
               </Grid>
@@ -1168,8 +1210,13 @@ export default function ViewLeads() {
                       console.log(params);
                       console.log(field);
 
-                      if (!(field == 'counsellor' || field == 'edit')) {
-                        handleRowClick(params);
+                      if (field === 'email') {
+                        handleSendEmailClick(params);
+                      } else {
+                        // Check if the clicked field is not 'counsellor', 'edit', or 'email'
+                        if (!(field === 'counsellor' || field === 'edit')) {
+                          handleRowClick(params);
+                        }
                       }
                     }}
                     initialState={{
@@ -1191,7 +1238,16 @@ export default function ViewLeads() {
               </Grid>
             </Grid>
           </Grid>
-          <LeadDetailsPopup isOpen={!!selectedLead} onClose={() => setSelectedLead(null)} leadDetails={selectedLead} />
+          <LeadDetailsPopup
+            isOpen={selectedLead && selectedLead.type === 'leadDetails'}
+            onClose={() => setSelectedLead(null)}
+            leadDetails={selectedLead ? selectedLead.data : null}
+          />
+          <SendSMSPopup
+            isOpen={selectedLead && selectedLead.type === 'sendEmail'}
+            onClose={() => setSelectedLead(null)}
+            leadDetails={selectedLead ? selectedLead.data : null}
+          />
         </Grid>
       </MainCard>
     </>
