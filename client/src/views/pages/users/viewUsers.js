@@ -16,6 +16,7 @@ import { useLogout } from '../../../hooks/useLogout';
 import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
+import Swal from 'sweetalert2';
 
 const ODD_OPACITY = 0.2;
 
@@ -173,6 +174,7 @@ export default function ViewUsers() {
             color="error"
             onClick={() => {
               // Handle delete logic here
+              handleDelete(params.row._id);
             }}
             style={{ marginLeft: '5px' }}
             sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
@@ -183,6 +185,47 @@ export default function ViewUsers() {
       )
     }
   ];
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this user!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, keep it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteUser([id]);
+      }
+    });
+  };
+
+  async function deleteUser(id) {
+    try {
+      const res = await fetch(config.apiUrl + `api/delete-user/${id}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        }
+
+        if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+          return;
+        }
+        return;
+      }
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      setError(error);
+    }
+  }
 
   function updateUser(userId) {
     console.log('clicked user id', userId);

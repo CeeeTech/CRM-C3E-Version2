@@ -172,7 +172,7 @@ export default function LeadForm() {
     try {
       // Check duplicate lead
       const checkDuplicate = await fetch(
-        config.apiUrl + `api/checkLead?courseName=${values.course}&branchName=${values.branch}&studentNIC=${values.nic}`,
+        config.apiUrl + `api/checkLead?courseName=${values.course}&branchName=${values.branch}&studentContact_no=${values.contact_no}`,
         {
           method: 'GET',
           headers: { Authorization: `Bearer ${user.token}` }
@@ -190,26 +190,26 @@ export default function LeadForm() {
 
       if (duplicateLead.isDuplicate) {
         console.log('Lead already exists');
-        showErrorSwal("Lead with the same student's NIC, course and branch already exists.");
+        showErrorSwal("Lead with the same student's course branch and contact number already exists.");
         return;
       }
 
       // Check if student already exists by NIC or email
-      const checkStudent = await fetch(config.apiUrl + `api/students?nic=${values.nic}&email=${values.email}`, {
+      const checkStudent = await fetch(config.apiUrl + `api/students?contact_no=${values.contact_no}`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${user.token}` }
       });
-
+      
       if (!checkStudent.ok) {
         console.error('Error checking existing student', checkStudent.statusText);
         return;
       }
-
+      
       const existingStudents = await checkStudent.json();
-
+      
       // Filter the array to get only the matched student
-      const matchedStudent = existingStudents.find((student) => student.nic === values.nic || student.email === values.email);
-
+      const matchedStudent = existingStudents.find((student) => student.contact_no === values.contact_no);
+      
       if (matchedStudent) {
         console.log('Matched Student:', matchedStudent);
         const { isConfirmed } = await Swal.fire({
@@ -334,7 +334,7 @@ export default function LeadForm() {
             contact_no: Yup.string()
               .matches(/^\+?\d{10,12}$/, 'Contact No should be 10 to 12 digits with an optional leading + sign')
               .required('Contact No is required'),
-            email: Yup.string().email('Invalid email format').required('Email is required'),
+            email: Yup.string().email('Invalid email format'),
             course: Yup.string().required('Course is required'),
             branch: Yup.string().required('Branch is required')
           })}
