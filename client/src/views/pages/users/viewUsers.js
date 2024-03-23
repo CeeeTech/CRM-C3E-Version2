@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import MainCard from 'ui-component/cards/MainCard';
-import { useMediaQuery, Typography, TextField, InputAdornment, MenuItem, Button } from '@mui/material';
+import { useMediaQuery, Typography, TextField, InputAdornment, MenuItem, Button, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ModeIcon from '@mui/icons-material/Mode';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -49,6 +49,7 @@ export default function ViewUsers() {
   const { user } = useAuthContext();
   const { permissions } = user || {};
   const [userTypes, setUserTypes] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState('');
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -179,7 +180,12 @@ export default function ViewUsers() {
             style={{ marginLeft: '5px' }}
             sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
           >
-            <DeleteIcon sx={{ fontSize: '18px' }} />
+            {isDeleting ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                <DeleteIcon sx={{ fontSize: '18px' }} />
+              )}
+           
           </Button>
         </>
       )
@@ -202,6 +208,7 @@ export default function ViewUsers() {
   };
 
   async function deleteUser(id) {
+    setIsDeleting(true);
     try {
       const res = await fetch(config.apiUrl + `api/delete-user/${id}`, {
         method: 'PUT',
@@ -224,6 +231,8 @@ export default function ViewUsers() {
     } catch (error) {
       console.error(error);
       setError(error);
+    } finally {
+      setIsDeleting(false);
     }
   }
 

@@ -15,6 +15,7 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import SearchIcon from '@mui/icons-material/Search';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
@@ -32,7 +33,6 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import PersonIcon from '@mui/icons-material/Person';
 
 const ODD_OPACITY = 0.2;
@@ -1147,7 +1147,7 @@ export default function ViewLeads() {
                       setData(allLeads);
                     }}
                   >
-                    <HighlightOffIcon sx={{ fontSize: '18px' }} />
+                    <FilterAltOffIcon sx={{ fontSize: '18px' }} />
                   </Button>
                 </Grid>
               </Grid>

@@ -353,7 +353,7 @@ async function getCounsellors(req, res) {
 
   if (user_type_document[0]._id != null) {
     try {
-      const users = await User.find({ user_type: user_type_document[0]._id });
+      const users = await User.find({ user_type: user_type_document[0]._id, status: true });
       const counsellorDetails = [];
 
       for (const counsellor of users) {
@@ -473,7 +473,7 @@ async function deleteUser(req, res) {
   try {
     const { id } = req.params;
 
-    // check if the id is valid object id
+    // check if the id is a valid object id
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({ error: "Invalid id" });
     }
@@ -491,7 +491,7 @@ async function deleteUser(req, res) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // make the product_type to null
+    // make the product_type null
     await User.findByIdAndUpdate(
       id,
       {
@@ -500,11 +500,18 @@ async function deleteUser(req, res) {
       { new: true }
     );
 
+    // Set all lead counsellor_id to null that are related to the user being deleted
+    await Lead.updateMany(
+      { counsellor_id: id },
+      { $set: { counsellor_id: null } }
+    );
+
     res.status(200).json({ user: updatedUser, message: "User deleted!" });
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
 
 module.exports = {
   getUsers,

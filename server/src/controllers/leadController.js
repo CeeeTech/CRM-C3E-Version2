@@ -1386,9 +1386,16 @@ async function assignLeadsToCounselors() {
   try {
     // Get leads with an assigned lead status
     const leadsWithAssignedStatus = await Lead.find({
-      assignment_id: { $exists: true },
-      status_id: "65ada2f8da40b8a3e87bda82",
-    });
+      $or: [
+        {
+          assignment_id: { $exists: true },
+          status_id: "65ada2f8da40b8a3e87bda82"
+        },
+        {
+          assignment_id: null
+        }
+      ]
+    });    
 
     const leadsToReassign = await Promise.all(
       leadsWithAssignedStatus.map(async (lead) => {
