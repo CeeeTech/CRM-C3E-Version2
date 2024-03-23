@@ -15,6 +15,7 @@ router.put("/updatePassword/:id", userController.updateUserByIdUsernamePassword)
 router.put("/update-user-password/:id", userController.updatePassword);
 router.patch("/update-user-byadmin/:id", userController.updateUserByIdUsernameEmailUserTypeProductType);
 router.get("/getAdminCounselors", userController.getAdminCounselors);
-router.get('/highest-achived-counselors/', userController.getHighestAchivedCounselors)
+router.get('/highest-achived-counselors/', userController.getHighestAchivedCounselors);
+router.put("/delete-user/:id", userController.deleteUser);
 
 module.exports = router;
