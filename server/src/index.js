@@ -1,5 +1,6 @@
 // const http = require("http");
 const https = require("https");
+const http = require("http");
 
 const fs = require("fs");
 const path = require("path");
@@ -28,7 +29,7 @@ process.env.TZ = "Asia/Colombo";
 const app = express();
 app.use(cors());
 
-const port = 443;
+const port = 8081;
 
 // Use body-parser middleware
 app.use(bodyParser.json());
@@ -92,12 +93,12 @@ app.use("/api", counsellorAssignmentRoutes);
 app.use("/api", notificationRoutes);
 
 const httpsOptions = {
-  key: fs.readFileSync('/etc/letsencrypt/live/apicrmv2.sltc.ac.lk/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/apicrmv2.sltc.ac.lk/fullchain.pem')
+  key: fs.readFileSync(path.join(__dirname, "../server.key")),
+  cert: fs.readFileSync(path.join(__dirname, "../server.cert")),
 };
 
 // Create an HTTP server and listen on the specified port
-const server = https.createServer(httpsOptions,app);
+const server = http.createServer(app);
 const io = socketIo(server, {
   transports: ["polling"],
   cors: {
