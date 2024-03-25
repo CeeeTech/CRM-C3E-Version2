@@ -19,7 +19,9 @@ const folowUpRoutes = require("./routes/folowUpRoutes");
 const sourceRoutes = require("./routes/sourceRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const counsellorAssignmentRoutes = require("./routes/counsellorAssignmentRoutes");
-const messageTemplateRoutes = require("./routes/messageTemplateRoutes");
+const emailTemplateRoutes = require("./routes/messageTemplateRoutes");
+const referralRoutes = require("./routes/referralRoutes");
+// const productRoutes = require("./routes/productRoutes");
 const requireAuth = require("./middleware/requireAuth");
 const logFunctionExecution = require("./middleware/log");
 const socketIo = require("socket.io");
@@ -92,7 +94,9 @@ app.use("/api", folowUpRoutes);
 app.use("/api", sourceRoutes);
 app.use("/api", counsellorAssignmentRoutes);
 app.use("/api", notificationRoutes);
-app.use("/api", messageTemplateRoutes);
+app.use("/api", emailTemplateRoutes);
+app.use("/api", referralRoutes);
+// app.use("/api", productRoutes);
 
 const httpsOptions = {
   key: fs.readFileSync(path.join(__dirname, "../server.key")),

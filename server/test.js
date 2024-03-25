@@ -1,26 +1,58 @@
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient } = require('mongodb');
 
-async function updateDocuments() {
-  const client = new MongoClient('mongodb+srv://sltccrm:sltccrm@cluster-sltc-crm-paid.om94v.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
-  
+// Connection URI for source and destination MongoDB databases
+const sourceURI = 'mongodb+srv://techceee:techceee@stc-crm.zts10yh.mongodb.net/test-qa'; // Replace with your source DB URI
+const destURI = 'mongodb+srv://techceee:techceee@stc-crm.zts10yh.mongodb.net/test'; // Replace with your destination DB URI
+
+async function copyCollections() {
+  // Connect to source MongoDB database
+  const sourceClient = new MongoClient(sourceURI, { useNewUrlParser: true, useUnifiedTopology: true });
+  await sourceClient.connect();
+  const sourceDb = sourceClient.db();
+
+  // Connect to destination MongoDB database
+  const destClient = new MongoClient(destURI, { useNewUrlParser: true, useUnifiedTopology: true });
+  await destClient.connect();
+  const destDb = destClient.db();
+
   try {
-    await client.connect();
+    // Get a list of all collections in the source database
+    const collections = await sourceDb.listCollections().toArray();
 
-    const database = client.db('test');
-    const collection = database.collection('leads');
+    // Iterate over each collection
+    for (const collectionInfo of collections) {
+      const collectionName = collectionInfo.name;
 
-    // Update documents in the collection
-    const result = await collection.updateMany(
-      { }, // Match all documents
-      { $set: { "branch_id": new ObjectId("65bb379766d05053fd1dcd38") } } // Set the new branch_id
-    );
+      // Get the collection object from the source database
+      const collection = sourceDb.collection(collectionName);
 
-    console.log(`${result.modifiedCount} documents updated successfully.`);
-  } catch (error) {
-    console.error('Error updating documents:', error);
+      // Find all documents in the collection
+      const documents = await collection.find().toArray();
+
+      if (documents.length > 0) {
+        // If collection doesn't exist in destination DB, create it
+        if (!(await destDb.listCollections({ name: collectionName }).hasNext())) {
+          await destDb.createCollection(collectionName);
+        }
+
+        // Get the corresponding collection in the destination database
+        const destCollection = destDb.collection(collectionName);
+
+        // Insert documents into the destination collection
+        await destCollection.insertMany(documents);
+        console.log(`Copied ${documents.length} documents to collection '${collectionName}'`);
+      } else {
+        console.log(`Collection '${collectionName}' is empty, skipping...`);
+      }
+    }
+
+    console.log("All collections copied to the 'test' database.");
   } finally {
-    await client.close();
+    // Close connections
+    await sourceClient.close();
+    await destClient.close();
   }
 }
 
-updateDocuments();
+// Call the function to copy collections
+copyCollections().catch(console.error);

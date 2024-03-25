@@ -23,6 +23,10 @@ const UserForm = Loadable(lazy(() => import('views/pages/account/profile')));
 const FBHealth = Loadable(lazy(() => import('views/pages/settings/fbLeadsHealth')));
 const PageNotFound = Loadable(lazy(() => import('views/pages/page-not-found/page-not-found')));
 const BulkImport = Loadable(lazy(() => import('views/pages/leads/bulkImport')));
+const ViewReferral = Loadable(lazy(() => import('views/pages/referral/viewReferral')));
+const ProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm')));
+const UpdateProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm-update')));
+// const ViewProduct = Loadable(lazy(() => import('views/pages/productGroup/viewProduct')));
 
 export default function ThemeRoutes() {
   const { user } = useAuthContext();
@@ -67,6 +71,15 @@ export default function ThemeRoutes() {
           />
         </Route>
 
+        {/* Referral Section */}
+        <Route path="referrals" element={<Outlet />}>
+          <Route index element={permissions?.lead?.includes('read') ? <ViewReferral /> : <Navigate to="/app/access-denied" replace />} />
+          <Route
+            path="update"
+            element={permissions?.lead?.includes('update') ? <UpdateLead /> : <Navigate to="/app/access-denied" replace />}
+          />
+        </Route>
+
         {/* Courses Section */}
         <Route path="courses" element={<Outlet />}>
           <Route index element={permissions?.course?.includes('read') ? <ViewCourses /> : <Navigate to="/app/access-denied" replace />} />
@@ -89,6 +102,16 @@ export default function ThemeRoutes() {
             element={permissions?.user?.includes('update') ? <UpdateUser /> : <Navigate to="/app/access-denied" replace />}
           />
         </Route>
+
+        {/* Products Section
+        <Route path="products" element={<Outlet />}>
+          <Route index element={permissions?.course?.includes('create') ? <ViewProduct /> : <Navigate to="/app/access-denied" replace />} />
+          <Route path="add" element={permissions?.user?.includes('create') ? <ProductForm /> : <Navigate to="/app/access-denied" replace />} />
+          <Route
+            path="update"
+            element={permissions?.user?.includes('update') ? <UpdateProductForm /> : <Navigate to="/app/access-denied" replace />}
+          />
+        </Route> */}
 
         <Route path="settings" element={<Outlet />}>
           <Route
