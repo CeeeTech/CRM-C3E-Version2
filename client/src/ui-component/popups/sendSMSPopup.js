@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,7 +10,9 @@ import {
   Avatar,
   Divider,
   TextField,
-  CircularProgress
+  CircularProgress,
+  Select,
+  MenuItem
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import SendIcon from '@mui/icons-material/Send';
@@ -22,8 +24,9 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
-  
-  // const [message, setMessage] = useState('');
+  const [template, setTemplate] = useState('');
+  const [messageTemplate, setMessageTemplate] = useState('');
+  const [message, setMessage] = useState('');
 
   const Toast = withReactContent(
     Swal.mixin({
@@ -56,18 +59,71 @@ const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
 
   const handleClose = () => {
     onClose();
+    handleClearForm(); // Reset on close
+  };
+
+  // fetch message template from server
+  async function fetchMessageTemplate() {
+    try {
+      const res = await fetch(config.apiUrl + 'api/messageTemplates', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        }
+
+        if (res.status === 500) {
+          console.error('Internal Server Error.');
+
+          logout();
+          return;
+        }
+        return;
+      }
+      const data = await res.json();
+      console.log('data:', data);
+      setTemplate(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchMessageTemplate();
+  }, []);
+
+  let modifiedMessage;
+  const handleTemplateChange = (event, setFieldValue) => {
+    const selectedTemplate = event.target.value;
+    setMessageTemplate(selectedTemplate);
+    // Set message text box to the body of selected template if a template is selected
+    if (selectedTemplate) {
+      const selectedTemplateBody = template.find((item) => item._id === selectedTemplate)?.body || '';
+      modifiedMessage = selectedTemplateBody
+        .replace(/@studentName/g, leadDetails.name)
+        .replace(/@programName/g, leadDetails.course + ' course');
+      setMessage(modifiedMessage);
+      // Update Formik values as well
+      setFieldValue('message', modifiedMessage);
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const formData = {
       contact_no: values.contact_no,
-      message: values.message
+      message: messageTemplate ? message : values.message // If template selected, use template body, else use custom message
     };
     console.log('formData:', formData);
     try {
       const res = await fetch(config.apiUrl + 'api/sendCustomSMS', {
         method: 'POST',
-        headers: { 
+        headers: {
           Authorization: `Bearer ${user.token}`,
           'Content-Type': 'application/json' // Specify content type
         },
@@ -87,18 +143,21 @@ const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
         }
         return;
       }
-      // setLoading(false);
       console.log('SMS sent successfully');
       showMessageSuccessSwal();
+      // Clear message fields
+      handleClose();
     } catch (error) {
       console.error(error);
       setSubmitting(false);
       showMessageErrorSwal();
     }
-    // setMessage('');
-    console.log('SMS sent successfully');
-    setSubmitting(false);
-};
+  };
+
+  const handleClearForm = () => {
+    setMessageTemplate('');
+    setMessage('');
+  };
 
   if (!leadDetails) {
     return null;
@@ -119,7 +178,7 @@ const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
         })}
         onSubmit={handleSubmit}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, setFieldValue }) => (
           <form onSubmit={handleSubmit}>
             <DialogTitle>
               <Grid container alignItems="center" spacing={2}>
@@ -153,6 +212,27 @@ const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
                   />
                 </Grid>
                 <Grid item xs={12}>
+                  <Select
+                    value={messageTemplate}
+                    onChange={(event) => handleTemplateChange(event, setFieldValue)}
+                    fullWidth
+                    displayEmpty
+                    inputProps={{ 'aria-label': 'Select Template' }}
+                  >
+                    <MenuItem value="" disabled>
+                      Select Template
+                    </MenuItem>
+                    {template.map((item) => (
+                      <MenuItem key={item._id} value={item._id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <Button onClick={handleClearForm} color="secondary">
+                    Clear
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
                   <TextField
                     label="Message"
                     variant="outlined"
@@ -160,7 +240,7 @@ const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
                     multiline
                     rows={4}
                     name="message"
-                    value={values.message}
+                    value={messageTemplate ? message : values.message}
                     onBlur={handleBlur}
                     onChange={handleChange}
                     error={Boolean(touched.message && errors.message)}
@@ -174,7 +254,12 @@ const SendSMSPopup = ({ isOpen, onClose, leadDetails }) => {
               <Button onClick={handleClose} color="primary">
                 Cancel
               </Button>
-              <Button endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <SendIcon />} type="submit" color="primary">
+              <Button
+                endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
+                type="submit"
+                color="primary"
+                disabled={isSubmitting || (!messageTemplate && !values.message)}
+              >
                 Send
               </Button>
             </DialogActions>

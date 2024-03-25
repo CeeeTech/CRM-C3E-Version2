@@ -11,8 +11,8 @@ const studentSchema = new mongoose.Schema({
 
 // Add pre-save hook to handle "NaN-NaN-NaN" value for dob
 studentSchema.pre('save', function(next) {
-  if (this.dob === 'NaN-NaN-NaN') {
-    this.dob = null; // Set dob to null if it's "NaN-NaN-NaN"
+  if (isNaN(Date.parse(this.dob))) {
+    this.dob = null; // Set dob to null if it's not a valid date
   }
   next();
 });

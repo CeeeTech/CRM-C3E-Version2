@@ -23,7 +23,7 @@ const UserForm = Loadable(lazy(() => import('views/pages/account/profile')));
 const FBHealth = Loadable(lazy(() => import('views/pages/settings/fbLeadsHealth')));
 const PageNotFound = Loadable(lazy(() => import('views/pages/page-not-found/page-not-found')));
 const BulkImport = Loadable(lazy(() => import('views/pages/leads/bulkImport')));
-const ViewReferral = Loadable(lazy(() => import('views/pages/referral/viewReferral')));
+// const ViewReferral = Loadable(lazy(() => import('views/pages/referral/viewReferral')));
 // const ProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm')));
 // const UpdateProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm-update')));
 // const ViewProduct = Loadable(lazy(() => import('views/pages/productGroup/viewProduct')));
@@ -72,13 +72,13 @@ export default function ThemeRoutes() {
         </Route>
 
         {/* Referral Section */}
-        <Route path="referrals" element={<Outlet />}>
+        {/* <Route path="referrals" element={<Outlet />}>
           <Route index element={permissions?.lead?.includes('read') ? <ViewReferral /> : <Navigate to="/app/access-denied" replace />} />
           <Route
             path="update"
             element={permissions?.lead?.includes('update') ? <UpdateLead /> : <Navigate to="/app/access-denied" replace />}
           />
-        </Route>
+        </Route> */}
 
         {/* Courses Section */}
         <Route path="courses" element={<Outlet />}>

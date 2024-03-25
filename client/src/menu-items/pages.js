@@ -49,23 +49,23 @@ const pages = {
         },
       ]
     },
-    {
-      id: 'referrals',
-      title: 'Referrals',
-      type: 'collapse',
-      icon: icons.IconArticle,
-      children: [
-        {
-          id: 'view-referal',
-          title: 'View Referal',
-          type: 'item',
-          external: true,
-          url: '/app/referrals',
-          breadcrumbs: false
-        },
+    // {
+    //   id: 'referrals',
+    //   title: 'Referrals',
+    //   type: 'collapse',
+    //   icon: icons.IconArticle,
+    //   children: [
+    //     {
+    //       id: 'view-referal',
+    //       title: 'View Referal',
+    //       type: 'item',
+    //       external: true,
+    //       url: '/app/referrals',
+    //       breadcrumbs: false
+    //     },
        
-      ]
-    },
+    //   ]
+    // },
     {
       id: 'courses',
       title: 'Courses',
