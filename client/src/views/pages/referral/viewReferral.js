@@ -26,7 +26,7 @@ import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore
 import TimelineIcon from '@mui/icons-material/Timeline';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PersonIcon from '@mui/icons-material/Person';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 
 const ODD_OPACITY = 0.2;
 
@@ -594,7 +594,7 @@ export default function ViewReferral() {
                       setData(allLeads);
                     }}
                   >
-                    <HighlightOffIcon sx={{ fontSize: '18px' }} />
+                    <FilterAltOffIcon sx={{ fontSize: '18px' }} />
                   </Button>
                 </Grid>
               </Grid>
