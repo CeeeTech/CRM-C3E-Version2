@@ -33,7 +33,7 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import PersonIcon from '@mui/icons-material/Person';
 import MessageIcon from '@mui/icons-material/Message';
 
@@ -1189,7 +1189,7 @@ export default function ViewLeads() {
                       setData(allLeads);
                     }}
                   >
-                    <HighlightOffIcon sx={{ fontSize: '18px' }} />
+                    <FilterAltOffIcon sx={{ fontSize: '18px' }} />
                   </Button>
                 </Grid>
               </Grid>
