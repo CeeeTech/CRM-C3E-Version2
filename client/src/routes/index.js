@@ -24,8 +24,8 @@ const FBHealth = Loadable(lazy(() => import('views/pages/settings/fbLeadsHealth'
 const PageNotFound = Loadable(lazy(() => import('views/pages/page-not-found/page-not-found')));
 const BulkImport = Loadable(lazy(() => import('views/pages/leads/bulkImport')));
 const ViewReferral = Loadable(lazy(() => import('views/pages/referral/viewReferral')));
-const ProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm')));
-const UpdateProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm-update')));
+// const ProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm')));
+// const UpdateProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm-update')));
 // const ViewProduct = Loadable(lazy(() => import('views/pages/productGroup/viewProduct')));
 
 export default function ThemeRoutes() {
