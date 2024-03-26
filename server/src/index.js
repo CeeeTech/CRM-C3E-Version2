@@ -101,12 +101,12 @@ app.use("/api", referralRoutes);
 app.use("/api", reportRoutes);
 
 const httpsOptions = {
-  key: fs.readFileSync(path.join(__dirname, "../server.key")),
-  cert: fs.readFileSync(path.join(__dirname, "../server.cert")),
+  key: fs.readFileSync('/etc/letsencrypt/live/devapicrm.sltc.ac.lk/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/devapicrm.sltc.ac.lk/fullchain.pem')
 };
 
 // Create an HTTP server and listen on the specified port
-const server = http.createServer(app);
+const server = https.createServer(httpsOptions,app);
 const io = socketIo(server, {
   transports: ["polling"],
   cors: {
