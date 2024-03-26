@@ -23,6 +23,14 @@ const UserForm = Loadable(lazy(() => import('views/pages/account/profile')));
 const FBHealth = Loadable(lazy(() => import('views/pages/settings/fbLeadsHealth')));
 const PageNotFound = Loadable(lazy(() => import('views/pages/page-not-found/page-not-found')));
 const BulkImport = Loadable(lazy(() => import('views/pages/leads/bulkImport')));
+const ViewReports = Loadable(lazy(() => import('views/pages/reports/viewReports')));
+const LeadStatusAnalysisReport = Loadable(lazy(() => import('views/pages/reports/leadStatusAnalysisReport')));
+const LeadConversionRateReport = Loadable(lazy(() => import('views/pages/reports/leadConversionRateReport')));
+const LeadInteractionTimeReport = Loadable(lazy(() => import('views/pages/reports/leadInteractionTimeReport')));
+const LeadProgressReport = Loadable(lazy(() => import('views/pages/reports/leadProgressReport')));
+const LeadModuleInteractionReport = Loadable(lazy(() => import('views/pages/reports/leadModuleInteractionReport')));
+const ModuleInteractionReport = Loadable(lazy(() => import('views/pages/reports/moduleInteractionReport')));
+const AverageLeadConversionTimeReport = Loadable(lazy(() => import('views/pages/reports/averageLeadConversionTimeReport')));
 // const ViewReferral = Loadable(lazy(() => import('views/pages/referral/viewReferral')));
 // const ProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm')));
 // const UpdateProductForm = Loadable(lazy(() => import('views/pages/productGroup/productForm-update')));
@@ -100,6 +108,47 @@ export default function ThemeRoutes() {
           <Route
             path="update"
             element={permissions?.user?.includes('update') ? <UpdateUser /> : <Navigate to="/app/access-denied" replace />}
+          />
+        </Route>
+
+        {/* Reports Section */}
+        <Route path="reports" element={<Outlet />}>
+          <Route index element={permissions?.lead?.includes('read-all') ? <ViewReports /> : <Navigate to="/app/access-denied" replace />} />
+          <Route
+            path="viewReports"
+            element={permissions?.lead?.includes('read-all') ? <ViewReports /> : <Navigate to="/app/access-denied" replace />}
+          />
+          <Route
+            path="leadStatusAnalysisReport"
+            element={permissions?.lead?.includes('read-all') ? <LeadStatusAnalysisReport /> : <Navigate to="/app/access-denied" replace />}
+          />
+          <Route
+            path="leadConversionRateReport"
+            element={permissions?.lead?.includes('read-all') ? <LeadConversionRateReport /> : <Navigate to="/app/access-denied" replace />}
+          />
+          <Route
+            path="leadInteractionTimeReport"
+            element={permissions?.lead?.includes('read-all') ? <LeadInteractionTimeReport /> : <Navigate to="/app/access-denied" replace />}
+          />
+          <Route
+            path="leadProgressReport"
+            element={permissions?.lead?.includes('read-all') ? <LeadProgressReport /> : <Navigate to="/app/access-denied" replace />}
+          />
+          <Route
+            path="leadModuleInteractionReport"
+            element={
+              permissions?.lead?.includes('read-all') ? <LeadModuleInteractionReport /> : <Navigate to="/app/access-denied" replace />
+            }
+          />
+          <Route
+            path="moduleInteractionReport"
+            element={permissions?.lead?.includes('read-all') ? <ModuleInteractionReport /> : <Navigate to="/app/access-denied" replace />}
+          />
+          <Route
+            path="averageLeadConversionTimeReport"
+            element={
+              permissions?.lead?.includes('read-all') ? <AverageLeadConversionTimeReport /> : <Navigate to="/app/access-denied" replace />
+            }
           />
         </Route>
 

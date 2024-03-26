@@ -394,7 +394,7 @@ export default function LeadForm() {
               course: values?.course || '',
               date: values?.date || '',
               branch: values?.branch || '',
-              dob: values?.dob || '',
+              dob: values?.dob === 'NaN-NaN-NaN' ? '' : values?.dob || '',
               scheduled_to: values?.scheduled_to || ''
             }}
             validationSchema={Yup.object().shape({
@@ -477,9 +477,9 @@ export default function LeadForm() {
                           margin="normal"
                           name="dob"
                           type="date"
-                          onBlur={handleBlur}
                           onChange={handleChange}
                           value={values.dob}
+                          onBlur={handleBlur}
                           error={Boolean(touched.dob && errors.dob)}
                           helperText={touched.dob && errors.dob}
                           InputProps={{
@@ -491,7 +491,6 @@ export default function LeadForm() {
                           }}
                         />
                       </Grid>
-
                       <Grid item xs={12} sm={6}>
                         <Typography variant="h5" component="h5">
                           Email

@@ -1,8 +1,21 @@
-const express = require('express')
-const reportController = require('../controllers/reportController')
+const express = require("express");
+const reportController = require("../controllers/reportController");
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/reports', reportController.getAllReports)
+router.get("/reports", reportController.getAllReports);
+router.get("/repleads", reportController.fetchLeads);
+router.get("/moduleinteraction", reportController.fetchInteraction);
 
-module.exports = router
+router.get("/sourcecount", reportController.sourceCount);
+router.get(
+  "/moduleinteractionbycounsellor/:counsellor_id",
+  reportController.fetchInteractionByCounsellor
+);
+router.get("/funcnames", reportController.countFunctionNames);
+router.get(
+  "/funcnamesbycounsellor/:counsellor_id",
+  reportController.countFunctionNamesbyCounsellor
+);
+
+module.exports = router;
