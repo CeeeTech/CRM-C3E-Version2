@@ -121,42 +121,42 @@ const LeadInteraction = () => {
 
   return (
     <>
-      {isLoading ? (
-        <SkeletonPopularCard />
-      ) : (
-        <MainCard title="Leads Interaction Time">
-          <Typography variant="body2" color="text.secondary">
-            The Leads Interaction Time chart illustrates the frequency of follow-ups made over weeks for various lead reference numbers.
-            Each line on the chart represents the follow-up count for a specific lead reference number over four weeks.
-          </Typography>
-          <Grid container spacing={gridSpacing}>
-            <Grid item xs={12} sx={{ mt: 2 }}>
-              <Grid container alignItems="center" justifyContent="space-between">
-                <Grid item>
-                  <Grid item xs={12} sm={12}>
-                    <Typography variant="h5" component="h5">
-                      Lead Reference No
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      name="lead Ref No"
-                      type="text"
-                      SelectProps={{ native: true }}
-                      defaultValue=""
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <SearchIcon />
-                          </InputAdornment>
-                        )
-                      }}
-                      onChange={handleSearch} // Call handleSearch on input change
-                    />
-                  </Grid>
+      <MainCard title="Leads Interaction Time">
+        <Typography variant="body2" color="text.secondary">
+          The Leads Interaction Time chart illustrates the frequency of follow-ups made over weeks for various lead reference numbers. Each
+          line on the chart represents the follow-up count for a specific lead reference number over four weeks.
+        </Typography>
+        <Grid container spacing={gridSpacing}>
+          <Grid item xs={12} sx={{ mt: 2 }}>
+            <Grid container alignItems="center" justifyContent="space-between">
+              <Grid item>
+                <Grid item xs={12} sm={12}>
+                  <Typography variant="h5" component="h5">
+                    Lead Reference No
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    name="lead Ref No"
+                    type="text"
+                    SelectProps={{ native: true }}
+                    defaultValue=""
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                    onChange={handleSearch} // Call handleSearch on input change
+                  />
                 </Grid>
               </Grid>
             </Grid>
+          </Grid>
+          {isLoading ? (
+            <SkeletonPopularCard />
+          ) : (
             <Grid item xs={12}>
               <LineChart
                 height={480}
@@ -247,9 +247,9 @@ const LeadInteraction = () => {
                 ]}
               />
             </Grid>
-          </Grid>
-        </MainCard>
-      )}
+          )}
+        </Grid>
+      </MainCard>
     </>
   );
 };
