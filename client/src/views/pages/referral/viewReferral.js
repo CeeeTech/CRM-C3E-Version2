@@ -3,11 +3,19 @@ import Grid from '@mui/material/Grid';
 import MainCard from 'ui-component/cards/MainCard';
 import { InputAdornment, TextField, useMediaQuery, Typography, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+// import FacebookIcon from '@mui/icons-material/Facebook';
+// import WorkspacesIcon from '@mui/icons-material/Workspaces';
+import TimelineIcon from '@mui/icons-material/Timeline';
+// import MonitorIcon from '@mui/icons-material/Monitor';
 import ModeIcon from '@mui/icons-material/Mode';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
+// import Autocomplete from '@mui/material/Autocomplete';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+// import InsertLinkIcon from '@mui/icons-material/InsertLink';
+// import AddIcon from '@mui/icons-material/Add';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import SearchIcon from '@mui/icons-material/Search';
+// import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { useEffect } from 'react';
@@ -16,17 +24,19 @@ import { useAuthContext } from '../../../context/useAuthContext';
 import LinearProgress from '@mui/material/LinearProgress';
 import config from '../../../config';
 import { useLogout } from '../../../hooks/useLogout';
-import LeadDetailsPopup from '../../../ui-component/popups/LeadDetailsPopup';
+import ReferralDetailsPopup from '../../../ui-component/popups/referralDetailsPopup';
+import SendSMSPopup from '../../../ui-component/popups/sendSMSPopup';
+// import PayPopup from '../../../ui-component/popups/PaymentPopup';
+// import { Tooltip } from '@mui/material';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import PersonIcon from '@mui/icons-material/Person';
-import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+// import PersonIcon from '@mui/icons-material/Person';
+import MessageIcon from '@mui/icons-material/Message';
 
 const ODD_OPACITY = 0.2;
 
@@ -46,7 +56,7 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
           theme.palette.primary.main,
           ODD_OPACITY + theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity
         ),
-
+        // Reset on touch devices, it doesn't add specificity
         '@media (hover: none)': {
           backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY + theme.palette.action.selectedOpacity)
         }
@@ -61,17 +71,75 @@ export default function ViewReferral() {
   const { permissions } = user || {};
   // const { userType } = user || {};
   const navigate = useNavigate();
+  // const { id } = useParams();
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
+  // const iconComponentMap = {
+  //   Facebook: <FacebookIcon color="primary" style={{ color: 'blue' }} />,
+  //   Manual: <MonitorIcon color="primary" style={{ color: 'green' }} />,
+  //   Internal: <TimelineIcon color="primary" style={{ color: 'orange' }} />,
+  //   Referral: <Diversity3Icon color="primary" style={{ color: 'green' }} />,
+  //   'Bulk Upload': <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
+  // };
+  const [courses, setCourses] = useState([]);
+    const [setSources] = useState([]);
+    const [allLeads,] = useState([]);
 
-  // const [allLeads, setAllLeads] = useState([]);
+  const [selectedCourse, setselectedCourse] = useState('');
+  const [setselectedSource] = useState('');
+  // const [selectedCounselor, setselectedCounselor] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [sname, setSname] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [status, setStatus] = useState([]);
   const [arrIds, setArrIds] = useState([]);
   const [data, setData] = useState([]);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [referrals, setReferrals] = useState([]);
+
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // const [counselors, setCounselors] = useState([]);
+  // const [adminCounselors, setAdminCounselors] = useState([]);
+
+  // const isAdminOrSupervisor = ['admin', 'sup_admin', 'gen_supervisor', 'admin_counselor'].includes(userType?.name);
+
+  const restorePrevious = async (leadID) => {
+    try {
+      console.log('my lead id', leadID);
+      const res = await fetch(config.apiUrl + 'api/lead-restore/', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${user.token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: leadID })
+      });
+      if (res.ok) {
+        const json = await res.json();
+        console.log(json);
+        setLoading(true);
+        showStatusRevesedSwal();
+        fetchLeads();
+      } else {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        } else if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+          return;
+        } else {
+          showErrorSwal2();
+          console.error('Error fetching sources:', res.statusText);
+        }
+        return;
+      }
+    } catch (error) {
+      showErrorSwal2();
+      console.error('Error fetching sources:', error.message);
+    }
+  };
 
   const Toast = withReactContent(
     Swal.mixin({
@@ -86,6 +154,33 @@ export default function ViewReferral() {
       timerProgressBar: true
     })
   );
+
+  // const showSuccessSwal = () => {
+  //   Toast.fire({
+  //     icon: 'success',
+  //     title: 'Assignment Successfull.'
+  //   });
+  // };
+  const showStatusRevesedSwal = () => {
+    Toast.fire({
+      icon: 'success',
+      title: 'Status Reversed Successfully.'
+    });
+  };
+  // error showErrorSwal
+  // const showErrorSwal = () => {
+  //   Toast.fire({
+  //     icon: 'error',
+  //     title: 'Error While Assigning.'
+  //   });
+  // };
+
+  const showErrorSwal2 = () => {
+    Toast.fire({
+      icon: 'error',
+      title: 'Error Occured.'
+    });
+  };
 
   const showSuccessSwalBulk = () => {
     Toast.fire({
@@ -115,15 +210,75 @@ export default function ViewReferral() {
     { field: 'course_name', headerName: 'Course', flex: 0.5, width: 100, minWidth: 100 },
     { field: 'status', headerName: 'Status', flex: 1, width: 100, minWidth: 150 },
     { field: 'agent_name', headerName: 'Agent Name', flex: 1, width: 100, minWidth: 150 },
-    { field: 'agent_con', headerName: 'Agent Contact num', flex: 1, width: 100, minWidth: 150 },
-    // { field: 'comment', headerName: 'Comment', flex: 1, width: 100, minWidth: 150 },
-
+    { field: 'agent_con', headerName: 'Agent Contact number', flex: 1, width: 100, minWidth: 150 },
+    // {
+    //   field: 'pay',
+    //   headerName: '',
+    //   description: 'This column has a value getter and is not sortable.',
+    //   sortable: false,
+    //   width: 120,
+    //   align: 'right',
+    //   renderCell: (params) => (
+    //     <>
+    //       <Button
+    //         variant="contained"
+    //         color="error"
+    //         onClick={() => {
+    //           setSelectedPayLead(params.row);
+    //         }}
+    //         sx={{
+    //           borderRadius: '5px',
+    //           padding: '4px',
+    //           minWidth: 'unset',
+    //           width: '60px',
+    //           height: '28px',
+    //           mt: 1,
+    //           color: 'white',
+    //           display: 'flex',
+    //           alignItems: 'center',
+    //           justifyContent: 'center'
+    //         }}
+    //       >
+    //         Pay
+    //       </Button>
+    //     </>
+    //   )
+    // },
+    {
+      field: 'email',
+      headerName: '',
+      description: 'This column has a value getter and is not sortable.',
+      sortable: false,
+      width: 50,
+      align: 'left',
+      renderCell: () => (
+        <Button
+          variant="contained"
+          // set purple as color
+          color="primary"
+          sx={{
+            borderRadius: '50%',
+            padding: '8px',
+            minWidth: 'unset',
+            width: '32px',
+            height: '32px',
+            backgroundColor: '#ffa500',
+            '&:hover': {
+              backgroundColor: '#ff8c00'
+            }
+          }}
+        >
+          <MessageIcon sx={{ fontSize: '18px' }} />
+        </Button>
+      )
+    },
+    // { field: 'assigned_at', headerName: 'Assigned At', width: 150 },
     {
       field: 'edit',
       headerName: '',
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 135,
+      width: 125,
       align: 'right',
       renderCell: (params) => (
         <>
@@ -179,7 +334,14 @@ export default function ViewReferral() {
                 restorePrevious(params.row.id);
               }}
               style={{ marginLeft: '5px' }}
-              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px', backgroundColor: '#d1bd0a' }}
+              sx={{
+                borderRadius: '50%',
+                padding: '8px',
+                minWidth: 'unset',
+                width: '32px',
+                height: '32px',
+                backgroundColor: '#d1bd0a'
+              }}
             >
               <SettingsBackupRestoreIcon sx={{ fontSize: '18px', color: 'white' }} />
             </Button>
@@ -216,69 +378,6 @@ export default function ViewReferral() {
     navigate('/app/leads/update?id=' + leadId);
   }
 
-  // async function fetchLeads() {
-  //   try {
-  //     const apiUrl = config.apiUrl + 'api/leads-details';
-  //     const res = await fetch(apiUrl, {
-  //       method: 'GET',
-  //       headers: { Authorization: `Bearer ${user.token}` }
-  //     });
-
-  //     if (!res.ok) {
-  //       if (res.status === 401) {
-  //         console.error('Unauthorized access. Logging out.');
-  //         logout();
-  //       } else if (res.status === 500) {
-  //         console.error('Internal Server Error.');
-  //         logout();
-  //         return;
-  //       } else {
-  //         console.error('Error fetching leads data', res.statusText);
-  //       }
-  //       return;
-  //     }
-
-  //     let leads = await res.json();
-
-  //     leads = leads.map((lead) => {
-  //       const student = lead.student_id || {};
-
-  //       return {
-  //         reference_number: lead.reference_number,
-  //         id: lead._id,
-  //         name: student.name || null,
-  //         contact_no: student.contact_no || null,
-  //         course: lead.course_id.name,
-  //         course_code: shortenCourseName(lead.course_id.name),
-  //         status: lead.status_id ? lead.status_id.name : null
-  //       };
-  //     });
-
-  //     if (permissions?.lead?.includes('read-all')) {
-  //       setData(leads);
-  //       setAllLeads(leads);
-  //       setLoading(false);
-  //       return;
-  //     } else if (permissions?.lead?.includes('read') && userType?.name === 'counselor') {
-  //       const filteredLeads = leads.filter((lead) => lead.counsellor_id === user._id);
-  //       setData(filteredLeads);
-  //       setAllLeads(filteredLeads);
-  //       setLoading(false);
-  //       return;
-  //     } else if (permissions?.lead?.includes('read') && userType?.name === 'user') {
-  //       const filteredLeads = leads.filter((lead) => lead.user_id === user._id);
-  //       setData(filteredLeads);
-  //       setAllLeads(filteredLeads);
-  //       setLoading(false);
-
-  //       return;
-  //     }
-  //   } catch (error) {
-  //     console.log('Error fetching leads:', error);
-  //   }
-  // }
-  //-------------------------------------------------------------newly added----------------------------------------------------------
-
   async function fetchReferrals() {
     try {
       const response = await fetch(config.apiUrl + 'api/getReferrals');
@@ -298,7 +397,8 @@ export default function ViewReferral() {
         agent_name: referral.referee_id ? referral.referee_id.full_name : '',
         agent_con: referral.referee_id ? referral.referee_id.contact_number : '',
         status: referral.ref_status_id ? referral.ref_status_id.name : ''
-      }));
+      }
+      ));
 
       setReferrals(mappedReferrals);
 
@@ -308,16 +408,216 @@ export default function ViewReferral() {
       setLoading(false);
     }
   }
-
-  console.log(referrals);
-  //---------------------------------------------------------------------------------------------------------------------------------
-  // useEffect(() => {
-  //   fetchLeads();
-  // }, []);
-
   useEffect(() => {
     fetchReferrals();
+    const fetchCourses = async () => {
+      try {
+        const res = await fetch(config.apiUrl + 'api/courses', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          setCourses(json);
+        } else {
+          if (res.status === 401) {
+            console.error('Unauthorized access. Logging out.');
+            logout();
+          } else if (res.status === 500) {
+            console.error('Internal Server Error.');
+            logout();
+            return;
+          } else {
+            console.error('Error fetching courses:', res.statusText);
+          }
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching courses:', error.message);
+      }
+    };
+    fetchCourses();
+    const fetchSources = async () => {
+      try {
+        const res = await fetch(config.apiUrl + 'api/source', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          setSources(json);
+        } else {
+          if (res.status === 401) {
+            console.error('Unauthorized access. Logging out.');
+            logout();
+          } else if (res.status === 500) {
+            console.error('Internal Server Error.');
+            logout();
+            return;
+          } else {
+            console.error('Error fetching sources:', res.statusText);
+          }
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching sources:', error.message);
+      }
+    };
+    fetchSources();
+  //   async function getCounselors() {
+  //     try {
+  //       const res = await fetch(config.apiUrl + 'api/getCounsellors', {
+  //         method: 'GET',
+  //         headers: { Authorization: `Bearer ${user.token}` }
+  //       });
+  //       if (!res.ok) {
+  //         if (res.status === 401) {
+  //           console.error('Unauthorized access. Logging out.');
+  //           logout();
+  //         } else if (res.status === 500) {
+  //           console.error('Internal Server Error.');
+  //           logout();
+  //           return;
+  //         } else {
+  //           console.error('Error fetching counselors:', res.statusText);
+  //         }
+  //         return;
+  //       }
+  //       const data = await res.json();
+  //       setCounselors(data);
+  //     } catch (error) {
+  //       console.log('Error fetching counselors:', error);
+  //     }
+  //   }
+  //   getCounselors();
+
+  //   async function getAdminCounselors() {
+  //     try {
+  //       const res = await fetch(config.apiUrl + 'api/getAdminCounselors', {
+  //         method: 'GET',
+  //         headers: { Authorization: `Bearer ${user.token}` }
+  //       });
+  //       if (!res.ok) {
+  //         if (res.status === 401) {
+  //           console.error('Unauthorized access. Logging out.');
+  //           logout();
+  //         } else if (res.status === 500) {
+  //           console.error('Internal Server Error.');
+  //           logout();
+  //           return;
+  //         } else {
+  //           console.error('Error fetching counselors:', res.statusText);
+  //         }
+  //         return;
+  //       }
+  //       const data = await res.json();
+  //       setAdminCounselors(data);
+  //     } catch (error) {
+  //       console.log('Error fetching counselors:', error);
+  //     }
+  //   }
+  //   getAdminCounselors();
+}, []);
+
+  async function fetchStatus() {
+    try {
+      const res = await fetch(config.apiUrl + 'api/status', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setStatus(json);
+      } else {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        } else if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+          return;
+        } else {
+          console.error('Error fetching status:', res.statusText);
+        }
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching status:', error.message);
+    }
+  }
+
+  useEffect(() => {
+    fetchStatus();
   }, []);
+
+  const sortLeads = () => {
+    const filteredLeads = allLeads.filter((lead) => {
+      const matchesCourse = checkMatch(lead.course, selectedCourse);
+      // const matchesSource = checkMatch(lead.source, selectedSource);
+      const matchesStatus = checkMatch(lead.status, selectedStatus);
+      const matchesDateRange = filterByDateRange(lead.date);
+      // const matchesCounselor = checkMatch(lead.counsellor, selectedCounselor);
+
+      return matchesCourse && matchesSource &&  matchesStatus && matchesDateRange;
+    });
+
+    setData(filteredLeads);
+  };
+
+  const checkMatch = (leadProperty, selectedProperty) => {
+    return selectedProperty ? leadProperty === selectedProperty : true;
+  };
+
+  const filterByDateRange = (leadDate) => {
+    if (!dateFrom && !dateTo) {
+      return true;
+    }
+
+    const leadDateObj = new Date(leadDate);
+    const fromDateObj = dateFrom ? new Date(dateFrom) : null;
+    const toDateObj = dateTo ? new Date(dateTo) : null;
+
+    if (fromDateObj && toDateObj) {
+      return leadDateObj >= fromDateObj && leadDateObj <= toDateObj;
+    } else if (fromDateObj) {
+      return leadDateObj >= fromDateObj;
+    } else if (toDateObj) {
+      return leadDateObj <= toDateObj;
+    } else {
+      return true;
+    }
+  };
+
+  // Call sortLeads whenever any filtering criteria changes
+  useEffect(() => {
+    sortLeads();
+  }, [ selectedStatus, dateFrom, dateTo]);
+
+  const sortDateRange = (fromDate, toDate) => {
+    const sortedLeads = allLeads.filter((lead) => {
+      const leadDate = new Date(lead.date);
+      const fromDateObj = fromDate ? new Date(fromDate) : null;
+      const toDateObj = toDate ? new Date(toDate) : null;
+
+      if (fromDate && toDate) {
+        return leadDate >= fromDateObj && leadDate <= toDateObj;
+      } else if (fromDate) {
+        return leadDate >= fromDateObj;
+      } else if (toDate) {
+        return leadDate <= toDateObj;
+      } else {
+        return true;
+      }
+    });
+    setData(sortedLeads);
+    console.log(sortedLeads);
+  };
+
+  // const sortSources = (source) => {
+  //   const sortedLeads = allLeads.filter((lead) => lead.source === source);
+  //   setData(sortedLeads);
+  //   console.log(sortedLeads);
+  // };
 
   const sortLeadsByField = (value) => {
     const sortedLeads = allLeads.filter((lead) => {
@@ -330,12 +630,40 @@ export default function ViewReferral() {
       );
     });
     setData(sortedLeads);
-    //console.log(sortedLeads);
+    console.log(sortedLeads);
   };
 
-  function handleButtonClick() {
-    navigate('/app/leads/add');
-  }
+  const sortCourses = (course) => {
+    const sortedLeads = allLeads.filter((lead) => lead.course === course);
+    setData(sortedLeads);
+    console.log(sortedLeads);
+  };
+
+  const sortStatus = (status) => {
+    const sortedLeads = allLeads.filter((lead) => lead.status === status);
+    setData(sortedLeads);
+    console.log(sortedLeads);
+  };
+
+  // const sortCounselors = (counselor) => {
+  //   const sortedLeads = allLeads.filter((lead) => lead.counsellor === counselor);
+  //   setData(sortedLeads);
+  //   console.log(sortedLeads);
+  // };
+
+  const handleRowClick = (params) => {
+    setSelectedLead({ type: 'referralDetails', data: params.row });
+    console.log(params.row);
+  };
+
+  const handleSendEmailClick = (params) => {
+    setSelectedLead({ type: 'sendEmail', data: params.row });
+    console.log(params.row);
+  };
+
+  // function handleButtonClick() {
+  //   navigate('/app/leads/add');
+  // }
 
   const handleDelete = () => {
     if (arrIds.length > 1) {
@@ -356,6 +684,44 @@ export default function ViewReferral() {
     }
   };
 
+  async function addToArchivedLeads() {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(config.apiUrl + 'api/leads-archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+        body: JSON.stringify({ ids: arrIds })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        console.log(json);
+        setLoading(true);
+        setArrIds([]);
+        fetchLeads();
+        showSuccessSwalBulk();
+      } else {
+        if (res.status === 401) {
+          console.error('Unauthorized access. Logging out.');
+          logout();
+        } else if (res.status === 500) {
+          console.error('Internal Server Error.');
+          logout();
+          return;
+        } else {
+          console.error('Error fetching sources:', res.statusText);
+          showErrorSwalBulk();
+        }
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching sources:', error.message);
+      showErrorSwalBulk();
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   async function addToSingleArchivedLead(ids) {
     setIsDeleting(true);
     try {
@@ -369,6 +735,7 @@ export default function ViewReferral() {
         const json = await res.json();
         console.log(json);
         setLoading(true);
+        fetchLeads();
         showSuccessSwalBulk();
       } else {
         if (res.status === 401) {
@@ -408,6 +775,8 @@ export default function ViewReferral() {
   };
 
   const handleExport = () => {
+    // need to export column data to excel
+    // console.log(data);
     const csvRows = [];
     const headers = Object.keys(data[0]);
     csvRows.push(headers.join(','));
@@ -432,21 +801,12 @@ export default function ViewReferral() {
 
   return (
     <>
-      <MainCard
+     <MainCard
         title="View Referrals"
         isDeleting={isDeleting}
         arrIds={arrIds}
         buttonLabel={
           permissions?.lead?.includes('create') ? (
-            <>
-              Add New Lead
-              <AddIcon style={{ marginLeft: '5px' }} /> {/* Adjust styling as needed */}
-            </>
-          ) : undefined
-        }
-        onButtonClick={handleButtonClick}
-        buttonLabelExport={
-          permissions?.lead?.includes('read-all') ? (
             <>
               <GetAppIcon style={{ fontSize: '25px' }} /> {/* Adjust styling as needed */}
             </>
@@ -499,82 +859,211 @@ export default function ViewReferral() {
                     }}
                   />
                 </Grid>
-
-                <Grid item xs={12} sm={2.5}>
+                <Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                  Course
+                    Course
                   </Typography>
                   <TextField
                     fullWidth
+                    // label="First Name"
                     margin="normal"
-                    name="search"
-                    type="text"
+                    name="course"
                     size="small"
+                    select
                     SelectProps={{ native: true }}
-                    value={sname}
+                    value={selectedCourse}
                     onChange={(event) => {
-                      const { value } = event.target;
-                      setSname(value);
-                      sortLeadsByField(value);
+                      setselectedCourse(event.target.value);
+                      console.log(event.target.value);
+                      sortCourses(event.target.value);
                     }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                        <AssignmentIcon />
+                          <AssignmentIcon />
                         </InputAdornment>
                       )
                     }}
+                  >
+                    <option value="" disabled></option>
+                    {courses && courses.length > 0 ? (
+                      courses.map((option) => (
+                        <option key={option._id} value={option.name}>
+                          {option.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>
+                        No Courses available
+                      </option>
+                    )}
+                  </TextField>
+                </Grid>
+                {/* <Grid item xs={12} sm={1.5}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                    Source
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    // label="First Name"
+                    margin="normal"
+                    name="media"
+                    size="small"
+                    select
+                    SelectProps={{ native: true }}
+                    value={selectedSource}
+                    onChange={(event) => {
+                      setselectedSource(event.target.value);
+                      sortSources(event.target.value);
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <InsertLinkIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                  >
+                    <option value="" disabled></option>
+                    {source && source.length > 0 ? (
+                      source.map((option) => (
+                        <option key={option._id} value={option.name}>
+                          {option.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>
+                        No Sources available
+                      </option>
+                    )}
+                  </TextField>
+                </Grid> */}
+                <Grid item xs={12} sm={1.5}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                    Status
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    // label="First Name"
+                    margin="normal"
+                    name="status"
+                    size="small"
+                    select
+                    SelectProps={{ native: true }}
+                    value={selectedStatus}
+                    onChange={(event) => {
+                      setSelectedStatus(event.target.value);
+                      sortStatus(event.target.value);
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <TimelineIcon />
+                        </InputAdornment>
+                      )
+                    }}
+                  >
+                    <option value="" disabled></option>
+                    {status && status.length > 0 ? (
+                      status.map((option) => (
+                        <option key={option._id} value={option.name}>
+                          {option.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>
+                        No Status available
+                      </option>
+                    )}
+                    {/* <option value="New">New</option>
+                    <option value="Registered">Registered</option>
+                    <option value="Dropped">Dropped</option>
+                    <option value="Next Intake">Next Intake</option>
+                    <option value="Send Mail">Send Mail</option>
+                    <option value="Ring No Answer">Ring No Answer</option>
+                    <option value="Shedule Meeting">Shedule Meeting</option>
+                    <option value="Fake">Fake</option>
+                    <option value="Duplicate">Duplicate</option>
+                    <option value="Course Details sent">Course Details sent</option>
+                    <option value="WhatsApp & SMS">WhatsApp & SMS</option> */}
+                  </TextField>
+                </Grid>
+                {/* {permissions?.lead?.includes('read-all') && (
+                  <Grid item xs={12} sm={1.5}>
+                    <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                      Counselor
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      // label="First Name"
+                      margin="normal"
+                      name="counselor"
+                      size="small"
+                      select
+                      SelectProps={{ native: true }}
+                      value={selectedCounselor}
+                      onChange={(event) => {
+                        setselectedCounselor(event.target.value);
+                        console.log(event.target.value);
+                        sortCounselors(event.target.value);
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <PersonIcon />
+                          </InputAdornment>
+                        )
+                      }}
+                    >
+                      <option value="" disabled></option>
+                      {counselors.concat(adminCounselors) && counselors.concat(adminCounselors).length > 0 ? (
+                        counselors.concat(adminCounselors).map((option) => (
+                          <option key={option.id} value={option.label}>
+                            {option.label}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="" disabled>
+                          No Counselors available
+                        </option>
+                      )}
+                    </TextField>
+                  </Grid>
+                )} */}
+                <Grid item xs={12} sm={1.5}>
+                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
+                    Date From
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    name="date"
+                    type="date"
+                    size="small"
+                    value={dateFrom}
+                    onChange={(event) => {
+                      const selectedDate = event.target.value;
+                      setDateFrom(selectedDate);
+                      sortDateRange(selectedDate, dateTo);
+                    }}
+                    InputLabelProps={{ shrink: true }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={2.5}>
+                <Grid item xs={12} sm={1.5}>
                   <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                  Status
+                    Date To
                   </Typography>
                   <TextField
                     fullWidth
                     margin="normal"
-                    name="search"
-                    type="text"
+                    name="date"
+                    type="date"
                     size="small"
-                    SelectProps={{ native: true }}
-                    value={sname}
+                    value={dateTo}
                     onChange={(event) => {
-                      const { value } = event.target;
-                      setSname(value);
-                      sortLeadsByField(value);
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                        <TimelineIcon />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={2.5}>
-                  <Typography variant="h6" component="h6" style={{ marginBottom: '-10px' }}>
-                  Counselor
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    name="search"
-                    type="text"
-                    size="small"
-                    SelectProps={{ native: true }}
-                    value={sname}
-                    onChange={(event) => {
-                      const { value } = event.target;
-                      setSname(value);
-                      sortLeadsByField(value);
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                         <PersonIcon />
-                        </InputAdornment>
-                      )
+                      const selectedDate = event.target.value;
+                      setDateTo(selectedDate);
+                      sortDateRange(dateFrom, selectedDate);
                     }}
                   />
                 </Grid>
@@ -585,7 +1074,7 @@ export default function ViewReferral() {
                     sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
                     onClick={() => {
                       setselectedCourse('');
-                     
+                      setselectedSource('');
                       setselectedCounselor('');
                       setDateFrom('');
                       setDateTo('');
@@ -594,11 +1083,12 @@ export default function ViewReferral() {
                       setData(allLeads);
                     }}
                   >
-                    <FilterAltOffIcon sx={{ fontSize: '18px' }} />
+                    <HighlightOffIcon sx={{ fontSize: '18px' }} />
                   </Button>
                 </Grid>
               </Grid>
             </Grid>
+
             <Grid container sx={{ marginTop: '2px' }} alignItems="flex-start" spacing={matchDownSM ? 0 : 2}>
               <Grid alignItems="flex-start" item xs={12} sm={12}>
                 {!loading && (
@@ -614,8 +1104,13 @@ export default function ViewReferral() {
                       console.log(params);
                       console.log(field);
 
-                      if (!(field == 'counsellor' || field == 'edit')) {
-                        handleRowClick(params);
+                      if (field === 'email') {
+                        handleSendEmailClick(params);
+                      } else {
+                        // Check if the clicked field is not 'counsellor', 'edit', or 'email'
+                        if (!(field === 'counsellor' || field === 'edit')) {
+                          handleRowClick(params);
+                        }
                       }
                     }}
                     initialState={{
@@ -637,10 +1132,18 @@ export default function ViewReferral() {
               </Grid>
             </Grid>
           </Grid>
-          <LeadDetailsPopup isOpen={!!selectedLead} onClose={() => setSelectedLead(null)} leadDetails={selectedLead} />
+          <ReferralDetailsPopup
+           isOpen={selectedLead && selectedLead.type === 'referralDetails'}
+           onClose={() => setSelectedLead(null)} 
+           referralDetails={selectedLead ? selectedLead.data : null} 
+           />
+          <SendSMSPopup
+            isOpen={selectedLead && selectedLead.type === 'sendEmail'}
+            onClose={() => setSelectedLead(null)}
+            leadDetails={selectedLead ? selectedLead.data : null}
+          />
         </Grid>
       </MainCard>
     </>
   );
 }
-//new update
