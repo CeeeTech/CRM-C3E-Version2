@@ -4,6 +4,8 @@ const Status = require("../models/status");
 const User = require("../models/user");
 const Lead = require("../models/lead");
 const moment = require("moment-timezone");
+const Referral = require("../models/referral");
+console.log;
 
 //get all followUps
 async function getFollowUps(req, res) {
@@ -11,12 +13,11 @@ async function getFollowUps(req, res) {
     const follow_up = await FollowUp.find();
     res.status(200).json(follow_up);
   } catch (error) {
-    console.log("Error fetchong follow_up", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
 
-//add new followup
+  //add new followup
 async function addFollowUp(req, res) {
   const { lead_id, user_id, status, comment } = req.body;
 
@@ -25,18 +26,14 @@ async function addFollowUp(req, res) {
     return res.status(400).json({ error: "no such lead" });
   }
 
-  // Check if status exists in the status table; the passed status is the id of the status
-  // else if (!mongoose.Types.ObjectId.isValid(status)) {
-  //   return res.status(400).json({ error: "no such status" });
-  // }
-
   // Check if user exists in the user table
   else if (!mongoose.Types.ObjectId.isValid(user_id)) {
     return res.status(400).json({ error: "no such user" });
   }
+
   const statusdoc = await Status.findOne({ name: status });
   if (!statusdoc) {
-    console.log("Error fetching status:");
+    return res.status(400).json({ error: "no such status" });
   }
 
   let date = new Date();
@@ -46,7 +43,6 @@ async function addFollowUp(req, res) {
   const customDateUTC = new Date(
     moment.tz(date, targetTimeZone).format("YYYY-MM-DDTHH:mm:ss[Z]")
   ); // Replace with your desired date and time in UTC
-  console.log("Converted Date:", customDateUTC);
 
   try {
     const newFollowUp = await FollowUp.create({
@@ -57,13 +53,23 @@ async function addFollowUp(req, res) {
       date: customDateUTC,
     });
 
-    const leadDoc = await Lead.findById({ _id: lead_id });
+    // Update the lead status
+    const leadDoc = await Lead.findById(lead_id);
     leadDoc.status_id = statusdoc._id;
     await leadDoc.save();
 
+    // Only update the referral if the status is valid and exists in the referral collection
+    if (statusdoc && (await Referral.findOne({ ref_status_id: statusdoc._id }))){
+      const referral = await Referral.findOne({ reference_number: leadDoc.reference_number });
+      if (referral) {
+        const statusId = (await Status.findOne({ name: statusdoc.name }))._id;
+        referral.ref_status_id = statusId;
+        await referral.save();
+      }
+    }
+
     return res.status(200).json(newFollowUp);
   } catch (error) {
-    console.log("Error adding follow-up", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -74,30 +80,60 @@ async function updateFollowUp(req, res) {
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     res.status(400).json({ error: "no such follow up" });
+    return; // Return to exit the function
   }
 
-  const followup = await FollowUp.findByIdAndUpdate(
-    { _id: id },
-    {
-      ...req.body,
+  try {
+    const followup = await FollowUp.findByIdAndUpdate(
+      { _id: id },
+      { ...req.body }
+    );
+
+    if (!followup) {
+      res.status(400).json({ error: "no such follow up" });
+      return; // Return to exit the function
     }
-  );
 
-  if (!followup) {
-    res.status(400).json({ error: "no such follow up" });
+    // Update lead status
+    const leadId = req.body.lead_id;
+    const statusdoc = await Status.findOne({ name: req.body.status });
+    if (statusdoc) { // Only update the lead status if the status is valid
+      const leadDoc = await Lead.findById({ _id: leadId }); // Get the lead document using the correct leadId
+      leadDoc.status_id = statusdoc._id;
+      await leadDoc.save(); // Save the lead document after updating its status_id
+
+      // Only update the referral if the status is valid and exists in the referral collection
+      if (await Referral.findOne({ ref_status_id: statusdoc._id })) {
+        const referral = await Referral.findOne({ reference_number: leadDoc.reference_number });
+        if (referral) {
+          const statusId = (await Status.findOne({ name: statusdoc.name }))._id;
+          referral.ref_status_id = statusId;
+          await referral.save();
+        }
+      }
+    }
+
+    res.status(200).json(followup);
+  } catch (error){
+    res.status(500).json({ error: "Internal Server Error" });
   }
-
-  const leadId = req.body.lead_id;
-  const status = req.body.status;
-  console.log(leadId);
-  console.log(status);
-
-  const leadDoc = await Lead.findById({ _id: leadId });
-  leadDoc.status_id = status;
-  await leadDoc.save();
-
-  res.status(200).json(followup);
 }
+
+//status
+// {
+//   "_id": {
+//     "$oid": "65ada308da40b8a3e87bda83"
+//   },
+//   "name": "Registered"
+// }
+
+// refstatus
+// {
+//   "_id": {
+//     "$oid": "65df15b064095f32c9c187da"
+//   },
+//   "name": "registered"
+// }
 
 //get followup
 async function getFollowUp(req, res) {
@@ -150,7 +186,6 @@ async function getFollowUpsByLead(req, res) {
     }
     res.status(200).json(followUpDetails);
   } catch (error) {
-    console.log("Error fetching follow-ups by lead_id", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -190,6 +225,9 @@ async function getFollowUpDate(req, res) {
     const ringNoAnswerCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Ring no answer"
     ).length;
+    const registeredCount = Object.values(filteredFollowUp).filter(
+      (item) => item.status_id.name === "Registered"
+    ).length;
     const emailCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Sent Email"
     ).length;
@@ -205,24 +243,18 @@ async function getFollowUpDate(req, res) {
     const nextintakeCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Next intake"
     ).length;
-    const registeredFollowUps = Object.values(filteredFollowUp).filter(
-      (item) => item.status_id.name === "Registered"
-    );
-    const registeredCount = registeredFollowUps.length;
-
-    // Filtering out pending leads
-    const pendingFollowUps = Object.values(filteredFollowUp).filter(
-      (item) =>
-        ![
-          "Ring no answer",
-          "Scheduled meeting",
-          "Whatsapp & sms",
-          "Sent Email",
-          "Course details sent",
-          "Next intake",
-        ].includes(item.status_id.name)
-    );
-    const pendingCount = pendingFollowUps.length;
+    const droppedCount = Object.values(filteredFollowUp).filter(
+      (item) => item.status_id.name === "Dropped"
+    ).length;
+    const fakeCount = Object.values(filteredFollowUp).filter(
+      (item) => item.status_id.name === "Fake"
+    ).length;
+    const duplicateCount = Object.values(filteredFollowUp).filter(
+      (item) => item.status_id.name === "Duplicate"
+    ).length;
+    const NewCount = Object.values(filteredFollowUp).filter(
+      (item) => item.status_id.name === "New"
+    ).length;
 
     const resultCount = {
       ringNoAnswerCount: ringNoAnswerCount,
@@ -232,12 +264,16 @@ async function getFollowUpDate(req, res) {
       meetingCount: meetingCount,
       cousedetailsCount: cousedetailsCount,
       nextintakeCount: nextintakeCount,
-      pendingCount: pendingCount,
+      droppedCount: droppedCount,
+      fakeCount: fakeCount,
+      duplicateCount: duplicateCount,
+      NewCount: NewCount,
     };
+
+    // console.log(resultCount);
 
     res.status(200).json(resultCount);
   } catch (error) {
-    console.log("Error fetching follow_up", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -290,7 +326,7 @@ async function getFollowUpDateByUser(req, res) {
       (item) => item.status_id.name === "Whatsapp & sms"
     ).length;
     const meetingCount = Object.values(filteredFollowUp).filter(
-      (item) => item.status_id.name === "Schedule meetings"
+      (item) => item.status_id.name === "Scheduled meeting"
     ).length;
     const cousedetailsCount = Object.values(filteredFollowUp).filter(
       (item) => item.status_id.name === "Course details sent"
@@ -329,7 +365,6 @@ async function getFollowUpDateByUser(req, res) {
 
     res.status(200).json(resultCount);
   } catch (error) {
-    console.log("Error fetching follow_up", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -340,8 +375,6 @@ async function getFollowUpDate(req, res) {
 
     followUps = await Lead.find().populate("status_id").exec();
     // console.log("counsellor exec", followUps);
-
-    console.log("followups", followUps);
 
     // Counting the number of items with each status dynamically
     const resultCount = followUps.reduce((count, followUpItem) => {
@@ -355,7 +388,7 @@ async function getFollowUpDate(req, res) {
       registeredCount: resultCount["RegisteredCount"] || 0,
       emailCount: resultCount["Sent EmailCount"] || 0,
       whatsappCount: resultCount["Whatsapp & smsCount"] || 0,
-      meetingCount: resultCount["Schedule meetingsCount"] || 0,
+      meetingCount: resultCount["Scheduled meetingCount"] || 0,
       cousedetailsCount: resultCount["Course details sentCount"] || 0,
       nextintakeCount: resultCount["Next intakeCount"] || 0,
       droppedCount: resultCount["DroppedCount"] || 0,
@@ -366,90 +399,12 @@ async function getFollowUpDate(req, res) {
 
     res.status(200).json(finalResult);
   } catch (error) {
-    console.log("Error fetching follow-up", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
-
-async function regSourceCount(req, res) {
-  try {
-    // Fetch registered leads with populated source_id
-    const registeredLeads = await Lead.find({
-      status_id: "65ada308da40b8a3e87bda83",
-    })
-      .populate("source_id", "name")
-      .exec();
-
-    // Initialize an object to store source counts
-    const sourceCounts = {};
-
-    // Iterate through registered leads to count each source
-    registeredLeads.forEach((lead) => {
-      const sourceName = lead.source_id ? lead.source_id.name : null;
-
-      if (sourceName) {
-        // Increment the count for the source
-        if (sourceCounts[sourceName]) {
-          sourceCounts[sourceName]++;
-        } else {
-          sourceCounts[sourceName] = 1;
-        }
-      }
-    });
-
-    res.status(200).json(sourceCounts);
-  } catch (error) {
-    console.log("Error fetching follow-up", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
-
-async function pendSourceCount(req, res) {
-  try {
-    // Define the status IDs for pending leads
-    const pendingStatusIds = [
-      "65ada367da40b8a3e87bda8a",
-      "65ada334da40b8a3e87bda86",
-      "65ada324da40b8a3e87bda85",
-      "65ada316da40b8a3e87bda84",
-      "65ada342da40b8a3e87bda87",
-      "65ada34eda40b8a3e87bda88",
-    ];
-
-    // Fetch pending leads with populated source_id
-    const pendingLeads = await Lead.find({
-      status_id: { $in: pendingStatusIds },
-    })
-      .populate("source_id", "name")
-      .exec();
-
-    // Initialize an object to store source counts
-    const sourceCounts = {};
-
-    // Iterate through pending leads to count each source
-    pendingLeads.forEach((lead) => {
-      const sourceName = lead.source_id ? lead.source_id.name : null;
-
-      if (sourceName) {
-        // Increment the count for the source
-        if (sourceCounts[sourceName]) {
-          sourceCounts[sourceName]++;
-        } else {
-          sourceCounts[sourceName] = 1;
-        }
-      }
-    });
-
-    res.status(200).json(sourceCounts);
-  } catch (error) {
-    console.log("Error fetching follow-up", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
 
 async function getCounselorFollowUpStatusCount(req, res) {
   const { user_id, user_type } = req.query;
-  console.log("followups", user_id, user_type);
 
   try {
     let followUps;
@@ -465,8 +420,6 @@ async function getCounselorFollowUpStatusCount(req, res) {
         .exec();
     }
 
-    console.log("followups", followUps);
-
     // Counting the number of items with each status dynamically
     const resultCount = followUps.reduce((count, followUpItem) => {
       const statusName = followUpItem.status_id?.name;
@@ -479,7 +432,7 @@ async function getCounselorFollowUpStatusCount(req, res) {
       registeredCount: resultCount["RegisteredCount"] || 0,
       emailCount: resultCount["Sent EmailCount"] || 0,
       whatsappCount: resultCount["Whatsapp & smsCount"] || 0,
-      meetingCount: resultCount["Schedule meetingsCount"] || 0,
+      meetingCount: resultCount["Scheduled meetingCount"] || 0,
       cousedetailsCount: resultCount["Course details sentCount"] || 0,
       nextintakeCount: resultCount["Next intakeCount"] || 0,
       droppedCount: resultCount["DroppedCount"] || 0,
@@ -490,135 +443,6 @@ async function getCounselorFollowUpStatusCount(req, res) {
 
     res.status(200).json(finalResult);
   } catch (error) {
-    console.log("Error fetching follow-up", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
-
-async function allfollowUpCountWeekly(req, res) {
-  try {
-    const follow_up = await Lead.find().populate("status_id").exec();
-
-    const weeklyCounts = {};
-
-    // Loop through each follow-up entry
-    follow_up.forEach((followUpItem) => {
-      const date = moment(followUpItem.date); // Convert date to moment object
-      const weekNumber = date.isoWeek(); // Get the week number of the year
-
-      // Increment the count for the corresponding week
-      weeklyCounts[`Week${weekNumber}`] =
-        (weeklyCounts[`Week${weekNumber}`] || 0) + 1;
-    });
-
-    // Fill in missing weeks with 0 count
-    const currentWeek = moment().isoWeek();
-    for (let i = 1; i <= currentWeek; i++) {
-      weeklyCounts[`Week${i}`] = weeklyCounts[`Week${i}`] || 0;
-    }
-
-    res.status(200).json(weeklyCounts);
-  } catch (error) {
-    console.log("Error fetching follow_up", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
-
-async function followUpCountWeekly(req, res) {
-  const { reference_number } = req.params;
-  try {
-    const follow_up = await Lead.find({ reference_number })
-      .populate("status_id")
-      .exec();
-
-    const weeklyCounts = {};
-
-    // Loop through each follow-up entry
-    follow_up.forEach((followUpItem) => {
-      const date = moment(followUpItem.date); // Convert date to moment object
-      const weekNumber = date.isoWeek(); // Get the week number of the year
-
-      // Increment the count for the corresponding week
-      weeklyCounts[`Week${weekNumber}`] =
-        (weeklyCounts[`Week${weekNumber}`] || 0) + 1;
-    });
-
-    // Fill in missing weeks with 0 count
-    const currentWeek = moment().isoWeek();
-    for (let i = 1; i <= currentWeek; i++) {
-      weeklyCounts[`Week${i}`] = weeklyCounts[`Week${i}`] || 0;
-    }
-
-    res.status(200).json(weeklyCounts);
-  } catch (error) {
-    console.log("Error fetching follow_up", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
-
-// Controller function to find count of "Registered" leads by week for a specific counsellor
-async function findRegisteredLeadsByWeek(req, res) {
-  const { counsellor_id } = req.params;
-
-  try {
-    // Filter leads based on the provided counsellor_id and status "Registered"
-    const leads = await Lead.find({
-      counsellor_id,
-      status_id: "65ada308da40b8a3e87bda83",
-    });
-
-    const weeklyCounts = {};
-
-    // Loop through each lead
-    leads.forEach((lead) => {
-      const date = moment(lead.date); // Convert date to moment object
-      const weekNumber = date.isoWeek(); // Get the week number of the year
-
-      // Increment the count for the corresponding week
-      weeklyCounts[`Week${weekNumber}`] =
-        (weeklyCounts[`Week${weekNumber}`] || 0) + 1;
-    });
-
-    // Fill in missing weeks with 0 count
-    const currentWeek = moment().isoWeek();
-    for (let i = 1; i <= currentWeek; i++) {
-      weeklyCounts[`Week${i}`] = weeklyCounts[`Week${i}`] || 0;
-    }
-
-    res.status(200).json(weeklyCounts);
-  } catch (error) {
-    console.error("Error fetching data:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
-async function allfindRegisteredLeadsByWeek(req, res) {
-  try {
-    // Filter leads based on the status "Registered"
-    const leads = await Lead.find({
-      status_id: "65ada308da40b8a3e87bda83", // Assuming "65ada308da40b8a3e87bda83" is the ID for "Registered" status
-    });
-
-    const weeklyCounts = {};
-
-    // Loop through each lead
-    leads.forEach((lead) => {
-      const date = moment(lead.date); // Convert date to moment object
-      const weekNumber = date.isoWeek(); // Get the week number of the year
-
-      // Increment the count for the corresponding week
-      weeklyCounts[`Week${weekNumber}`] =
-        (weeklyCounts[`Week${weekNumber}`] || 0) + 1;
-    });
-
-    // Fill in missing weeks with 0 count
-    const currentWeek = moment().isoWeek();
-    for (let i = 1; i <= currentWeek; i++) {
-      weeklyCounts[`Week${i}`] = weeklyCounts[`Week${i}`] || 0;
-    }
-
-    res.status(200).json(weeklyCounts);
-  } catch (error) {
-    console.error("Error fetching data:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -632,10 +456,4 @@ module.exports = {
   getFollowUpDate,
   getFollowUpDateByUser,
   getCounselorFollowUpStatusCount,
-  allfollowUpCountWeekly,
-  followUpCountWeekly,
-  findRegisteredLeadsByWeek,
-  regSourceCount,
-  pendSourceCount,
-  allfindRegisteredLeadsByWeek,
 };
