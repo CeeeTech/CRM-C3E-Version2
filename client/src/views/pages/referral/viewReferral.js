@@ -286,7 +286,7 @@ export default function ViewReferral() {
             variant="contained"
             color="primary"
             onClick={() => {
-              updateLead(params.row.id);
+              updateLead(params.row.leadId);
             }}
             sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
           >
@@ -298,7 +298,7 @@ export default function ViewReferral() {
               color="error"
               // when onclick is called, it should open a dialog to confirm the deletion of the lead. so here should pass the lead id to the handle delete
               onClick={() => {
-                handleSingleDelete(params.row.id);
+                handleSingleDelete(params.row.leadId);
               }}
               style={{ marginLeft: '5px' }}
               sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
@@ -314,7 +314,7 @@ export default function ViewReferral() {
                 variant="contained"
                 color="success"
                 onClick={() => {
-                  navigate('/app/leads/addfollowup?id=' + params.row.id);
+                  navigate('/app/leads/addfollowup?id=' + params.row.leadId);
                 }}
                 style={{ marginLeft: '5px' }}
                 sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px', backgroundColor: '#039116' }}
@@ -396,7 +396,8 @@ export default function ViewReferral() {
         mobile_number: referral.student_id ? referral.student_id.contact_no : '',
         agent_name: referral.referee_id ? referral.referee_id.full_name : '',
         agent_con: referral.referee_id ? referral.referee_id.contact_number : '',
-        status: referral.ref_status_id ? referral.ref_status_id.name : ''
+        status: referral.ref_status_id ? referral.ref_status_id.name : '',
+        leadId: referral.leadDetails ? referral.leadDetails._id : '',
       }
       ));
 

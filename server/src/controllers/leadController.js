@@ -1,4 +1,5 @@
 const Lead = require("../models/lead");
+const Referral = require("../models/referral");
 require("dotenv").config();
 const Course = require("../models/course");
 const Status = require("../models/status");
@@ -157,7 +158,7 @@ async function addLeadDefault(student_id, course_code, reference_number) {
     }
 
     // Fetch the Branch
-    branch_document = await Branch.findOne({ name: "Other" });
+    branch_document = await Branch.findOne({ name: "Main Branch - Padukka" });
 
     // Check if student exists in the student table
     if (!mongoose.Types.ObjectId.isValid(student_id)) {
@@ -325,12 +326,24 @@ async function archiveLeads(req, res) {
 
     // Delete the lead, student, and follow-up from the original tables
     await Lead.findByIdAndDelete(id);
-    // await Student.findByIdAndDelete(lead.student_id);
+    // get the source id of the "referral" source
+    const source = await Source.findOne({ name: "Referral" });
+    // if the source of the lead is "referral" then get the reference number of the lead
+    if (lead.source_id.equals(source._id)) {
+      const refNumber = lead.reference_number;
+      const referral = await Referral.findOne({ reference_number: refNumber });
+      // delete the referral
+      if (referral) {
+        await Referral.findByIdAndDelete(referral._id);
+      }
+    }
+    await Student.findByIdAndDelete(lead.student_id);
     await FollowUp.deleteMany({ lead_id: id });
   }
 
   res.status(200).json({ message: "Leads archived successfully" });
 }
+
 
 async function restoreLead(req, res) {
   const { id } = req.body;

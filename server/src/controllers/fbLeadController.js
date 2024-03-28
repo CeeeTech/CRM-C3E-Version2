@@ -182,7 +182,7 @@ async function addLead(student_id, course_name, formId, leadId) {
     }
 
     // Fetch the Branch
-    branch_document = await Branch.findOne({ name: "Other" });
+    branch_document = await Branch.findOne({ name: "Main Branch - Padukka" });
 
     // Check if student exists in the student table
     if (!mongoose.Types.ObjectId.isValid(student_id)) {

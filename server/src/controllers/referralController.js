@@ -208,8 +208,24 @@ async function getAllReferral(req, res) {
       .populate("referee_id")
       .populate("ref_status_id");
 
-    res.status(200).json({ referrals });
-    console.log("referrals", referrals);
+    const referralMap = new Map(); // Map to store lead details based on reference number
+
+    // Fetching lead details for each referral
+    for (const referral of referrals) {
+      const lead = await Lead.findOne({ reference_number: referral.reference_number });
+      referralMap.set(referral.reference_number, lead);
+    }
+
+    // Mapping lead details to referrals based on reference number
+    const referralWithLeadDetails = referrals.map(referral => {
+      return {
+        ...referral.toObject(),
+        leadDetails: referralMap.get(referral.reference_number) || null // Retrieve lead details from map
+      };
+    });
+
+    res.status(200).json({ referrals: referralWithLeadDetails });
+    console.log("referrals", referralWithLeadDetails);
   } catch (error) {
     console.error("Error getting referrals:", error);
     res.status(500).json({ error: "Internal Server Error" });
