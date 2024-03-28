@@ -285,22 +285,27 @@ async function archiveLeads(req, res) {
 
     const lead = await Lead.findById(id);
 
-    const student = await Student.findById(lead.student_id);
+    // Ensure lead is not null before accessing its properties
+    if (!lead) {
+      return res.status(404).json({ error: "Lead not found" });
+    }
+
+    // const student = await Student.findById(lead.student_id);
 
     const followUps = await FollowUp.find({ lead_id: id });
 
     // Create a new lead_archive entry
     const newLeadArchived = await LeadArchived.create({
-      date: lead.date,
-      scheduled_at: lead.scheduled_at,
-      scheduled_to: lead.scheduled_to,
-      course_id: lead.course_id,
-      branch_id: lead.branch_id,
-      student_id: lead.student_id,
-      user_id: lead.user_id,
-      source_id: lead.source_id,
-      reference_number: lead.reference_number,
-    });
+      date: lead.date || null,
+      scheduled_at: lead.scheduled_at || null,
+      scheduled_to: lead.scheduled_to || null,
+      course_id: lead.course_id || null,
+      branch_id: lead.branch_id || null,
+      student_id: lead.student_id || null,
+      user_id: lead.user_id || null,
+      source_id: lead.source_id || null,
+      reference_number: lead.reference_number || null,
+    });    
 
     // Create a new student_archive entry
     // const newStudentArchived = await StudentArchived.create({
@@ -329,11 +334,14 @@ async function archiveLeads(req, res) {
     // get the source id of the "referral" source
     const source = await Source.findOne({ name: "Referral" });
     // if the source of the lead is "referral" then get the reference number of the lead
-    if (lead.source_id.equals(source._id)) {
+    if (lead.source_id && lead.source_id.equals(source._id)) {
+      console.log("lead is a referral");
       const refNumber = lead.reference_number;
+      console.log("refNumber", refNumber);
       const referral = await Referral.findOne({ reference_number: refNumber });
       // delete the referral
       if (referral) {
+        console.log("deleting referral");
         await Referral.findByIdAndDelete(referral._id);
       }
     }
@@ -343,7 +351,6 @@ async function archiveLeads(req, res) {
 
   res.status(200).json({ message: "Leads archived successfully" });
 }
-
 
 async function restoreLead(req, res) {
   const { id } = req.body;

@@ -224,8 +224,11 @@ async function getAllReferral(req, res) {
       };
     });
 
-    res.status(200).json({ referrals: referralWithLeadDetails });
-    console.log("referrals", referralWithLeadDetails);
+    // Filter referrals to include only those with lead details available
+    const referralsWithNonNullLeadDetails = referralWithLeadDetails.filter(referral => referral.leadDetails !== null);
+
+    res.status(200).json({ referrals: referralsWithNonNullLeadDetails });
+    console.log("referrals", referralsWithNonNullLeadDetails);
   } catch (error) {
     console.error("Error getting referrals:", error);
     res.status(500).json({ error: "Internal Server Error" });

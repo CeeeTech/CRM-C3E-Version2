@@ -34,7 +34,7 @@ import { alpha, styled } from '@mui/material/styles';
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 // import PersonIcon from '@mui/icons-material/Person';
 import MessageIcon from '@mui/icons-material/Message';
 
@@ -82,8 +82,8 @@ export default function ViewReferral() {
   //   'Bulk Upload': <WorkspacesIcon color="primary" style={{ color: 'orange' }} />
   // };
   const [courses, setCourses] = useState([]);
-    const [setSources] = useState([]);
-    const [allLeads,] = useState([]);
+  const [setSources] = useState([]);
+  const [allLeads] = useState([]);
 
   const [selectedCourse, setselectedCourse] = useState('');
   const [setselectedSource] = useState('');
@@ -98,7 +98,6 @@ export default function ViewReferral() {
   const [arrIds, setArrIds] = useState([]);
   const [data, setData] = useState([]);
   const [referrals, setReferrals] = useState([]);
-
 
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -120,7 +119,7 @@ export default function ViewReferral() {
         console.log(json);
         setLoading(true);
         showStatusRevesedSwal();
-        fetchLeads();
+        fetchReferrals();
       } else {
         if (res.status === 401) {
           console.error('Unauthorized access. Logging out.');
@@ -200,6 +199,13 @@ export default function ViewReferral() {
     Toast.fire({
       icon: 'error',
       title: 'No Lead Selected.'
+    });
+  };
+
+  const showErrorSwalNoLeadToDisplay = () => {
+    Toast.fire({
+      icon: 'error',
+      title: 'Lead has been deleted from the system.'
     });
   };
 
@@ -375,7 +381,12 @@ export default function ViewReferral() {
 
   function updateLead(leadId) {
     console.log('clicked lead id', leadId);
-    navigate('/app/leads/update?id=' + leadId);
+    if (leadId) {
+      navigate('/app/leads/update?id=' + leadId);
+    } else if (leadId == null) {
+      console.log('No lead to display');
+      showErrorSwalNoLeadToDisplay();
+    }
   }
 
   async function fetchReferrals() {
@@ -397,9 +408,10 @@ export default function ViewReferral() {
         agent_name: referral.referee_id ? referral.referee_id.full_name : '',
         agent_con: referral.referee_id ? referral.referee_id.contact_number : '',
         status: referral.ref_status_id ? referral.ref_status_id.name : '',
-        leadId: referral.leadDetails ? referral.leadDetails._id : '',
-      }
-      ));
+        leadId: referral.leadDetails ? referral.leadDetails._id : null
+      }));
+
+      // console.log("mappedReferrals",mappedReferrals);
 
       setReferrals(mappedReferrals);
 
@@ -465,60 +477,60 @@ export default function ViewReferral() {
       }
     };
     fetchSources();
-  //   async function getCounselors() {
-  //     try {
-  //       const res = await fetch(config.apiUrl + 'api/getCounsellors', {
-  //         method: 'GET',
-  //         headers: { Authorization: `Bearer ${user.token}` }
-  //       });
-  //       if (!res.ok) {
-  //         if (res.status === 401) {
-  //           console.error('Unauthorized access. Logging out.');
-  //           logout();
-  //         } else if (res.status === 500) {
-  //           console.error('Internal Server Error.');
-  //           logout();
-  //           return;
-  //         } else {
-  //           console.error('Error fetching counselors:', res.statusText);
-  //         }
-  //         return;
-  //       }
-  //       const data = await res.json();
-  //       setCounselors(data);
-  //     } catch (error) {
-  //       console.log('Error fetching counselors:', error);
-  //     }
-  //   }
-  //   getCounselors();
+    //   async function getCounselors() {
+    //     try {
+    //       const res = await fetch(config.apiUrl + 'api/getCounsellors', {
+    //         method: 'GET',
+    //         headers: { Authorization: `Bearer ${user.token}` }
+    //       });
+    //       if (!res.ok) {
+    //         if (res.status === 401) {
+    //           console.error('Unauthorized access. Logging out.');
+    //           logout();
+    //         } else if (res.status === 500) {
+    //           console.error('Internal Server Error.');
+    //           logout();
+    //           return;
+    //         } else {
+    //           console.error('Error fetching counselors:', res.statusText);
+    //         }
+    //         return;
+    //       }
+    //       const data = await res.json();
+    //       setCounselors(data);
+    //     } catch (error) {
+    //       console.log('Error fetching counselors:', error);
+    //     }
+    //   }
+    //   getCounselors();
 
-  //   async function getAdminCounselors() {
-  //     try {
-  //       const res = await fetch(config.apiUrl + 'api/getAdminCounselors', {
-  //         method: 'GET',
-  //         headers: { Authorization: `Bearer ${user.token}` }
-  //       });
-  //       if (!res.ok) {
-  //         if (res.status === 401) {
-  //           console.error('Unauthorized access. Logging out.');
-  //           logout();
-  //         } else if (res.status === 500) {
-  //           console.error('Internal Server Error.');
-  //           logout();
-  //           return;
-  //         } else {
-  //           console.error('Error fetching counselors:', res.statusText);
-  //         }
-  //         return;
-  //       }
-  //       const data = await res.json();
-  //       setAdminCounselors(data);
-  //     } catch (error) {
-  //       console.log('Error fetching counselors:', error);
-  //     }
-  //   }
-  //   getAdminCounselors();
-}, []);
+    //   async function getAdminCounselors() {
+    //     try {
+    //       const res = await fetch(config.apiUrl + 'api/getAdminCounselors', {
+    //         method: 'GET',
+    //         headers: { Authorization: `Bearer ${user.token}` }
+    //       });
+    //       if (!res.ok) {
+    //         if (res.status === 401) {
+    //           console.error('Unauthorized access. Logging out.');
+    //           logout();
+    //         } else if (res.status === 500) {
+    //           console.error('Internal Server Error.');
+    //           logout();
+    //           return;
+    //         } else {
+    //           console.error('Error fetching counselors:', res.statusText);
+    //         }
+    //         return;
+    //       }
+    //       const data = await res.json();
+    //       setAdminCounselors(data);
+    //     } catch (error) {
+    //       console.log('Error fetching counselors:', error);
+    //     }
+    //   }
+    //   getAdminCounselors();
+  }, []);
 
   async function fetchStatus() {
     try {
@@ -559,7 +571,7 @@ export default function ViewReferral() {
       const matchesDateRange = filterByDateRange(lead.date);
       // const matchesCounselor = checkMatch(lead.counsellor, selectedCounselor);
 
-      return matchesCourse && matchesSource &&  matchesStatus && matchesDateRange;
+      return matchesCourse && matchesSource && matchesStatus && matchesDateRange;
     });
 
     setData(filteredLeads);
@@ -592,7 +604,7 @@ export default function ViewReferral() {
   // Call sortLeads whenever any filtering criteria changes
   useEffect(() => {
     sortLeads();
-  }, [ selectedStatus, dateFrom, dateTo]);
+  }, [selectedStatus, dateFrom, dateTo]);
 
   const sortDateRange = (fromDate, toDate) => {
     const sortedLeads = allLeads.filter((lead) => {
@@ -699,7 +711,7 @@ export default function ViewReferral() {
         console.log(json);
         setLoading(true);
         setArrIds([]);
-        fetchLeads();
+        fetchReferrals();
         showSuccessSwalBulk();
       } else {
         if (res.status === 401) {
@@ -736,7 +748,7 @@ export default function ViewReferral() {
         const json = await res.json();
         console.log(json);
         setLoading(true);
-        fetchLeads();
+        fetchReferrals();
         showSuccessSwalBulk();
       } else {
         if (res.status === 401) {
@@ -802,7 +814,7 @@ export default function ViewReferral() {
 
   return (
     <>
-     <MainCard
+      <MainCard
         title="View Referrals"
         isDeleting={isDeleting}
         arrIds={arrIds}
@@ -1084,7 +1096,7 @@ export default function ViewReferral() {
                       setData(allLeads);
                     }}
                   >
-                    <HighlightOffIcon sx={{ fontSize: '18px' }} />
+                    <FilterAltOffIcon sx={{ fontSize: '18px' }} />
                   </Button>
                 </Grid>
               </Grid>
@@ -1125,8 +1137,18 @@ export default function ViewReferral() {
                     })}
                     pageSizeOptions={[10, 25, 100]}
                     checkboxSelection
-                    onRowSelectionModelChange={(ids) => {
-                      setArrIds(ids);
+                    onRowSelectionModelChange={(selectionModel) => {
+                      // Extract leadIds from the selected rows and add them to arrIds
+                      const leadIds = selectionModel.map((selectedRow) => {
+                        const selectedLead = referrals.find((row) => row.id === selectedRow);
+                        return selectedLead ? selectedLead.leadId : null;
+                      });
+
+                      // Filter out any null values (in case leadId is null)
+                      const filteredLeadIds = leadIds.filter((leadId) => leadId !== null);
+
+                      // Update arrIds with the filtered leadIds
+                      setArrIds(filteredLeadIds);
                     }}
                   />
                 )}
@@ -1134,10 +1156,10 @@ export default function ViewReferral() {
             </Grid>
           </Grid>
           <ReferralDetailsPopup
-           isOpen={selectedLead && selectedLead.type === 'referralDetails'}
-           onClose={() => setSelectedLead(null)} 
-           referralDetails={selectedLead ? selectedLead.data : null} 
-           />
+            isOpen={selectedLead && selectedLead.type === 'referralDetails'}
+            onClose={() => setSelectedLead(null)}
+            referralDetails={selectedLead ? selectedLead.data : null}
+          />
           <SendSMSPopup
             isOpen={selectedLead && selectedLead.type === 'sendEmail'}
             onClose={() => setSelectedLead(null)}

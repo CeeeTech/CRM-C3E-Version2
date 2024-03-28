@@ -81,11 +81,7 @@ export default function ThemeRoutes() {
 
         {/* Referral Section */}
         <Route path="referrals" element={<Outlet />}>
-          <Route index element={permissions?.lead?.includes('read') ? <ViewReferral /> : <Navigate to="/app/access-denied" replace />} />
-          <Route
-            path="update"
-            element={permissions?.lead?.includes('update') ? <UpdateLead /> : <Navigate to="/app/access-denied" replace />}
-          />
+          <Route index element={permissions?.lead?.includes('read-all') ? <ViewReferral /> : <Navigate to="/app/access-denied" replace />} />
         </Route>
 
         {/* Courses Section */}

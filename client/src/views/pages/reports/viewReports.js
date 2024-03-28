@@ -96,9 +96,9 @@ export default function ViewReports() {
           component={Link} // Use Link component from react-router-dom
           to={`/app/reports/${params.row.name.replace(/\s+/g, '')}`} // Construct the link dynamically
           style={{ marginLeft: '5px' }}
-          sx={{ borderRadius: '100px', padding: '7px' }}
+              sx={{ borderRadius: '50%', padding: '8px', minWidth: 'unset', width: '32px', height: '32px' }}
         >
-          <VisibilityIcon /> {/* View icon button */}
+          <VisibilityIcon sx={{ fontSize: '18px' }} /> {/* View icon button */}
         </Button>
       )
     }
@@ -135,6 +135,7 @@ export default function ViewReports() {
               <div style={{ height: 560, width: '100%' }}>
                 <StripedDataGrid
                   rows={filteredData}
+                  rowHeight={40}
                   columns={columns}
                   getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd')}
                   initialState={{
