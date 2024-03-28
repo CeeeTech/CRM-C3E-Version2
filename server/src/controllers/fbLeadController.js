@@ -68,6 +68,8 @@ async function getLeads(req, res) {
 
 async function postLeads(req, res) {
   // Facebook will be sending an object called "entry" for "leadgen" webhook event
+  console.log("FB Leads has been called")
+
   if (!req.body.entry) {
     return res.status(500).send({ error: "Invalid POST data received" });
   }
@@ -169,6 +171,7 @@ async function processNewLead(leadId, formId) {
 
 async function addLead(student_id, course_name, formId, leadId) {
   try {
+    console.log('lead is adding', student_id, course_name)
     let currentDate = new Date();
     const targetTimeZone = "Asia/Colombo"; // Replace with the desired time zone
     const date = new Date(
@@ -178,11 +181,11 @@ async function addLead(student_id, course_name, formId, leadId) {
     // Check if course_name exists in the course table
     let course_document = await Course.findOne({ course_code: course_name });
     if (!course_document) {
-      course_document = await Course.findOne({ course_code: "other" });
+      course_document = await Course.findOne({ course_code: "Other" });
     }
 
     // Fetch the Branch
-    branch_document = await Branch.findOne({ name: "Other" });
+    let branch_document = await Branch.findOne({ name: "Main Branch - Padukka" });
 
     // Check if student exists in the student table
     if (!mongoose.Types.ObjectId.isValid(student_id)) {
@@ -192,10 +195,12 @@ async function addLead(student_id, course_name, formId, leadId) {
     // Check if source name exists in the source table
     const source_document = await Source.findOne({ name: "Facebook" });
     if (!source_document) {
+      console.log("Nothin called Facebook")
       return;
     }
 
     const sequenceValue = await getNextSequenceValue("unique_id_sequence");
+    console.log("I am here at getting sequence value")
 
     // Create new lead
     const newLead = await Lead.create({
@@ -209,6 +214,7 @@ async function addLead(student_id, course_name, formId, leadId) {
       source_id: source_document._id,
       reference_number: sequenceValue,
     });
+    console.log("I am here after adding lead", newLead)
 
     // Add FB Lead Instant Form ID to a seperate folder for loging
     const newFbLeadFormEntry = await FbLeadForm.create({
@@ -222,6 +228,7 @@ async function addLead(student_id, course_name, formId, leadId) {
       await leadsController.getLeastAndNextLeastAllocatedCounselors(
         course_document._id.toString()
       );
+      console.log("I am here at getting the least allocated counselor")
 
     if (leastAllocatedCounselor) {
       const cid = leastAllocatedCounselor._id;
@@ -265,6 +272,7 @@ async function addLead(student_id, course_name, formId, leadId) {
       return "added_without_counselor";
     }
   } catch (error) {
+    console.log(error)
     return "error adding lead";
   }
 }

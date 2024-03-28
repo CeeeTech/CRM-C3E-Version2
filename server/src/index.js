@@ -78,9 +78,9 @@ app.use((req, res, next) => {
   if (req.path === "/api/check-duplicate-email-api") {
     return next();
   }
-  return next();
+  //return next();
 
-  //requireAuth(req, res, next);
+  requireAuth(req, res, next);
 });
 
 // Use the student routes
